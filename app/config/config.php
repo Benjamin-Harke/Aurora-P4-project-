@@ -16,6 +16,11 @@ define('DB_PASS', getenv('DB_PASS') ?: 'dev_password');
 define('URLROOT', getenv('URLROOT') ?: 'http://localhost');
 
 /**
+ * De naam van de website
+ */
+define('SITENAME', getenv('SITENAME') ?: 'AURORA-P4');
+
+/**
  * Het pad naar de folder app
  */
 define('APPROOT', dirname(dirname(__FILE__)));
