@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # --- DATABASE SERVICE (MariaDB) ---
+  db:
+    image: mariadb:latest
+    container_name: mvc_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: mvc_project
+      MYSQL_USER: dev_user
+      MYSQL_PASSWORD: dev_password
+    volumes:
+      # This keeps your data safe even if the container restarts
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  # --- WEB SERVER SERVICE (PHP + Apache) ---
+  web:
+    build: .
+    container_name: mvc_web
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      # Syncs your local code into the container
+      - .:/var/www/html
+    environment:
+      # These variables can be read by your PHP code
+      DB_HOST: db
+      DB_NAME: mvc_project
+      DB_USER: dev_user
+      DB_PASS: dev_password
+    depends_on:
+      - db
+
+volumes:
+  db_data:

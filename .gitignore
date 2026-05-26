@@ -1,0 +1,17 @@
+# Database / Secrets
+.env
+
+# Docker
+db_data/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE - VS Code
+.vscode/
+
+# Logs
+*.log
