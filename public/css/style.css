@@ -6,10 +6,6 @@
   --bg-dark: #0a0a0a;
   --bg-darker: #050505;
   --bg-card: #1a1a1a;
-  --primary-teal: #00d9ff;
-  --primary-teal-dark: #00a8cc;
-  --accent-magenta: #ff006e;
-  --accent-magenta-light: #ff4d8f;
   --gold-accent: #ffd700;
   --text-white: #ffffff;
   --text-light: #f0f0f0;
@@ -45,7 +41,7 @@ body {
 .navbar {
   background: rgba(5, 5, 5, 0.98);
   padding: 1rem 2rem;
-  box-shadow: 0 8px 32px rgba(255, 0, 0, 0.15);
+
   border-bottom: 2px solid var(--text-white);
   backdrop-filter: blur(20px);
 }
@@ -164,7 +160,7 @@ body {
   font-weight: 700;
   letter-spacing: 2px;
   margin-bottom: 2rem;
-  border: 1px solid var(--primary-teal);
+  border: 1px solid var(--text-white);
   text-transform: uppercase;
 }
 
@@ -238,7 +234,7 @@ body {
 .section-header h2 {
   font-size: 3.2rem;
   font-weight: 900;
-  background: linear-gradient(135deg, var(--primary-teal), var(--accent-magenta));
+  background: linear-gradient(to bottom, #f9fcf7 0%,#f5f9f0 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -264,7 +260,7 @@ body {
   font-weight: 700;
   letter-spacing: 2px;
   margin-bottom: 1.5rem;
-  border: 1px solid var(--primary-teal);
+  border: 1px solid var(--text-white);
   text-transform: uppercase;
 }
 
@@ -276,13 +272,12 @@ body {
 .testimonials-section {
   padding: 7rem 2rem;
   background: linear-gradient(180deg, #1a0a2e, #0a0a0a);
-  border-top: 2px solid var(--primary-teal);
-  border-bottom: 2px solid var(--accent-magenta);
+  border-top: 2px solid var(--text-white);
 }
 
 .testimonial-card {
   background: linear-gradient(135deg, rgba(0, 217, 255, 0.08), rgba(26, 10, 46, 0.8));
-  border: 2px solid rgba(0, 217, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 15px;
   padding: 2.5rem;
   transition: all 0.4s ease;
@@ -290,7 +285,7 @@ body {
 }
 
 .testimonial-card:hover {
-  border-color: var(--accent-magenta);
+  border-color: var(--text-white);
   transform: translateY(-8px);
   box-shadow: 0 15px 50px rgba(255, 0, 110, 0.2);
   background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(255, 0, 110, 0.1));
@@ -303,12 +298,12 @@ body {
 }
 
 .stars i {
-  color: var(--primary-teal);
+  color: gold;
   font-size: 1.1rem;
 }
 
 .testimonial-card p {
-  color: var(--text-secondary);
+  color: rgb(201, 196, 196);
   font-size: 1rem;
   margin-bottom: 2rem;
   line-height: 1.8;
@@ -340,13 +335,13 @@ body {
 
 footer {
   background: linear-gradient(180deg, #0a0a0a, #050505);
-  border-top: 2px solid var(--primary-teal);
+  border-top: 2px solid var(--text-white);
   padding: 4rem 2rem 2rem;
   color: var(--text-muted);
 }
 
 footer h5 {
-  color: var(--primary-teal);
+  color:#f0f0f0;
   margin-bottom: 1.5rem;
   font-weight: 700;
   font-size: 1.2rem;
@@ -370,25 +365,25 @@ footer ul li {
 }
 
 footer a {
-  color: var(--primary-teal);
+  color:#f0f0f0;
   text-decoration: none;
   transition: all 0.3s ease;
   font-weight: 500;
 }
 
 footer a:hover {
-  color: var(--accent-magenta);
+  color:#766f6f;
   text-decoration: underline;
 }
 
 footer i {
-  color: var(--accent-magenta);
+  color: white;
   margin-right: 0.8rem;
   font-size: 1rem;
 }
 
 footer hr {
-  border-color: rgba(0, 217, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.15);
   margin: 2.5rem 0;
 }
 

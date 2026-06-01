@@ -24,7 +24,7 @@
 <section class="testimonials-section">
   <div class="container">
     <div class="section-header">
-      <h2>What Our Patrons Say</h2>
+      <h2>Onze reviews</h2>
       <p>Experience the magic through their words</p>
     </div>
     <div class="row g-4">
