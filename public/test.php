@@ -30,7 +30,12 @@ foreach ($extensions as $ext) {
 // Test 3: Load Configuration
 echo "<h2>✅ Test 3: Application Configuration</h2>";
 try {
-    require_once '../app/require.php';
+    // Load only the config and libraries, not the Core instantiation
+    require_once '../app/libraries/Core.php';
+    require_once '../app/libraries/BaseController.php';
+    require_once '../app/libraries/Database.php';
+    require_once '../app/config/config.php';
+    
     echo "✓ Configuration loaded successfully<br>";
     echo "URLROOT: <strong>" . URLROOT . "</strong><br>";
     if (defined('SITENAME')) {
