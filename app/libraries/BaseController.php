@@ -3,6 +3,13 @@
 class BaseController
 {
     /**
+     * Constructor for BaseController
+     */
+    public function __construct() {
+        // Base constructor - can be extended by child classes
+    }
+
+    /**
      * Hier maken we een nieuw model object aan en geven deze 
      * terug aan de controller
      */
@@ -18,11 +25,12 @@ class BaseController
      */
     public function view($view, $data = [])
     {
-        if (file_exists('../app/views/' . $view . '.php'))
+        $viewPath = APPROOT . '/views/' . $view . '.php';
+        if (file_exists($viewPath))
         {
-            require_once('../app/views/' . $view . '.php');
+            require_once($viewPath);
         } else {
-            echo 'View bestaat niet';
+            echo 'View bestaat niet: ' . $viewPath;
         }
     }
 }
