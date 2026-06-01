@@ -1,3 +1,24 @@
+CREATE TABLE Medewerkers
+
+(
+     Id                  INT             NOT NULL AUTO_INCREMENT
+    ,GebruikerId         INT             NOT NULL
+    ,Nummer              MEDIUMINT       NOT NULL
+    ,Medewerkersoort     VARCHAR(20)     NOT NULL
+    ,Isactief            BIT             NOT NULL
+    ,Opmerking           VARCHAR(250)    NULL
+    ,Datumaangemaakt     DATETIME(6)     NOT NULL
+    ,Datumgewijzigd      DATETIME(6)     NOT NULL
+
+    ,PRIMARY KEY (Id)
+
+    ,UNIQUE KEY UK_Medewerker_Nummer (Nummer)
+
+    ,CONSTRAINT FK_Medewerker_Gebruiker
+        FOREIGN KEY (GebruikerId)
+        REFERENCES Gebruiker(Id)
+);
+
 CREATE TABLE Voorstellingen
 (
      Id                  INT             NOT NULL AUTO_INCREMENT
