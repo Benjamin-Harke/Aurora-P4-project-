@@ -27,55 +27,51 @@ require APPROOT . '/views/includes/header.php'; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($data['inventory'])): ?>
-                        <tr>
-                            <td colspan="9" class="text-center text-muted py-4">No performances found</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($data['inventory'] as $item): 
-                            $perf = $item['performance'];
-                        ?>
-                            <tr <?php echo $item['is_oversold'] ? 'class="table-danger"' : ''; ?>>
-                                <td><strong><?php echo htmlspecialchars($perf->show_title); ?></strong></td>
-                                <td><?php echo date('d M Y H:i', strtotime($perf->performance_date . ' ' . $perf->performance_time)); ?></td>
-                                <td><?php echo htmlspecialchars($perf->venue); ?></td>
-                                <td><?php echo $perf->total_seats; ?></td>
-                                <td>
-                                    <span class="badge bg-success"><?php echo $item['available_seats']; ?></span>
-                                </td>
-                                <td>
-                                    <span class="badge bg-info"><?php echo $item['booked_seats']; ?></span>
-                                </td>
-                                <td>
-                                    <div class="progress" style="height: 20px;">
-                                        <div class="progress-bar bg-<?php 
-                                            echo $item['capacity_percentage'] >= 100 ? 'danger' : 
-                                                 ($item['capacity_percentage'] >= 80 ? 'warning' : 
-                                                 ($item['capacity_percentage'] >= 50 ? 'info' : 'success'));
-                                        ?>" 
-                                             style="width: <?php echo min($item['capacity_percentage'], 100); ?>%">
-                                            <?php echo round($item['capacity_percentage']); ?>%
-                                        </div>
+                    <?php foreach ($data['inventory'] as $item): 
+                        // Use -> because these are objects
+                        $perf = $item->performance; 
+                    ?>
+                        <tr <?php echo $item->is_oversold ? 'class="table-danger"' : ''; ?>>
+                            <!-- Map English names to your Dutch ERD names -->
+                            <td><strong><?php echo htmlspecialchars($perf->naam); ?></strong></td>
+                            <td><?php echo date('d M Y H:i', strtotime($perf->datum . ' ' . $perf->tijd)); ?></td>
+                            <td>Main Hall</td> <!-- 'venue' is not in your new ERD -->
+                            <td><?php echo $perf->max_aantal_tickets; ?></td>
+                            <td>
+                                <span class="badge bg-success"><?php echo $item->available_seats; ?></span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info"><?php echo $item->booked_seats; ?></span>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    <div class="progress-bar bg-<?php 
+                                        echo $item->capacity_percentage >= 100 ? 'danger' : 
+                                            ($item->capacity_percentage >= 80 ? 'warning' : 
+                                            ($item->capacity_percentage >= 50 ? 'info' : 'success'));
+                                    ?>" 
+                                        style="width: <?php echo min($item->capacity_percentage, 100); ?>%">
+                                        <?php echo round($item->capacity_percentage); ?>%
                                     </div>
-                                </td>
-                                <td>
-                                    <?php if ($item['is_oversold']): ?>
-                                        <span class="badge bg-danger">OVERSOLD!</span>
-                                    <?php elseif ($item['available_seats'] === 0): ?>
-                                        <span class="badge bg-danger">SOLD OUT</span>
-                                    <?php elseif ($item['capacity_percentage'] >= 80): ?>
-                                        <span class="badge bg-warning">NEARLY FULL</span>
-                                    <?php else: ?>
-                                        <span class="badge bg-success">AVAILABLE</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <a href="/admintickets/performanceDetails/<?php echo $perf->id; ?>" 
-                                       class="btn btn-sm btn-info">Details</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td>
+                                <?php if ($item->is_oversold): ?>
+                                    <span class="badge bg-danger">OVERSOLD!</span>
+                                <?php elseif ($item->available_seats === 0): ?>
+                                    <span class="badge bg-danger">SOLD OUT</span>
+                                <?php elseif ($item->capacity_percentage >= 80): ?>
+                                    <span class="badge bg-warning">NEARLY FULL</span>
+                                <?php else: ?>
+                                    <span class="badge bg-success">AVAILABLE</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <a href="/admintickets/performanceDetails/<?php echo $perf->id; ?>" 
+                                class="btn btn-sm btn-info">Details</a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>

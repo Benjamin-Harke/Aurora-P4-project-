@@ -45,24 +45,40 @@ class Ticket {
      * Get all Ticket records.
      * @return array An array of Ticket objects.
      */
+    /**
+     * Get all tickets with JOINs for the Dashboard
+     */
     public function getAll() {
         $this->db->query('
             SELECT 
                 t.*, 
                 v.naam as voorstelling_naam,
-                v.datum as voorstelling_datum,
-                v.tijd as voorstelling_tijd,
-                v.max_aantal_tickets,
-                g.voornaam, 
-                g.achternaam,
+                v.id as voorstelling_id,
+                g.voornaam, g.achternaam,
                 p.tarief
             FROM ticket t
-            INNER JOIN voorstelling v ON t.voorstelling_id = v.id
-            INNER JOIN bezoeker b ON t.bezoeker_id = b.id
-            INNER JOIN gebruiker g ON b.gebruiker_id = g.id
-            INNER JOIN prijs p ON t.prijs_id = p.id
+            JOIN voorstelling v ON t.voorstelling_id = v.id
+            JOIN bezoeker b ON t.bezoeker_id = b.id
+            JOIN gebruiker g ON b.gebruiker_id = g.id
+            JOIN prijs p ON t.prijs_id = p.id
         ');
         return $this->db->resultSet();
+    }
+
+    /**
+     * Get tickets for a specific show with Customer Names
+     */
+    public function getByVoorstellingIdWithNames($id) {
+    $this->db->query('
+        SELECT t.*, g.voornaam, g.tussenvoegsel, g.achternaam, p.tarief
+        FROM ticket t
+        JOIN bezoeker b ON t.bezoeker_id = b.id
+        JOIN gebruiker g ON b.gebruiker_id = g.id
+        JOIN prijs p ON t.prijs_id = p.id
+        WHERE t.voorstelling_id = :id
+    ');
+    $this->db->bind(':id', $id);
+    return $this->db->resultSet();
     }
 
     /**
