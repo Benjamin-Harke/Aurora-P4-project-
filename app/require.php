@@ -1,5 +1,11 @@
 <?php
     /**
+     * Start the session for the entire application
+     * This must be called before any output is sent to the browser
+     */
+    session_start();
+
+    /**
      * We includen hier alle libraries die we nodig hebben
      * voor het mvc-framework
      */
@@ -7,6 +13,7 @@
     require_once 'libraries/BaseController.php';
     require_once 'libraries/Database.php';
     require_once 'config/config.php';
+    require_once 'helpers/Helper.php';
     
     /**
      * Maak een instantie of object van de Core-Class

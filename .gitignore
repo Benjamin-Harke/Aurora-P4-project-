@@ -12,6 +12,7 @@ Desktop.ini
 
 # IDE - VS Code
 .vscode/
+.continueignore
 
 # Logs
 *.log

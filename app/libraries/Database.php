@@ -67,7 +67,7 @@ class Database
     /**
      * Deze methode bind de waardes aan de parameters in de query
      */
-    public function bind($parameter, $value, $type)
+    public function bind($parameter, $value, $type = PDO::PARAM_STR)
     {
         $this->statement->bindValue($parameter, $value, $type);
     }
