@@ -3,6 +3,9 @@
 require APPROOT . '/views/includes/header.php'; ?>
 
 <div class="container py-5">
+    <!-- Flash Messages -->
+    <?php require APPROOT . '/views/includes/messages.php'; ?>
+    
     <a href="/usertickets/mytickets" class="btn btn-secondary mb-4">← Back to My Tickets</a>
 
     <div class="row">
@@ -13,7 +16,9 @@ require APPROOT . '/views/includes/header.php'; ?>
                 </div>
                 <div class="card-body">
                     <h3><?php echo htmlspecialchars($data['ticket']->show_title); ?></h3>
-                    <p class="text-muted"><?php echo htmlspecialchars($data['ticket']->genre_name ?? 'Unknown'); ?></p>
+                    <p class="text-muted">
+                        <span class="badge bg-secondary"><?php echo htmlspecialchars($data['ticket']->genre_name ?? 'Unknown Genre'); ?></span>
+                    </p>
 
                     <hr>
 

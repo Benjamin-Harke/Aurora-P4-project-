@@ -1,5 +1,11 @@
 <?php
     /**
+     * Start the session for the entire application
+     * This must be called before any output is sent to the browser
+     */
+    session_start();
+
+    /**
      * We includen hier alle libraries die we nodig hebben
      * voor het mvc-framework
      */

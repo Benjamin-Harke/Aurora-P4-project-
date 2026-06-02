@@ -1,83 +1,175 @@
 -- Theatre Ticket Management System Database Schema
+-- Based on the ERD provided
+-- Created: June 1, 2026
 
--- Genres Table
-CREATE TABLE IF NOT EXISTS `genres` (
+-- ===================================
+-- 1. GEBRUIKER (User) Table
+-- ===================================
+CREATE TABLE IF NOT EXISTS `gebruiker` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `name` VARCHAR(100) NOT NULL UNIQUE,
-  `description` TEXT,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `voornaam` VARCHAR(50) NOT NULL,
+  `tussenvoegsel` VARCHAR(10),
+  `achternaam` VARCHAR(50) NOT NULL,
+  `gebruikersnaam` VARCHAR(100) NOT NULL, -- No UNIQUE constraint as per new spec
+  `wachtwoord` VARCHAR(255) NOT NULL,
+  `is_ingelogd` BIT NOT NULL DEFAULT 0,
+  `ingelogd_datum` DATETIME NULL,
+  `uitgelogd_datum` DATETIME NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `opmerking` VARCHAR(250),
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  INDEX `idx_gebruikersnaam` (`gebruikersnaam`),
+  INDEX `idx_is_actief` (`is_actief`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Shows Table (Theatre Productions/Plays)
-CREATE TABLE IF NOT EXISTS `shows` (
+-- ===================================
+-- 2. ROL (Role) Table
+-- ===================================
+CREATE TABLE IF NOT EXISTS `rol` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `title` VARCHAR(255) NOT NULL,
-  `description` TEXT,
-  `genre_id` INT NOT NULL,
-  `status` ENUM('on_sale', 'sold_out', 'cancelled', 'archived') DEFAULT 'on_sale',
-  `image_url` VARCHAR(500),
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (`genre_id`) REFERENCES `genres`(`id`) ON DELETE RESTRICT,
-  INDEX `idx_title` (`title`),
-  INDEX `idx_genre_id` (`genre_id`),
-  INDEX `idx_status` (`status`)
+  `gebruiker_id` INT NOT NULL, -- No UNIQUE constraint as per new spec
+  `naam` VARCHAR(100) NOT NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `opmerking` VARCHAR(250),
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker`(`id`) ON DELETE CASCADE,
+  INDEX `idx_gebruiker_id` (`gebruiker_id`),
+  INDEX `idx_naam` (`naam`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Performances Table (Individual Show Date/Time/Venue)
-CREATE TABLE IF NOT EXISTS `performances` (
+-- ===================================
+-- 3. CONTACT Table
+-- ===================================
+CREATE TABLE IF NOT EXISTS `contact` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `show_id` INT NOT NULL,
-  `venue` VARCHAR(255) NOT NULL,
-  `performance_date` DATE NOT NULL,
-  `performance_time` TIME NOT NULL,
-  `total_seats` INT NOT NULL,
-  `available_seats` INT NOT NULL,
-  `price` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-  `status` ENUM('on_sale', 'sold_out', 'cancelled') DEFAULT 'on_sale',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (`show_id`) REFERENCES `shows`(`id`) ON DELETE CASCADE,
-  INDEX `idx_show_id` (`show_id`),
-  INDEX `idx_performance_date` (`performance_date`),
+  `gebruiker_id` INT NOT NULL,
+  `email` VARCHAR(100) NOT NULL,
+  `mobiel` VARCHAR(20) NOT NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `opmerking` VARCHAR(250),
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker`(`id`) ON DELETE CASCADE,
+  INDEX `idx_gebruiker_id` (`gebruiker_id`),
+  INDEX `idx_email` (`email`) -- No UNIQUE KEY `unique_email_user` as per new spec
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================
+-- 4. MEDEWERKER (Employee) Table
+-- ===================================
+CREATE TABLE IF NOT EXISTS `medewerker` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `gebruiker_id` INT NOT NULL,
+  `nummer` MEDIUMINT NOT NULL UNIQUE,
+  `medewerkersoort` VARCHAR(20) NOT NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `opmerking` VARCHAR(250),
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker`(`id`) ON DELETE CASCADE,
+  INDEX `idx_gebruiker_id` (`gebruiker_id`),
+  INDEX `idx_nummer` (`nummer`),
+  INDEX `idx_medewerkersoort` (`medewerkersoort`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================
+-- 5. BEZOEKER (Visitor) Table
+-- ===================================
+CREATE TABLE IF NOT EXISTS `bezoeker` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `gebruiker_id` INT NOT NULL,
+  `relatienummer` MEDIUMINT NOT NULL UNIQUE,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `opmerking` VARCHAR(250),
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  FOREIGN KEY (`gebruiker_id`) REFERENCES `gebruiker`(`id`) ON DELETE CASCADE,
+  INDEX `idx_gebruiker_id` (`gebruiker_id`),
+  INDEX `idx_relatienummer` (`relatienummer`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================
+-- 6. PRIJS (Price) Table
+-- ===================================
+CREATE TABLE IF NOT EXISTS `prijs` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `tarief` DECIMAL(5,2) NOT NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `opmerking` VARCHAR(250),
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  INDEX `idx_is_actief` (`is_actief`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================
+-- 7. VOORSTELLING (Performance) Table
+-- ===================================
+CREATE TABLE IF NOT EXISTS `voorstelling` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `medewerker_id` INT NOT NULL,
+  `naam` VARCHAR(100) NOT NULL,
+  `beschrijving` TEXT NULL,
+  `datum` DATE NOT NULL,
+  `tijd` TIME NOT NULL,
+  `max_aantal_tickets` INT NOT NULL,
+  `beschikbaarheid` VARCHAR(50) NOT NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `opmerking` VARCHAR(250),
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  FOREIGN KEY (`medewerker_id`) REFERENCES `medewerker`(`id`) ON DELETE CASCADE,
+  INDEX `idx_medewerker_id` (`medewerker_id`),
+  INDEX `idx_datum` (`datum`),
+  INDEX `idx_beschikbaarheid` (`beschikbaarheid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================
+-- 8. TICKET Table
+-- ===================================
+CREATE TABLE IF NOT EXISTS `ticket` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `bezoeker_id` INT NOT NULL,
+  `voorstelling_id` INT NOT NULL,
+  `prijs_id` INT NOT NULL,
+  `nummer` MEDIUMINT NOT NULL UNIQUE,
+  `barcode` VARCHAR(20) NOT NULL UNIQUE,
+  `datum` DATE NOT NULL,
+  `tijd` TIME NOT NULL,
+  `status` VARCHAR(20) NOT NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `opmerking` VARCHAR(250),
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  FOREIGN KEY (`bezoeker_id`) REFERENCES `bezoeker`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`voorstelling_id`) REFERENCES `voorstelling`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`prijs_id`) REFERENCES `prijs`(`id`) ON DELETE RESTRICT,
+  INDEX `idx_bezoeker_id` (`bezoeker_id`),
+  INDEX `idx_voorstelling_id` (`voorstelling_id`),
+  INDEX `idx_prijs_id` (`prijs_id`),
   INDEX `idx_status` (`status`),
-  INDEX `idx_performance_datetime` (`performance_date`, `performance_time`)
+  INDEX `idx_datum` (`datum`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Users Table (Theatre Customers)
-CREATE TABLE IF NOT EXISTS `users` (
+-- ===================================
+-- 9. MELDING (Notification/Report) Table
+-- ===================================
+CREATE TABLE IF NOT EXISTS `melding` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `firstname` VARCHAR(100) NOT NULL,
-  `infix` VARCHAR(50),
-  `lastname` VARCHAR(100) NOT NULL,
-  `email` VARCHAR(255) NOT NULL UNIQUE,
-  `password` VARCHAR(255) NOT NULL,
-  `phone` VARCHAR(20),
-  `role` ENUM('customer', 'admin', 'staff') DEFAULT 'customer',
-  `is_active` BOOLEAN DEFAULT TRUE,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX `idx_email` (`email`),
-  INDEX `idx_role` (`role`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Tickets Table (Individual Seats)
-CREATE TABLE IF NOT EXISTS `tickets` (
-  `id` INT PRIMARY KEY AUTO_INCREMENT,
-  `performance_id` INT NOT NULL,
-  `seat_number` VARCHAR(10) NOT NULL,
-  `price` DECIMAL(10, 2) NOT NULL,
-  `status` ENUM('available', 'booked', 'reserved', 'cancelled') DEFAULT 'available',
-  `user_id` INT,
-  `booking_date` TIMESTAMP NULL,
-  `qr_code` VARCHAR(255),
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (`performance_id`) REFERENCES `performances`(`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL,
-  UNIQUE KEY `unique_seat` (`performance_id`, `seat_number`),
-  INDEX `idx_performance_id` (`performance_id`),
-  INDEX `idx_user_id` (`user_id`),
-  INDEX `idx_status` (`status`),
-  INDEX `idx_booking_date` (`booking_date`)
+  `bezoeker_id` INT,
+  `medewerker_id` INT,
+  `nummer` MEDIUMINT NOT NULL UNIQUE, -- "Uniek reserveringsnummer"
+  `type` VARCHAR(20) NOT NULL,
+  `bericht` VARCHAR(250) NOT NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `opmerking` VARCHAR(250),
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  FOREIGN KEY (`bezoeker_id`) REFERENCES `bezoeker`(`id`) ON DELETE SET NULL,
+  FOREIGN KEY (`medewerker_id`) REFERENCES `medewerker`(`id`) ON DELETE SET NULL,
+  INDEX `idx_bezoeker_id` (`bezoeker_id`),
+  INDEX `idx_medewerker_id` (`medewerker_id`),
+  INDEX `idx_type` (`type`),
+  INDEX `idx_datum_aangemaakt` (`datum_aangemaakt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

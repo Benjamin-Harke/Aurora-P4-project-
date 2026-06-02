@@ -3,163 +3,142 @@
 class Ticket {
     private $db;
 
+    public $id;
+    public $bezoeker_id;
+    public $voorstelling_id;
+    public $prijs_id;
+    public $nummer;
+    public $barcode;
+    public $datum;
+    public $tijd;
+    public $status;
+    public $is_actief;
+    public $opmerking;
+    public $datum_aangemaakt;
+    public $datum_gewijzigd;
+
     public function __construct() {
         $this->db = new Database();
     }
 
     /**
-     * Get all tickets for a performance
+     * Create a new Ticket record.
+     * @return bool True on success, false on failure.
      */
-    public function getByPerformanceId($performanceId) {
-        $this->db->query("
-            SELECT t.*, u.firstname, u.lastname, u.infix
-            FROM tickets t
-            LEFT JOIN users u ON t.user_id = u.id
-            WHERE t.performance_id = :performance_id
-            ORDER BY t.seat_number ASC
-        ");
-        $this->db->bind(':performance_id', $performanceId, PDO::PARAM_INT);
+    public function create() {
+        $this->db->query('INSERT INTO ticket (bezoeker_id, voorstelling_id, prijs_id, nummer, barcode, datum, tijd, status, is_actief, opmerking) VALUES (:bezoeker_id, :voorstelling_id, :prijs_id, :nummer, :barcode, :datum, :tijd, :status, :is_actief, :opmerking)');
+        $this->db->bind(':bezoeker_id', $this->bezoeker_id);
+        $this->db->bind(':voorstelling_id', $this->voorstelling_id);
+        $this->db->bind(':prijs_id', $this->prijs_id);
+        $this->db->bind(':nummer', $this->nummer);
+        $this->db->bind(':barcode', $this->barcode);
+        $this->db->bind(':datum', $this->datum);
+        $this->db->bind(':tijd', $this->tijd);
+        $this->db->bind(':status', $this->status);
+        $this->db->bind(':is_actief', $this->is_actief);
+        $this->db->bind(':opmerking', $this->opmerking);
+
+        return $this->db->execute();
+    }
+
+    /**
+     * Get all Ticket records.
+     * @return array An array of Ticket objects.
+     */
+    public function getAll() {
+        $this->db->query('SELECT * FROM ticket');
         return $this->db->resultSet();
     }
 
     /**
-     * Get available tickets for a performance
-     */
-    public function getAvailableByPerformanceId($performanceId) {
-        $this->db->query("
-            SELECT t.*
-            FROM tickets t
-            WHERE t.performance_id = :performance_id AND t.status = 'available'
-            ORDER BY t.seat_number ASC
-        ");
-        $this->db->bind(':performance_id', $performanceId, PDO::PARAM_INT);
-        return $this->db->resultSet();
-    }
-
-    /**
-     * Get single ticket by ID
+     * Get a single Ticket record by ID.
+     * @param int $id The ID of the ticket.
+     * @return object|null The Ticket object or null if not found.
      */
     public function getById($id) {
-        $this->db->query("
-            SELECT t.*, u.firstname, u.lastname, u.infix,
-                   s.title as show_title, p.venue, p.performance_date, p.performance_time
-            FROM tickets t
-            LEFT JOIN users u ON t.user_id = u.id
-            JOIN performances p ON t.performance_id = p.id
-            JOIN shows s ON p.show_id = s.id
-            WHERE t.id = :id
-        ");
-        $this->db->bind(':id', $id, PDO::PARAM_INT);
+        $this->db->query('SELECT * FROM ticket WHERE id = :id');
+        $this->db->bind(':id', $id);
         return $this->db->single();
     }
 
     /**
-     * Get tickets by user ID (purchased tickets)
+     * Get Ticket records by Bezoeker ID.
+     * @param int $bezoeker_id The ID of the related bezoeker.
+     * @return array An array of Ticket objects.
      */
-    public function getByUserId($userId) {
-        $this->db->query("
-            SELECT t.*, s.title as show_title, p.venue, p.performance_date, p.performance_time,
-                   g.name as genre_name
-            FROM tickets t
-            JOIN performances p ON t.performance_id = p.id
-            JOIN shows s ON p.show_id = s.id
-            LEFT JOIN genres g ON s.genre_id = g.id
-            WHERE t.user_id = :user_id AND t.status IN ('booked', 'reserved')
-            ORDER BY p.performance_date DESC
-        ");
-        $this->db->bind(':user_id', $userId, PDO::PARAM_INT);
+    public function getByBezoekerId($bezoeker_id) {
+        $this->db->query('SELECT * FROM ticket WHERE bezoeker_id = :bezoeker_id');
+        $this->db->bind(':bezoeker_id', $bezoeker_id);
         return $this->db->resultSet();
     }
 
     /**
-     * Get count of available tickets by performance
+     * Get Ticket records by Voorstelling ID.
+     * @param int $voorstelling_id The ID of the related voorstelling.
+     * @return array An array of Ticket objects.
      */
-    public function getAvailableCountByPerformanceId($performanceId) {
-        $this->db->query("
-            SELECT COUNT(*) as count
-            FROM tickets
-            WHERE performance_id = :performance_id AND status = 'available'
-        ");
-        $this->db->bind(':performance_id', $performanceId, PDO::PARAM_INT);
-        $result = $this->db->single();
-        return $result->count ?? 0;
+    public function getByVoorstellingId($voorstelling_id) {
+        $this->db->query('SELECT * FROM ticket WHERE voorstelling_id = :voorstelling_id');
+        $this->db->bind(':voorstelling_id', $voorstelling_id);
+        return $this->db->resultSet();
     }
 
     /**
-     * Get count of booked tickets by performance
+     * Get Ticket records by Prijs ID.
+     * @param int $prijs_id The ID of the related prijs.
+     * @return array An array of Ticket objects.
      */
-    public function getBookedCountByPerformanceId($performanceId) {
-        $this->db->query("
-            SELECT COUNT(*) as count
-            FROM tickets
-            WHERE performance_id = :performance_id AND status = 'booked'
-        ");
-        $this->db->bind(':performance_id', $performanceId, PDO::PARAM_INT);
-        $result = $this->db->single();
-        return $result->count ?? 0;
+    public function getByPrijsId($prijs_id) {
+        $this->db->query('SELECT * FROM ticket WHERE prijs_id = :prijs_id');
+        $this->db->bind(':prijs_id', $prijs_id);
+        return $this->db->resultSet();
     }
 
     /**
-     * Create tickets for a performance (bulk insert for all seats)
+     * Update an existing Ticket record.
+     * @return bool True on success, false on failure.
      */
-    public function createForPerformance($performanceId, $seatCount, $pricePerSeat) {
-        $this->db->query("
-            INSERT INTO tickets (performance_id, seat_number, price, status)
-            VALUES (:performance_id, :seat_number, :price, 'available')
-        ");
+    public function update() {
+        $this->db->query('UPDATE ticket SET bezoeker_id = :bezoeker_id, voorstelling_id = :voorstelling_id, prijs_id = :prijs_id, nummer = :nummer, barcode = :barcode, datum = :datum, tijd = :tijd, status = :status, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id');
+        $this->db->bind(':id', $this->id);
+        $this->db->bind(':bezoeker_id', $this->bezoeker_id);
+        $this->db->bind(':voorstelling_id', $this->voorstelling_id);
+        $this->db->bind(':prijs_id', $this->prijs_id);
+        $this->db->bind(':nummer', $this->nummer);
+        $this->db->bind(':barcode', $this->barcode);
+        $this->db->bind(':datum', $this->datum);
+        $this->db->bind(':tijd', $this->tijd);
+        $this->db->bind(':status', $this->status);
+        $this->db->bind(':is_actief', $this->is_actief);
+        $this->db->bind(':opmerking', $this->opmerking);
 
-        for ($i = 1; $i <= $seatCount; $i++) {
-            $this->db->bind(':performance_id', $performanceId, PDO::PARAM_INT);
-            $this->db->bind(':seat_number', 'A' . $i);
-            $this->db->bind(':price', $pricePerSeat);
-            if (!$this->db->execute()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Book a ticket for a user
-     */
-    public function book($ticketId, $userId) {
-        $this->db->query("
-            UPDATE tickets 
-            SET status = 'booked', user_id = :user_id, booking_date = NOW()
-            WHERE id = :ticket_id AND status = 'available'
-        ");
-        $this->db->bind(':ticket_id', $ticketId, PDO::PARAM_INT);
-        $this->db->bind(':user_id', $userId, PDO::PARAM_INT);
         return $this->db->execute();
     }
 
     /**
-     * Cancel a ticket booking
+     * Delete a Ticket record by ID.
+     * @param int $id The ID of the ticket to delete.
+     * @return bool True on success, false on failure.
      */
-    public function cancel($ticketId) {
-        $this->db->query("
-            UPDATE tickets 
-            SET status = 'cancelled', user_id = NULL, booking_date = NULL
-            WHERE id = :ticket_id
-        ");
-        $this->db->bind(':ticket_id', $ticketId, PDO::PARAM_INT);
+    public function delete($id) {
+        $this->db->query('DELETE FROM ticket WHERE id = :id');
+        $this->db->bind(':id', $id);
         return $this->db->execute();
     }
 
-    /**
-     * Get ticket by QR code
-     */
-    public function getByQRCode($qrCode) {
-        $this->db->query("
-            SELECT t.*, s.title as show_title, p.venue, p.performance_date, p.performance_time,
-                   u.firstname, u.lastname
-            FROM tickets t
-            JOIN performances p ON t.performance_id = p.id
-            JOIN shows s ON p.show_id = s.id
-            LEFT JOIN users u ON t.user_id = u.id
-            WHERE t.qr_code = :qr_code
-        ");
-        $this->db->bind(':qr_code', $qrCode);
-        return $this->db->single();
+    // Relationship methods
+    public function getBezoeker() {
+        $bezoekerModel = new Bezoeker();
+        return $bezoekerModel->getById($this->bezoeker_id);
+    }
+
+    public function getVoorstelling() {
+        $voorstellingModel = new Voorstelling();
+        return $voorstellingModel->getById($this->voorstelling_id);
+    }
+
+    public function getPrijs() {
+        $prijsModel = new Prijs();
+        return $prijsModel->getById($this->prijs_id);
     }
 }
