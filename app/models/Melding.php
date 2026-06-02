@@ -19,11 +19,63 @@ class Melding {
     }
 
     /**
+     * Safely execute a query and return whether it was prepared successfully.
+     * @param string $sql
+     * @return bool
+     */
+    private function safeQuery($sql) {
+        try {
+            $this->db->query($sql);
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Safely execute a statement and return the result.
+     * @return bool
+     */
+    private function safeExecute() {
+        try {
+            return $this->db->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Safely fetch multiple rows from the current statement.
+     * @return array
+     */
+    private function safeResultSet() {
+        try {
+            return $this->db->resultSet();
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Safely fetch a single row from the current statement.
+     * @return object|null
+     */
+    private function safeSingle() {
+        try {
+            return $this->db->single();
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
+    /**
      * Create a new Melding record.
      * @return bool True on success, false on failure.
      */
     public function create() {
-        $this->db->query('INSERT INTO melding (bezoeker_id, medewerker_id, nummer, type, bericht, is_actief, opmerking) VALUES (:bezoeker_id, :medewerker_id, :nummer, :type, :bericht, :is_actief, :opmerking)');
+        if (!$this->safeQuery('INSERT INTO melding (bezoeker_id, medewerker_id, nummer, type, bericht, is_actief, opmerking) VALUES (:bezoeker_id, :medewerker_id, :nummer, :type, :bericht, :is_actief, :opmerking)')) {
+            return false;
+        }
         $this->db->bind(':bezoeker_id', $this->bezoeker_id);
         $this->db->bind(':medewerker_id', $this->medewerker_id);
         $this->db->bind(':nummer', $this->nummer);
@@ -32,7 +84,7 @@ class Melding {
         $this->db->bind(':is_actief', $this->is_actief);
         $this->db->bind(':opmerking', $this->opmerking);
 
-        return $this->db->execute();
+        return $this->safeExecute();
     }
 
     /**
@@ -40,8 +92,10 @@ class Melding {
      * @return array An array of Melding objects.
      */
     public function getAll() {
-        $this->db->query('SELECT * FROM melding');
-        return $this->db->resultSet();
+        if (!$this->safeQuery('SELECT * FROM melding')) {
+            return [];
+        }
+        return $this->safeResultSet();
     }
 
     /**
@@ -50,9 +104,11 @@ class Melding {
      * @return object|null The Melding object or null if not found.
      */
     public function getById($id) {
-        $this->db->query('SELECT * FROM melding WHERE id = :id');
+        if (!$this->safeQuery('SELECT * FROM melding WHERE id = :id')) {
+            return null;
+        }
         $this->db->bind(':id', $id);
-        return $this->db->single();
+        return $this->safeSingle();
     }
 
     /**
@@ -61,9 +117,11 @@ class Melding {
      * @return array An array of Melding objects.
      */
     public function getByBezoekerId($bezoeker_id) {
-        $this->db->query('SELECT * FROM melding WHERE bezoeker_id = :bezoeker_id');
+        if (!$this->safeQuery('SELECT * FROM melding WHERE bezoeker_id = :bezoeker_id')) {
+            return [];
+        }
         $this->db->bind(':bezoeker_id', $bezoeker_id);
-        return $this->db->resultSet();
+        return $this->safeResultSet();
     }
 
     /**
@@ -72,9 +130,11 @@ class Melding {
      * @return array An array of Melding objects.
      */
     public function getByMedewerkerId($medewerker_id) {
-        $this->db->query('SELECT * FROM melding WHERE medewerker_id = :medewerker_id');
+        if (!$this->safeQuery('SELECT * FROM melding WHERE medewerker_id = :medewerker_id')) {
+            return [];
+        }
         $this->db->bind(':medewerker_id', $medewerker_id);
-        return $this->db->resultSet();
+        return $this->safeResultSet();
     }
 
     /**
@@ -82,7 +142,9 @@ class Melding {
      * @return bool True on success, false on failure.
      */
     public function update() {
-        $this->db->query('UPDATE melding SET bezoeker_id = :bezoeker_id, medewerker_id = :medewerker_id, nummer = :nummer, type = :type, bericht = :bericht, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id');
+        if (!$this->safeQuery('UPDATE melding SET bezoeker_id = :bezoeker_id, medewerker_id = :medewerker_id, nummer = :nummer, type = :type, bericht = :bericht, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id')) {
+            return false;
+        }
         $this->db->bind(':id', $this->id);
         $this->db->bind(':bezoeker_id', $this->bezoeker_id);
         $this->db->bind(':medewerker_id', $this->medewerker_id);
@@ -92,7 +154,7 @@ class Melding {
         $this->db->bind(':is_actief', $this->is_actief);
         $this->db->bind(':opmerking', $this->opmerking);
 
-        return $this->db->execute();
+        return $this->safeExecute();
     }
 
     /**
@@ -101,9 +163,11 @@ class Melding {
      * @return bool True on success, false on failure.
      */
     public function delete($id) {
-        $this->db->query('DELETE FROM melding WHERE id = :id');
+        if (!$this->safeQuery('DELETE FROM melding WHERE id = :id')) {
+            return false;
+        }
         $this->db->bind(':id', $id);
-        return $this->db->execute();
+        return $this->safeExecute();
     }
 
     // Relationship methods

@@ -31,6 +31,12 @@
             <a class="nav-link" href="#shows">Voorstellingen</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" href="<?= URLROOT; ?>/voorstellingen">Alle Voorstellingen</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="<?= URLROOT; ?>/medewerkers">Medewerkers</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="#about">Over ons</a>
           </li>
           <li class="nav-item">
