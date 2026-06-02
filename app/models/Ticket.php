@@ -46,7 +46,22 @@ class Ticket {
      * @return array An array of Ticket objects.
      */
     public function getAll() {
-        $this->db->query('SELECT * FROM ticket');
+        $this->db->query('
+            SELECT 
+                t.*, 
+                v.naam as voorstelling_naam,
+                v.datum as voorstelling_datum,
+                v.tijd as voorstelling_tijd,
+                v.max_aantal_tickets,
+                g.voornaam, 
+                g.achternaam,
+                p.tarief
+            FROM ticket t
+            INNER JOIN voorstelling v ON t.voorstelling_id = v.id
+            INNER JOIN bezoeker b ON t.bezoeker_id = b.id
+            INNER JOIN gebruiker g ON b.gebruiker_id = g.id
+            INNER JOIN prijs p ON t.prijs_id = p.id
+        ');
         return $this->db->resultSet();
     }
 
