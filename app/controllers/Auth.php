@@ -17,17 +17,11 @@ class Auth extends BaseController
         // If already logged in, redirect to dashboard
         if (isset($_SESSION['accountId'])) {
             header('location:' . URLROOT . '/dashboard');
+            return;
         }
 
-        $data = [
-            'title' => 'Login/Register',
-            'email_err' => '',
-            'password_err' => '',
-            'firstName_err' => '',
-            'lastName_err' => ''
-        ];
-
-        $this->view('auth/index', $data);
+        // Redirect to home - login/register is available via modals in header
+        header('location:' . URLROOT);
     }
 
     /**
