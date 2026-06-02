@@ -16,19 +16,54 @@ class Medewerker {
         $this->db = new Database();
     }
 
+    private function safeQuery($sql) {
+        try {
+            $this->db->query($sql);
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    private function safeExecute() {
+        try {
+            return $this->db->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    private function safeResultSet() {
+        try {
+            return $this->db->resultSet();
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    private function safeSingle() {
+        try {
+            return $this->db->single();
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
     /**
      * Create a new Medewerker record.
      * @return bool True on success, false on failure.
      */
     public function create() {
-        $this->db->query('INSERT INTO medewerker (gebruiker_id, nummer, medewerkersoort, is_actief, opmerking) VALUES (:gebruiker_id, :nummer, :medewerkersoort, :is_actief, :opmerking)');
+        if (!$this->safeQuery('INSERT INTO medewerker (gebruiker_id, nummer, medewerkersoort, is_actief, opmerking) VALUES (:gebruiker_id, :nummer, :medewerkersoort, :is_actief, :opmerking)')) {
+            return false;
+        }
         $this->db->bind(':gebruiker_id', $this->gebruiker_id);
         $this->db->bind(':nummer', $this->nummer);
         $this->db->bind(':medewerkersoort', $this->medewerkersoort);
         $this->db->bind(':is_actief', $this->is_actief);
         $this->db->bind(':opmerking', $this->opmerking);
 
-        return $this->db->execute();
+        return $this->safeExecute();
     }
 
     /**
@@ -36,8 +71,10 @@ class Medewerker {
      * @return array An array of Medewerker objects.
      */
     public function getAll() {
-        $this->db->query('SELECT * FROM medewerker');
-        return $this->db->resultSet();
+        if (!$this->safeQuery('SELECT * FROM medewerker')) {
+            return [];
+        }
+        return $this->safeResultSet();
     }
 
     /**
@@ -46,9 +83,11 @@ class Medewerker {
      * @return object|null The Medewerker object or null if not found.
      */
     public function getById($id) {
-        $this->db->query('SELECT * FROM medewerker WHERE id = :id');
+        if (!$this->safeQuery('SELECT * FROM medewerker WHERE id = :id')) {
+            return null;
+        }
         $this->db->bind(':id', $id);
-        return $this->db->single();
+        return $this->safeSingle();
     }
 
     /**
@@ -57,9 +96,11 @@ class Medewerker {
      * @return object|null The Medewerker object or null if not found.
      */
     public function getByGebruikerId($gebruiker_id) {
-        $this->db->query('SELECT * FROM medewerker WHERE gebruiker_id = :gebruiker_id');
+        if (!$this->safeQuery('SELECT * FROM medewerker WHERE gebruiker_id = :gebruiker_id')) {
+            return null;
+        }
         $this->db->bind(':gebruiker_id', $gebruiker_id);
-        return $this->db->single();
+        return $this->safeSingle();
     }
 
     /**
@@ -67,7 +108,9 @@ class Medewerker {
      * @return bool True on success, false on failure.
      */
     public function update() {
-        $this->db->query('UPDATE medewerker SET gebruiker_id = :gebruiker_id, nummer = :nummer, medewerkersoort = :medewerkersoort, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id');
+        if (!$this->safeQuery('UPDATE medewerker SET gebruiker_id = :gebruiker_id, nummer = :nummer, medewerkersoort = :medewerkersoort, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id')) {
+            return false;
+        }
         $this->db->bind(':id', $this->id);
         $this->db->bind(':gebruiker_id', $this->gebruiker_id);
         $this->db->bind(':nummer', $this->nummer);
@@ -75,7 +118,7 @@ class Medewerker {
         $this->db->bind(':is_actief', $this->is_actief);
         $this->db->bind(':opmerking', $this->opmerking);
 
-        return $this->db->execute();
+        return $this->safeExecute();
     }
 
     /**
@@ -84,9 +127,11 @@ class Medewerker {
      * @return bool True on success, false on failure.
      */
     public function delete($id) {
-        $this->db->query('DELETE FROM medewerker WHERE id = :id');
+        if (!$this->safeQuery('DELETE FROM medewerker WHERE id = :id')) {
+            return false;
+        }
         $this->db->bind(':id', $id);
-        return $this->db->execute();
+        return $this->safeExecute();
     }
 
     // Relationship methods
