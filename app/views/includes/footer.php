@@ -6,7 +6,7 @@
       <!-- Over ons -->
       <div class="col-md-4">
         <h5>Aurora Theatre</h5>
-        <p>Experience the magic of live theatre in our historic venue.</p>
+        <p>Stap Binnen In Een Wereld Van Verbeelding</p>
       </div>
 
       <!-- Snelle links -->

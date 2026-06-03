@@ -49,7 +49,7 @@ body {
 }
 
 .nav-link:hover {
-  color: var(--gold) !important;
+  color: var(--bg-card) !important;
 }
 
 /* ================================
