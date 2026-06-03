@@ -1,197 +1,171 @@
 <?php
 
-class AdminTickets extends BaseController {
+class Admintickets extends BaseController {
+    private $ticketModel;
+    private $voorstellingModel;
 
     public function __construct() {
         parent::__construct();
+        // Load the Dutch ERD Models
+        $this->ticketModel = $this->model('Ticket');
+        $this->voorstellingModel = $this->model('Voorstelling');
     }
 
     /**
-     * Admin dashboard with analytics, inventory, and sales data
-     * Requires admin role
+     * Redirects /admintickets to /admintickets/dashboard
+     */
+    public function index() {
+        $this->dashboard();
+    }
+
+    /**
+     * DASHBOARD: The main "Ticket Overzicht"
      */
     public function dashboard() {
-        if (!$this->isAdmin()) {
-            redirect('homepages');
-        }
+        $performances = $this->voorstellingModel->getAll();
+        $allTickets = $this->ticketModel->getAll(); // Uses the JOIN query in model
 
-        $performanceModel = $this->model('Performance');
-        $ticketModel = $this->model('Ticket');
-        $showModel = $this->model('Show');
-
-        // Get all upcoming performances
-        $performances = $performanceModel->getUpcoming();
-
-        // Build analytics data
         $analyticsData = [];
         $totalRevenue = 0;
-        $totalSeats = 0;
         $totalBooked = 0;
+        $totalCapacity = 0;
 
         foreach ($performances as $perf) {
-            $bookedCount = $ticketModel->getBookedCountByPerformanceId($perf->id);
-            $availableCount = $ticketModel->getAvailableCountByPerformanceId($perf->id);
+            $bookedForThis = 0;
+            $revenueForThis = 0;
             
+            foreach($allTickets as $ticket) {
+                if($ticket->voorstelling_id == $perf->id) {
+                    $bookedForThis++;
+                    $revenueForThis += $ticket->tarief;
+                }
+            }
+
+            $totalSeats = $perf->max_aantal_tickets;
+            $availableSeats = $totalSeats - $bookedForThis;
+            $rowOccupancy = ($totalSeats > 0) ? round(($bookedForThis / $totalSeats) * 100, 2) : 0;
+
+            // MAP DUTCH DB -> ENGLISH VIEW KEYS
             $analyticsData[] = [
                 'id' => $perf->id,
-                'show_title' => $perf->show_title,
-                'performance_date' => $perf->performance_date,
-                'performance_time' => $perf->performance_time,
-                'venue' => $perf->venue,
-                'total_seats' => $perf->total_seats,
-                'booked_seats' => $bookedCount,
-                'available_seats' => $availableCount,
-                'occupancy_rate' => $perf->total_seats > 0 ? round(($bookedCount / $perf->total_seats) * 100, 2) : 0,
-                'capacity_status' => $this->getCapacityStatus($bookedCount, $perf->total_seats),
-                'revenue' => $bookedCount * ($perf->price ?? 0)
+                'show_title' => $perf->naam,
+                'performance_date' => $perf->datum,
+                'performance_time' => $perf->tijd,
+                'venue' => 'Main Stage',
+                'total_seats' => $totalSeats,
+                'booked_seats' => $bookedForThis,
+                'available_seats' => $availableSeats,
+                'occupancy_rate' => $rowOccupancy,
+                'revenue' => $revenueForThis
             ];
 
-            $totalRevenue += $analyticsData[count($analyticsData) - 1]['revenue'];
-            $totalSeats += $perf->total_seats;
-            $totalBooked += $bookedCount;
+            $totalRevenue += $revenueForThis;
+            $totalBooked += $bookedForThis;
+            $totalCapacity += $totalSeats;
         }
 
-        // Sort by date
-        usort($analyticsData, function($a, $b) {
-            return strtotime($a['performance_date']) <=> strtotime($b['performance_date']);
-        });
-
-        $data = [];
-        $data['analytics'] = $analyticsData;
-        $data['total_revenue'] = $totalRevenue;
-        $data['total_seats'] = $totalSeats;
-        $data['total_booked'] = $totalBooked;
-        $data['occupancy_rate'] = $totalSeats > 0 ? round(($totalBooked / $totalSeats) * 100, 2) : 0;
-        $data['total_shows'] = count(array_unique(array_column($analyticsData, 'show_title')));
+        $data = [
+            'analytics' => $analyticsData,
+            'total_revenue' => $totalRevenue,
+            'total_booked' => $totalBooked,
+            'occupancy_rate' => $totalCapacity > 0 ? round(($totalBooked / $totalCapacity) * 100, 2) : 0,
+            'total_shows' => count($performances)
+        ];
 
         $this->view('admintickets/dashboard', $data);
     }
 
     /**
-     * View inventory details for all performances
+     * INVENTORY: Capacity management
      */
     public function inventory() {
-        if (!$this->isAdmin()) {
-            redirect('homepages');
-        }
-
-        $performanceModel = $this->model('Performance');
-        $ticketModel = $this->model('Ticket');
-
-        $performances = $performanceModel->getAll();
+        $performances = $this->voorstellingModel->getAll();
+        $allTickets = $this->ticketModel->getAll();
 
         $inventoryData = [];
         foreach ($performances as $perf) {
-            $bookedCount = $ticketModel->getBookedCountByPerformanceId($perf->id);
-            $availableCount = $ticketModel->getAvailableCountByPerformanceId($perf->id);
+            $bookedCount = 0;
+            foreach($allTickets as $t) {
+                if($t->voorstelling_id == $perf->id) $bookedCount++;
+            }
 
-            $inventoryData[] = [
+            $totalSeats = $perf->max_aantal_tickets;
+            $availableSeats = $totalSeats - $bookedCount;
+            $percentage = ($totalSeats > 0) ? ($bookedCount / $totalSeats) * 100 : 0;
+
+            // Cast as object so the view's -> syntax works
+            $inventoryData[] = (object) [
                 'performance' => $perf,
-                'available_seats' => $availableCount,
+                'available_seats' => $availableSeats,
                 'booked_seats' => $bookedCount,
-                'reserved_seats' => 0, // Can be expanded
-                'capacity_percentage' => $perf->total_seats > 0 ? round(($bookedCount / $perf->total_seats) * 100, 2) : 0,
-                'is_oversold' => $bookedCount > $perf->total_seats
+                'capacity_percentage' => $percentage,
+                'is_oversold' => $bookedCount > $totalSeats
             ];
         }
 
-        $data = [];
-        $data['inventory'] = $inventoryData;
-
+        $data = ['inventory' => $inventoryData];
         $this->view('admintickets/inventory', $data);
     }
 
-    /**
-     * View detailed ticket information for a specific performance
-     */
-    public function performanceDetails($performanceId = null) {
-        if (!$this->isAdmin() || !$performanceId) {
-            redirect('homepages');
+   public function performanceDetails($id = null) {
+        if (!$id) {
+            redirect('admintickets/dashboard');
         }
 
-        $performanceModel = $this->model('Performance');
-        $ticketModel = $this->model('Ticket');
-
-        $performance = $performanceModel->getById($performanceId);
+        $performance = $this->voorstellingModel->getById($id);
         if (!$performance) {
             redirect('admintickets/dashboard');
         }
 
-        $tickets = $ticketModel->getByPerformanceId($performanceId);
+        $tickets = $this->ticketModel->getByVoorstellingIdWithNames($id);
 
-        $data = [];
-        $data['performance'] = $performance;
-        $data['tickets'] = $tickets;
-        $data['total_tickets'] = count($tickets);
-        $data['booked_tickets'] = count(array_filter($tickets, fn($t) => $t->status === 'booked'));
-        $data['available_tickets'] = count(array_filter($tickets, fn($t) => $t->status === 'available'));
+        /**
+         * 1. MAP PERFORMANCE HEADER
+         */
+        $performance->show_title = $performance->naam;
+        $performance->performance_date = $performance->datum;
+        $performance->performance_time = $performance->tijd;
+        $performance->venue = "Main Hall"; 
+        $performance->genre = "Musical";   
+        $performance->status = $performance->beschikbaarheid;
+        $performance->total_seats = $performance->max_aantal_tickets;
+
+        /**
+         * 2. MAP EVERY TICKET FOR THE TABLE
+         */
+        foreach ($tickets as $ticket) {
+            $ticket->seat_number = $ticket->nummer;        
+            $ticket->price = $ticket->tarief;              
+            
+            // Map the name fields
+            $ticket->firstname = $ticket->voornaam;
+            $ticket->infix = $ticket->tussenvoegsel;
+            $ticket->lastname = $ticket->achternaam;
+            
+            // FIX: Map the user_id property that line 116 is looking for
+            // We use the bezoeker_id or gebruiker_id here
+            $ticket->user_id = $ticket->bezoeker_id; 
+            
+            $ticket->qr_code = $ticket->barcode;
+            $ticket->booking_date = $ticket->datum_aangemaakt; 
+        }
+
+        /**
+         * 3. CALCULATE STATS
+         */
+        $bookedCount = count($tickets);
+        $totalSeats = (int) $performance->max_aantal_tickets;
+        if ($totalSeats < 1) { $totalSeats = 1; } 
+        $availableSeats = $totalSeats - $bookedCount;
+
+        $data = [
+            'performance' => $performance,
+            'tickets' => $tickets,
+            'total_tickets' => $totalSeats,
+            'booked_tickets' => $bookedCount,
+            'available_tickets' => $availableSeats
+        ];
 
         $this->view('admintickets/performance_details', $data);
-    }
-
-    /**
-     * Search for a specific ticket by ID or user name
-     */
-    public function search() {
-        if (!$this->isAdmin()) {
-            redirect('homepages');
-        }
-
-        $ticketModel = $this->model('Ticket');
-        $userModel = $this->model('User');
-
-        $searchQuery = $_GET['q'] ?? '';
-        $results = [];
-
-        if (!empty($searchQuery)) {
-            // Try to find by ticket ID or user info
-            if (is_numeric($searchQuery)) {
-                $ticket = $ticketModel->getById(intval($searchQuery));
-                if ($ticket) {
-                    $results[] = $ticket;
-                }
-            } else {
-                // Search by user name (basic implementation)
-                $users = $userModel->getAll();
-                foreach ($users as $user) {
-                    $fullName = $user->firstname . ' ' . $user->lastname;
-                    if (stripos($fullName, $searchQuery) !== false) {
-                        $userTickets = $ticketModel->getByUserId($user->id);
-                        $results = array_merge($results, $userTickets);
-                    }
-                }
-            }
-        }
-
-        $data = [];
-        $data['search_query'] = $searchQuery;
-        $data['results'] = $results;
-
-        $this->view('admintickets/search', $data);
-    }
-
-    /**
-     * Check if current user is admin
-     */
-    private function isAdmin() {
-        if (!isset($_SESSION['user_id'])) {
-            return false;
-        }
-
-        $userModel = $this->model('User');
-        return $userModel->isAdmin($_SESSION['user_id']);
-    }
-
-    /**
-     * Get capacity status label
-     */
-    private function getCapacityStatus($booked, $total) {
-        if ($total === 0) return 'unknown';
-        $percentage = ($booked / $total) * 100;
-        
-        if ($percentage >= 100) return 'sold_out';
-        if ($percentage >= 80) return 'nearly_full';
-        if ($percentage >= 50) return 'half_full';
-        return 'available';
     }
 }

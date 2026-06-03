@@ -1,150 +1,120 @@
 <?php
 
-class UserTickets extends BaseController {
+class Usertickets extends BaseController {
+    private $ticketModel;
+    private $gebruikerModel;
+    private $bezoekerModel;
 
     public function __construct() {
         parent::__construct();
+        // Load the Dutch ERD Models
+        $this->ticketModel = $this->model('Ticket');
+        $this->gebruikerModel = $this->model('Gebruiker');
+        $this->bezoekerModel = $this->model('Bezoeker');
     }
 
     /**
-     * View user's purchased tickets
-     * Requires user to be logged in
+     * Default method redirects to mytickets
      */
-    public function myTickets() {
-        // Check if user is logged in
+    public function index() {
+        $this->mytickets();
+    }
+
+    /**
+     * MY TICKETS: The personal overview for a logged-in user
+     * URL: /usertickets/mytickets
+     */
+    public function mytickets() {
+        // 1. Session Security Check
         if (!isset($_SESSION['user_id'])) {
             $_SESSION['error'] = 'Please log in to view your tickets';
-            redirect('homepages');
+            // Redirect to your test switcher for easy testing
+            header("Location: /test/index");
+            exit;
         }
 
-        $ticketModel = $this->model('Ticket');
-        $userModel = $this->model('User');
-        
         $userId = $_SESSION['user_id'];
-        $user = $userModel->getById($userId);
         
-        // Get upcoming and past tickets separately
-        $upcomingTickets = $ticketModel->getUpcomingByUserId($userId);
-        $pastTickets = $ticketModel->getPastByUserId($userId);
+        // 2. Fetch the User (Gebruiker)
+        $user = $this->gebruikerModel->getById($userId);
         
-        // Combine for display (upcoming first)
-        $tickets = array_merge($upcomingTickets, $pastTickets);
+        if (!$user) {
+            die("Error: User ID $userId exists in session but not in 'gebruiker' table. Reset your DB data.");
+        }
 
-        $data = [];
-        $data['user'] = $user;
-        $data['tickets'] = $tickets;
-        $data['upcomingTickets'] = $upcomingTickets;
-        $data['pastTickets'] = $pastTickets;
-        $data['has_tickets'] = count($tickets) > 0;
-        $data['has_upcoming'] = count($upcomingTickets) > 0;
-        $data['has_past'] = count($pastTickets) > 0;
+        // Map names for the "Welcome, Jane" message in the view
+        $user->firstname = $user->voornaam;
+        $user->lastname = $user->achternaam;
 
+        // 3. Find the Visitor (Bezoeker) record for this user
+        $bezoeker = $this->bezoekerModel->getByGebruikerId($userId);
+        
+        if (!$bezoeker) {
+            // If the user exists but has no visitor record, they can't have tickets
+            $allTickets = [];
+        } else {
+            // 4. Get the tickets for this specific visitor
+            $allTickets = $this->ticketModel->getByBezoekerIdWithNames($bezoeker->id);
+        }
+        
+        $upcomingTickets = [];
+        $pastTickets = [];
+        $today = date('Y-m-d');
+
+        // 5. DATA MAPPING: Translate DB Dutch to View English
+        foreach ($allTickets as $ticket) {
+            $ticket->show_title = $ticket->voorstelling_naam;
+            $ticket->performance_date = $ticket->voorstelling_datum;
+            $ticket->performance_time = $ticket->voorstelling_tijd;
+            $ticket->price = $ticket->tarief;
+            $ticket->seat_number = $ticket->nummer;
+            $ticket->venue = "Main Hall"; // Placeholder
+
+            // Sort into Upcoming or Past categories
+            if ($ticket->voorstelling_datum >= $today) {
+                $upcomingTickets[] = $ticket;
+            } else {
+                $pastTickets[] = $ticket;
+            }
+        }
+
+        // 6. Build Data array with every key the view expects
+        $data = [
+            'user' => $user,
+            'tickets' => $allTickets,
+            'upcomingTickets' => $upcomingTickets,
+            'pastTickets' => $pastTickets,
+            'has_tickets' => count($allTickets) > 0,
+            'has_upcoming' => count($upcomingTickets) > 0,
+            'has_past' => count($pastTickets) > 0
+        ];
+
+        // Load the view folder 'usertickets' and file 'mytickets'
         $this->view('usertickets/mytickets', $data);
     }
 
     /**
-     * View details of a specific ticket
+     * VIEW TICKET: Detail view for a single ticket
+     * URL: /usertickets/viewTicket/1
      */
-    public function viewTicket($ticketId = null) {
-        if (!isset($_SESSION['user_id']) || !$ticketId) {
-            $_SESSION['error'] = 'Invalid ticket request';
-            redirect('homepages');
-        }
-
-        // Validate ticket ID is numeric
-        if (!is_numeric($ticketId)) {
-            $_SESSION['error'] = 'Invalid ticket ID format';
+    public function viewTicket($id = null) {
+        if (!$id || !isset($_SESSION['user_id'])) {
             redirect('usertickets/mytickets');
         }
 
-        $ticketModel = $this->model('Ticket');
-        $ticket = $ticketModel->getById(intval($ticketId));
+        $ticket = $this->ticketModel->getById($id);
+        $bezoeker = $this->bezoekerModel->getByGebruikerId($_SESSION['user_id']);
 
-        // Verify ticket exists and belongs to logged-in user
-        if (!$ticket || $ticket->user_id != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'Ticket not found or access denied';
+        // Security: Ensure this ticket belongs to the visitor currently "logged in"
+        if (!$ticket || $ticket->bezoeker_id != $bezoeker->id) {
             redirect('usertickets/mytickets');
         }
 
-        $data = [];
-        $data['ticket'] = $ticket;
+        // Map data for the detailed view
+        $voorstelling = $this->model('Voorstelling')->getById($ticket->voorstelling_id);
+        $ticket->show_title = $voorstelling->naam;
+        $ticket->qr_code = $ticket->barcode;
 
-        $this->view('usertickets/ticket_detail', $data);
-    }
-
-    /**
-     * Download or print ticket (PDF generation can be added later)
-     */
-    public function downloadTicket($ticketId = null) {
-        if (!isset($_SESSION['user_id']) || !$ticketId) {
-            $_SESSION['error'] = 'Invalid ticket request';
-            redirect('homepages');
-        }
-
-        // Validate ticket ID is numeric
-        if (!is_numeric($ticketId)) {
-            $_SESSION['error'] = 'Invalid ticket ID format';
-            redirect('usertickets/mytickets');
-        }
-
-        $ticketModel = $this->model('Ticket');
-        $ticket = $ticketModel->getById(intval($ticketId));
-
-        // Verify ticket belongs to logged-in user
-        if (!$ticket || $ticket->user_id != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'Ticket not found or access denied';
-            redirect('usertickets/mytickets');
-        }
-
-        // TODO: Implement PDF generation or download logic
-        // For now, redirect back with message
-        $_SESSION['info'] = 'PDF download feature coming soon. You can print your ticket using the Print button.';
-        redirect('usertickets/viewTicket/' . $ticketId);
-    }
-
-    /**
-     * Cancel a booking
-     */
-    public function cancelTicket($ticketId = null) {
-        if (!isset($_SESSION['user_id']) || !$ticketId) {
-            $_SESSION['error'] = 'Invalid ticket request';
-            redirect('homepages');
-        }
-
-        // Validate ticket ID is numeric
-        if (!is_numeric($ticketId)) {
-            $_SESSION['error'] = 'Invalid ticket ID format';
-            redirect('usertickets/mytickets');
-        }
-
-        $ticketModel = $this->model('Ticket');
-        $ticket = $ticketModel->getById(intval($ticketId));
-
-        // Verify ticket belongs to logged-in user
-        if (!$ticket || $ticket->user_id != $_SESSION['user_id']) {
-            $_SESSION['error'] = 'Ticket not found or access denied';
-            redirect('usertickets/mytickets');
-        }
-
-        // Only allow cancellation if performance is in the future and ticket is booked
-        $performanceDateTime = strtotime($ticket->performance_date . ' ' . $ticket->performance_time);
-        if ($performanceDateTime <= time()) {
-            $_SESSION['error'] = 'Cannot cancel tickets for past performances';
-            redirect('usertickets/mytickets');
-        }
-
-        if ($ticket->status !== 'booked') {
-            $_SESSION['error'] = 'This ticket cannot be cancelled. Only booked tickets can be cancelled.';
-            redirect('usertickets/mytickets');
-        }
-
-        // Cancel the ticket
-        if ($ticketModel->cancel(intval($ticketId))) {
-            $_SESSION['success'] = 'Ticket cancelled successfully';
-        } else {
-            $_SESSION['error'] = 'Failed to cancel ticket. Please try again.';
-        }
-
-        redirect('usertickets/mytickets');
+        $this->view('usertickets/ticket_detail', ['ticket' => $ticket]);
     }
 }
