@@ -81,9 +81,9 @@ body {
 
 .hero-subtitle {
   font-size: 1.5rem;
-  color: var(--text-muted);
+  color: aliceblue;
+  font-weight: bolder;
   margin-bottom: 1rem;
-  font-weight: 300;
 }
 
 .hero-description {
