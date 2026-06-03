@@ -56,6 +56,17 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           <span class="card-link">Go to Tickets <i class="bi bi-arrow-right"></i></span>
         </a>
       </div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="<?= URLROOT; ?>/accounts" class="dashboard-nav-card">
+          <div class="card-icon">
+            <i class="bi bi-person-vcard"></i>
+          </div>
+          <h3>Accounts</h3>
+          <p>View all registered accounts</p>
+          <span class="card-link">Go to Accounts <i class="bi bi-arrow-right"></i></span>
+        </a>
+      </div>
     </div>
 
     <!-- Quick Stats Row -->

@@ -1,15 +1,37 @@
 <?php
 /**
- * Database initialization - Create default admin account
+ * Database initialization - Create tables and default admin account
  * Table schemas are defined in createscript*.sql files
  */
 
 function initializeDatabase() {
     try {
         $db = new Database();
+        createAccountsTable($db);
         createDefaultAdmin($db);
     } catch (Exception $e) {
         // Silently fail during initialization
+    }
+}
+
+function createAccountsTable($db) {
+    try {
+        $db->query("
+            CREATE TABLE IF NOT EXISTS Accounts (
+                Id INT AUTO_INCREMENT PRIMARY KEY,
+                Email VARCHAR(255) UNIQUE NOT NULL,
+                Password VARCHAR(255) NOT NULL,
+                FirstName VARCHAR(100) NOT NULL,
+                LastName VARCHAR(100) NOT NULL,
+                PhoneNumber VARCHAR(20),
+                CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                IsActive BIT DEFAULT 1
+            )
+        ");
+        $db->execute();
+    } catch (Exception $e) {
+        // Silently fail
     }
 }
 
