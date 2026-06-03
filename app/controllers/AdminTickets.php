@@ -1,6 +1,6 @@
 <?php
 
-class AdminTickets extends BaseController {
+class Admintickets extends BaseController {
     private $ticketModel;
     private $voorstellingModel;
 
