@@ -3,7 +3,8 @@
  * Dashboard View
  * @var array $data Contains: title, firstName, lastName, email
  */
-require_once APPROOT . '/views/includes/header.php'; ?>
+require_once APPROOT . '/views/includes/header.php';
+require_once APPROOT . '/views/includes/messages.php'; ?>
 
 <!-- Dashboard Hero Section -->
 <section class="hero" style="min-height: 300px;">

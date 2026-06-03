@@ -53,14 +53,16 @@ class Auth extends BaseController
         }
 
         // Attempt login
-        $account = $this->accountModel->login($email, $password);
+        $user = $this->accountModel->login($email, $password);
 
-        if ($account) {
-            // Set session
-            $_SESSION['accountId'] = $account->Id;
-            $_SESSION['email'] = $account->Email;
-            $_SESSION['firstName'] = $account->FirstName;
-            $_SESSION['lastName'] = $account->LastName;
+        if ($user) {
+            // Set session with new schema fields
+            $_SESSION['accountId'] = $user->id;
+            $_SESSION['user_id'] = $user->id; // Also set as user_id for consistency with other parts of code
+            $_SESSION['email'] = $user->gebruikersnaam;
+            $_SESSION['firstName'] = $user->voornaam;
+            $_SESSION['lastName'] = $user->achternaam;
+            $_SESSION['rolle'] = $this->accountModel->getPrimaryRole($user->id);
 
             header('location:' . URLROOT . '/dashboard');
         } else {
@@ -86,6 +88,7 @@ class Auth extends BaseController
         $passwordConfirm = trim($_POST['register_password_confirm'] ?? '');
         $firstName = trim($_POST['register_firstname'] ?? '');
         $lastName = trim($_POST['register_lastname'] ?? '');
+        $role = trim($_POST['register_role'] ?? 'bezoeker'); // Default role is bezoeker
 
         // Validate input
         if (empty($email)) {
@@ -138,16 +141,20 @@ class Auth extends BaseController
         }
 
         // Attempt to register
-        if ($this->accountModel->register($email, $password, $firstName, $lastName)) {
+        $user = $this->accountModel->register($email, $password, $firstName, $lastName, $role);
+
+        if ($user) {
             // Log the user in after registration
             $account = $this->accountModel->login($email, $password);
 
             if ($account) {
-                // Set session
-                $_SESSION['accountId'] = $account->Id;
-                $_SESSION['email'] = $account->Email;
-                $_SESSION['firstName'] = $account->FirstName;
-                $_SESSION['lastName'] = $account->LastName;
+                // Set session with new schema fields
+                $_SESSION['accountId'] = $account->id;
+                $_SESSION['user_id'] = $account->id;
+                $_SESSION['email'] = $account->gebruikersnaam;
+                $_SESSION['firstName'] = $account->voornaam;
+                $_SESSION['lastName'] = $account->achternaam;
+                $_SESSION['rolle'] = $role;
 
                 header('location:' . URLROOT . '/dashboard');
             }

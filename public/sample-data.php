@@ -19,11 +19,11 @@ try {
 
     // 2. Insert Gebruikers
     $pwd = password_hash('password123', PASSWORD_DEFAULT);
-    $db->query("INSERT INTO gebruiker (voornaam, achternaam, gebruikersnaam, wachtwoord) VALUES ('John', 'Doe', 'johndoe', :pwd)");
+    $db->query("INSERT INTO gebruiker (voornaam, achternaam, gebruikersnaam, wachtwoord) VALUES ('John', 'Doe', 'john@aurora.com', :pwd)");
     $db->bind(':pwd', $pwd);
     $db->execute();
 
-    $db->query("SELECT id FROM gebruiker WHERE gebruikersnaam = 'johndoe'");
+    $db->query("SELECT id FROM gebruiker WHERE gebruikersnaam = 'john@aurora.com'");
     $userId = $db->single()->id;
 
     // 3. Insert Rol
@@ -45,11 +45,15 @@ try {
     $bezoekerId = $db->single()->id;
 
     // 6. Insert Medewerker (Admin)
-    $db->query("INSERT INTO gebruiker (voornaam, achternaam, gebruikersnaam, wachtwoord) VALUES ('Admin', 'User', 'admin', :pwd)");
+    $db->query("INSERT INTO gebruiker (voornaam, achternaam, gebruikersnaam, wachtwoord) VALUES ('Admin', 'User', 'admin@aurora.com', :pwd)");
     $db->bind(':pwd', $pwd);
     $db->execute();
-    $db->query("SELECT id FROM gebruiker WHERE gebruikersnaam = 'admin'");
+    $db->query("SELECT id FROM gebruiker WHERE gebruikersnaam = 'admin@aurora.com'");
     $adminUserId = $db->single()->id;
+
+    $db->query("INSERT INTO rol (gebruiker_id, naam, is_actief) VALUES (:uid, 'Admin', 1)");
+    $db->bind(':uid', $adminUserId);
+    $db->execute();
 
     $db->query("INSERT INTO medewerker (gebruiker_id, nummer, medewerkersoort) VALUES (:uid, 101, 'Beheerder')");
     $db->bind(':uid', $adminUserId);

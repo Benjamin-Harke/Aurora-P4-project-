@@ -3,10 +3,12 @@
 class Accounts extends BaseController
 {
     private $accountModel;
+    private $rolModel;
 
     public function __construct()
     {
         $this->accountModel = $this->model('Account');
+        $this->rolModel = $this->model('Rol');
     }
 
     public function index()
@@ -17,33 +19,37 @@ class Accounts extends BaseController
             exit;
         }
 
-        // Get all accounts from database
-        $accounts = $this->getAllAccounts();
+        // Check if user has admin role (case-insensitive)
+        $userRole = strtolower($_SESSION['rolle'] ?? 'bezoeker');
+        if ($userRole !== 'admin' && $userRole !== 'medewerker') {
+            $_SESSION['error'] = 'You do not have permission to view this page';
+            header('Location: ' . URLROOT . '/dashboard');
+            exit;
+        }
+
+        // Get all users with their roles
+        $users = $this->getAllUsersWithRoles();
 
         $data = [
             'title' => 'Account Overview',
-            'accounts' => $accounts
+            'users' => $users
         ];
 
         $this->view('accounts/index', $data);
     }
 
-    private function getAllAccounts()
+    private function getAllUsersWithRoles()
     {
-        $db = new Database();
+        $users = $this->accountModel->getAllWithRoles();
         
-        $query = "SELECT Id, Email, FirstName, LastName, PhoneNumber, CreatedAt, IsActive 
-                  FROM Accounts 
-                  ORDER BY CreatedAt DESC";
-        
-        $db->query($query);
-        $results = $db->resultSet();
-        
-        if ($results && count($results) > 0) {
-            // Convert objects to arrays
+        if ($users && count($users) > 0) {
+            // Convert objects to arrays and parse roles
             return array_map(function($obj) {
-                return (array) $obj;
-            }, $results);
+                $arr = (array) $obj;
+                // Parse comma-separated roles into an array
+                $arr['roles'] = $arr['roles'] ? explode(',', $arr['roles']) : [];
+                return $arr;
+            }, $users);
         }
         
         return [];

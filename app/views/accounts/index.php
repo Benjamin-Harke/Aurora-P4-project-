@@ -22,7 +22,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     </div>
 
     <!-- Accounts Table or No Accounts Message -->
-    <?php if (empty($data['accounts'])): ?>
+    <?php if (empty($data['users'])): ?>
       <!-- No Accounts Error -->
       <div class="alert alert-warning alert-custom" role="alert">
         <div class="alert-content">
@@ -42,22 +42,32 @@ require_once APPROOT . '/views/includes/header.php'; ?>
               <th>Email</th>
               <th>First Name</th>
               <th>Last Name</th>
-              <th>Phone Number</th>
+              <th>Roles</th>
               <th>Created At</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <?php foreach ($data['accounts'] as $account): ?>
+            <?php foreach ($data['users'] as $user): ?>
               <tr>
-                <td class="email-cell"><?= htmlspecialchars($account['Email']); ?></td>
-                <td><?= htmlspecialchars($account['FirstName']); ?></td>
-                <td><?= htmlspecialchars($account['LastName']); ?></td>
-                <td><?= htmlspecialchars($account['PhoneNumber'] ?? '-'); ?></td>
-                <td><?= date('d-m-Y H:i', strtotime($account['CreatedAt'])); ?></td>
+                <td class="email-cell"><?= htmlspecialchars($user['gebruikersnaam']); ?></td>
+                <td><?= htmlspecialchars($user['voornaam']); ?></td>
+                <td><?= htmlspecialchars($user['achternaam']); ?></td>
                 <td>
-                  <?php if ($account['IsActive']): ?>
+                  <?php if (!empty($user['roles'])): ?>
+                    <?php foreach ($user['roles'] as $role): ?>
+                      <span class="badge badge-role" style="margin: 2px;">
+                        <?= htmlspecialchars(ucfirst(trim($role))); ?>
+                      </span>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <span class="badge badge-secondary">No Role</span>
+                  <?php endif; ?>
+                </td>
+                <td><?= date('d-m-Y H:i', strtotime($user['datum_aangemaakt'])); ?></td>
+                <td>
+                  <?php if ($user['is_actief']): ?>
                     <span class="badge badge-active">
                       <i class="bi bi-check-circle-fill"></i> Active
                     </span>
@@ -87,7 +97,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
             </div>
             <div class="stat-content">
               <span class="stat-label">Total Accounts</span>
-              <span class="stat-value"><?= count($data['accounts']); ?></span>
+              <span class="stat-value"><?= count($data['users']); ?></span>
             </div>
           </div>
         </div>
@@ -98,7 +108,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
             </div>
             <div class="stat-content">
               <span class="stat-label">Active Accounts</span>
-              <span class="stat-value"><?= count(array_filter($data['accounts'], fn($a) => $a['IsActive'])); ?></span>
+              <span class="stat-value"><?= count(array_filter($data['users'], fn($a) => $a['is_actief'])); ?></span>
             </div>
           </div>
         </div>
@@ -109,7 +119,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
             </div>
             <div class="stat-content">
               <span class="stat-label">Inactive Accounts</span>
-              <span class="stat-value"><?= count(array_filter($data['accounts'], fn($a) => !$a['IsActive'])); ?></span>
+              <span class="stat-value"><?= count(array_filter($data['users'], fn($a) => !$a['is_actief'])); ?></span>
             </div>
           </div>
         </div>
@@ -286,6 +296,16 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     background: var(--primary-teal);
     border-color: var(--primary-teal);
     color: var(--bg-dark);
+  }
+
+  .badge-role {
+    background: rgba(0, 217, 255, 0.2);
+    color: var(--primary-teal);
+    border: 1px solid var(--primary-teal);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
   }
 </style>
 

@@ -1,4 +1,5 @@
 <?php require_once APPROOT . '/views/includes/header.php'; ?>
+<?php require_once APPROOT . '/views/includes/messages.php'; ?>
 
 <div class="container mt-5 mb-5">
     <div class="row mb-4">

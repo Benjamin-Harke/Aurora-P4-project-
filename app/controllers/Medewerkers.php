@@ -10,6 +10,15 @@ class Medewerkers extends BaseController
      */
     public function index()
     {
+        // Check permission: only admin and medewerkers can view
+        $userRole = strtolower($_SESSION['rolle'] ?? 'bezoeker');
+        if (!in_array($userRole, ['admin', 'medewerker'])) {
+            $_SESSION['message'] = 'You do not have permission to view this page.';
+            $_SESSION['message_type'] = 'danger';
+            header('Location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
         $medewerkerModel = $this->model('Medewerker');
         $gebruikerModel = $this->model('Gebruiker');
         $contactModel = $this->model('Contact');
@@ -49,6 +58,15 @@ class Medewerkers extends BaseController
      */
     public function detail($id = null)
     {
+        // Check permission: only admin and medewerkers can view
+        $userRole = strtolower($_SESSION['rolle'] ?? 'bezoeker');
+        if (!in_array($userRole, ['admin', 'medewerker'])) {
+            $_SESSION['message'] = 'You do not have permission to view this page.';
+            $_SESSION['message_type'] = 'danger';
+            header('Location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
         if ($id === null) {
             header('Location: ' . URLROOT . '/medewerkers');
             return;
