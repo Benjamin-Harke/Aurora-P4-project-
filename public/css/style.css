@@ -57,15 +57,14 @@ body {
    ================================ */
 
 .hero {
-  background: linear-gradient(135deg, #0a0a0a, #1a0a2e);
-  min-height: 80vh;
-  display: flex;
-  align-items: center;
-  padding: 4rem 0;
+    background-image: url('../img/hero.png');
+    background-size: cover;
+    background-position: center;
 }
 
 .hero-content {
   max-width: 700px;
+  max-height: 900px;
   margin: 0 auto;
   text-align: center;
 }
