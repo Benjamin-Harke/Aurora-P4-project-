@@ -1,526 +1,263 @@
-/* ========================================
-   Aurora Theatre - Premium Redesign
-   ======================================== */
+/* ================================
+   Aurora Theatre - style.css
+   ================================ */
 
+/* Kleurenvariabelen - hier kun je makkelijk de kleuren aanpassen */
 :root {
   --bg-dark: #0a0a0a;
-  --bg-darker: #050505;
   --bg-card: #1a1a1a;
-  --gold-accent: #ffd700;
   --text-white: #ffffff;
   --text-light: #f0f0f0;
   --text-muted: #a0a0a0;
-  --text-secondary: #d0d0d0;
+  --gold: #ffd700;
+  --border: rgba(255, 255, 255, 0.2);
 }
 
-/* ========================================
-   Base Styles
-   ======================================== */
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+/* ================================
+   Basis
+   ================================ */
 
 body {
   background-color: var(--bg-dark);
   color: var(--text-light);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-/* ========================================
-   Navigation Bar
-   ======================================== */
+/* ================================
+   Navigatie
+   ================================ */
 
 .navbar {
-  background: rgba(5, 5, 5, 0.98);
-  padding: 1rem 2rem;
-
-  border-bottom: 2px solid var(--text-white);
-  backdrop-filter: blur(20px);
+  background-color: rgba(5, 5, 5, 0.98);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0;
 }
 
 .navbar-brand {
-  font-size: 1.7rem;
-  font-weight: 900;
-  background-color: #ffffff;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-decoration: none;
-  letter-spacing: 1px;
-  transition: all 0.3s ease;
-}
-
-.navbar-brand:hover {
-  transform: scale(1.05);
-  filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.5));
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-white) !important;
 }
 
 .nav-link {
   color: var(--text-light) !important;
-  transition: all 0.3s ease;
-  margin-right: 2rem;
-  margin-left: 2rem;
+  margin: 0 0.5rem;
   font-weight: 500;
-  font-size: 0.95rem;
   text-transform: uppercase;
+  font-size: 0.9rem;
   letter-spacing: 1px;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--primary-teal), var(--accent-magenta));
-  transition: width 0.3s ease;
 }
 
 .nav-link:hover {
-  color: var(--primary-teal) !important;
+  color: var(--gold) !important;
 }
 
-.nav-link:hover::after {
-  width: 100%;
-}
-
-/* ========================================
-   Hero Section
-   ======================================== */
+/* ================================
+   Hero sectie
+   ================================ */
 
 .hero {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a0a2e 40%, rgba(0, 217, 255, 0.08) 100%);
-  padding: 10rem 2rem;
-  position: relative;
-  overflow: hidden;
+  background: linear-gradient(135deg, #0a0a0a, #1a0a2e);
   min-height: 80vh;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-}
-
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 800px;
-  height: 800px;
-  background: radial-gradient(circle, rgba(0, 217, 255, 0.2) 0%, transparent 70%);
-  border-radius: 50%;
-  filter: blur(40px);
-}
-
-.hero::after {
-  content: '';
-  position: absolute;
-  bottom: -20%;
-  left: -5%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(255, 0, 110, 0.15) 0%, transparent 70%);
-  border-radius: 50%;
-  filter: blur(40px);
-}
-
-.hero-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.7));
-  z-index: 1;
+  padding: 4rem 0;
 }
 
 .hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 800px;
+  max-width: 700px;
+  margin: 0 auto;
   text-align: center;
-}
-
-.hero-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(255, 0, 110, 0.2));
-  color: var(--primary-teal);
-  padding: 0.8rem 1.5rem;
-  border-radius: 50px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  margin-bottom: 2rem;
-  border: 1px solid var(--text-white);
-  text-transform: uppercase;
 }
 
 .hero h1 {
-  font-size: 5rem;
+  font-size: 4rem;
   font-weight: 900;
+  color: var(--text-white);
   margin-bottom: 1rem;
-  background-color: #ffffff; 
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 3px;
-  line-height: 1.1;
 }
 
 .hero-subtitle {
-  font-size: 2rem;
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
   font-weight: 300;
-  letter-spacing: 2px;
 }
 
 .hero-description {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   color: var(--text-muted);
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   line-height: 1.8;
-  max-width: 700px;
 }
 
-.hero-buttons {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
+/* ================================
+   Reviews sectie
+   ================================ */
+
+.reviews-section {
+  padding: 5rem 0;
+  background-color: #0f0f1a;
+  border-top: 1px solid var(--border);
 }
-
-/* ========================================
-   Buttons
-   ======================================== */
-
-.btn-primary-custom {
-  background-color: #ffffff;
-  border: none;
-  color: #000;
-  padding: 1rem 2.5rem;
-  font-weight: 700;
-  transition: all 0.4s ease;
-  border-radius: 50px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  position: relative;
-  overflow: hidden;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 0.9rem;
-}
-
-
-/* ========================================
-   Section Headers
-   ======================================== */
 
 .section-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 
 .section-header h2 {
-  font-size: 3.2rem;
-  font-weight: 900;
-  background: linear-gradient(to bottom, #f9fcf7 0%,#f5f9f0 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 1rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--text-white);
+  margin-bottom: 0.5rem;
 }
 
 .section-header p {
-  font-size: 1.2rem;
   color: var(--text-muted);
-  font-weight: 400;
-  letter-spacing: 1px;
-}
-
-.section-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, rgba(0, 217, 255, 0.15), rgba(255, 0, 110, 0.15));
-  color: var(--primary-teal);
-  padding: 0.6rem 1.2rem;
-  border-radius: 50px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--text-white);
-  text-transform: uppercase;
-}
-
-
-/* ========================================
-   Testimonials Section
-   ======================================== */
-
-.testimonials-section {
-  padding: 7rem 2rem;
-  background: linear-gradient(180deg, #1a0a2e, #0a0a0a);
-  border-top: 2px solid var(--text-white);
-}
-
-.testimonial-card {
-  background: linear-gradient(135deg, rgba(0, 217, 255, 0.08), rgba(26, 10, 46, 0.8));
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  padding: 2.5rem;
-  transition: all 0.4s ease;
-  height: 100%;
-}
-
-.testimonial-card:hover {
-  border-color: var(--text-white);
-  transform: translateY(-8px);
-  box-shadow: 0 15px 50px rgba(255, 0, 110, 0.2);
-  background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(255, 0, 110, 0.1));
-}
-
-.stars {
-  margin-bottom: 1.5rem;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.stars i {
-  color: gold;
   font-size: 1.1rem;
 }
 
-.testimonial-card p {
-  color: rgb(201, 196, 196);
+.review-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem;
+  height: 100%;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.review-card:hover {
+  transform: translateY(-6px);
+  border-color: white;
+}
+
+.stars {
+  margin-bottom: 1rem;
+}
+
+.stars i {
+  color: var(--gold);
   font-size: 1rem;
-  margin-bottom: 2rem;
-  line-height: 1.8;
+}
+
+.review-card p {
+  color: #ccc;
   font-style: italic;
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
 }
 
-.testimonial-author h4 {
-  color: var(--primary-teal);
+.review-card h5 {
+  color: var(--text-white);
   font-weight: 700;
-  margin-bottom: 0.4rem;
-  font-size: 1.05rem;
-  letter-spacing: 1px;
+  margin-bottom: 0.2rem;
 }
 
-.testimonial-author p {
-  color: var(--accent-magenta);
+.review-card span {
+  color: var(--text-muted);
   font-size: 0.85rem;
-  font-style: normal;
-  margin: 0;
-  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
+/* ================================
+   Modals
+   ================================ */
 
-/* ========================================
+.modal-content {
+  background-color: #111;
+  border: 1px solid var(--border);
+  color: var(--text-light);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border);
+}
+
+.form-control {
+  background-color: #1a1a1a;
+  border: 1px solid var(--border);
+  color: var(--text-light);
+}
+
+.form-control:focus {
+  background-color: #222;
+  color: white;
+  border-color: white;
+  box-shadow: none;
+}
+
+/* ================================
    Footer
-   ======================================== */
+   ================================ */
 
 footer {
-  background: linear-gradient(180deg, #0a0a0a, #050505);
-  border-top: 2px solid var(--text-white);
-  padding: 4rem 2rem 2rem;
+  background-color: #050505;
+  border-top: 1px solid var(--border);
+  padding: 4rem 0 2rem;
   color: var(--text-muted);
 }
 
 footer h5 {
-  color:#f0f0f0;
-  margin-bottom: 1.5rem;
+  color: var(--text-white);
   font-weight: 700;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-footer p {
-  font-size: 0.95rem;
-  line-height: 1.8;
+  margin-bottom: 1rem;
 }
 
 footer ul {
   list-style: none;
   padding: 0;
-  margin: 0;
 }
 
 footer ul li {
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
 }
 
 footer a {
-  color:#f0f0f0;
+  color: var(--text-muted);
   text-decoration: none;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  transition: color 0.2s;
 }
 
 footer a:hover {
-  color:#766f6f;
-  text-decoration: underline;
+  color: var(--text-white);
 }
 
 footer i {
-  color: white;
-  margin-right: 0.8rem;
-  font-size: 1rem;
+  margin-right: 0.5rem;
 }
 
 footer hr {
-  border-color: rgba(255, 255, 255, 0.15);
-  margin: 2.5rem 0;
+  border-color: var(--border);
+  margin: 2rem 0;
 }
 
-footer .text-center {
-  color: var(--text-muted);
-  font-size: 0.9rem;
+.social-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  font-size: 1.2rem;
 }
 
-/* ========================================
-   Responsive Design
-   ======================================== */
+/* ================================
+   Responsive (mobiel)
+   ================================ */
 
 @media (max-width: 768px) {
-  .hero {
-    padding: 5rem 1.5rem;
-    min-height: 55vh;
-  }
-
   .hero h1 {
     font-size: 2.5rem;
   }
 
   .hero-subtitle {
-    font-size: 1.3rem;
-  }
-
-  .hero-description {
-    font-size: 1rem;
-  }
-
-  .hero-buttons {
-    flex-direction: column;
-  }
-
-  .btn-lg {
-    width: 100%;
-  }
-
-  .nav-link {
-    margin-left: 0;
-    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
   }
 
   .section-header h2 {
     font-size: 2rem;
-  }
-
-  .section-header p {
-    font-size: 1rem;
-  }
-
-  .cta-section h2 {
-    font-size: 1.8rem;
-  }
-
-  .cta-buttons {
-    flex-direction: column;
-  }
-
-  .about-content h2 {
-    font-size: 1.8rem;
-  }
-
-  .show-card {
-    margin-bottom: 1.5rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .hero {
-    padding: 3rem 1rem;
-    min-height: 45vh;
-  }
-
-  .hero h1 {
-    font-size: 1.8rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1.1rem;
-  }
-
-  .hero-description {
-    font-size: 0.9rem;
-  }
-
-  .hero-badge {
-    font-size: 0.75rem;
-  }
-
-  .navbar-brand {
-    font-size: 1.3rem;
-  }
-
-  .navbar {
-    padding: 0.7rem 1rem;
-  }
-
-  .section-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .cta-section {
-    padding: 2.5rem 1rem;
-  }
-
-  .cta-section h2 {
-    font-size: 1.4rem;
-  }
-
-  .shows-section,
-  .about-section,
-  .testimonials-section {
-    padding: 3rem 1rem;
-  }
-
-  .show-image {
-    height: 150px;
-    font-size: 3rem;
-  }
-
-  .about-image-placeholder {
-    height: 300px;
-    font-size: 4rem;
-  }
-
-  footer {
-    padding: 2rem 1rem;
-  }
-
-  .hero-buttons {
-    flex-direction: column;
-  }
-
-  .btn-primary-custom,
-  .btn-outline-custom {
-    width: 100%;
-    text-align: center;
   }
 }
