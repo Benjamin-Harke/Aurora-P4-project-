@@ -35,7 +35,10 @@ class Core
              * Haal de naam van de controller uit het $url array
              */
             unset($url[0]);
-        }
+        }  else {
+    // Pagina bestaat niet → laad 404
+    $this->currentController = 'PageNotFound';
+}
 
         /**
          * Sluit de controller class in en maak deze beschikbaar om een object van te maken
@@ -50,7 +53,7 @@ class Core
         /**
          * Check of de method (tweede woord in de URL) bestaat in de controllerclass
          */
-        if (method_exists($this->currentController, $url[1])) {
+        if (isset($url[1]) && method_exists($this->currentController, $url[1])) {
 
             /**
              * Bewaar de naam van de method in $this->currentMethod
