@@ -12,8 +12,8 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     <div class="row h-100 align-items-center">
       <div class="col-lg-8 hero-content">
         <h1>Welcome back, <?= htmlspecialchars($data['firstName']); ?>!</h1>
-        <p class="hero-subtitle">Your Aurora Theatre Dashboard</p>
-        <p class="hero-description">Manage your bookings, view your tickets, and stay updated on upcoming shows.</p>
+        <p class="hero-subtitle">Your Aurora Theatre Admin Dashboard</p>
+        <p class="hero-description">Manage your bookings, view your tickets, and administer shows and staff.</p>
       </div>
     </div>
   </div>
@@ -22,8 +22,44 @@ require_once APPROOT . '/views/includes/header.php'; ?>
 <!-- Dashboard Content -->
 <section class="dashboard-section">
   <div class="container">
-    <div class="row g-4">
-      <!-- Quick Stats -->
+    <!-- Admin Navigation Grid -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-6 col-lg-4">
+        <a href="<?= URLROOT; ?>/voorstellingen" class="dashboard-nav-card">
+          <div class="card-icon">
+            <i class="bi bi-calendar-event"></i>
+          </div>
+          <h3>Voorstellingen</h3>
+          <p>Manage all shows and performances</p>
+          <span class="card-link">Go to Voorstellingen <i class="bi bi-arrow-right"></i></span>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="<?= URLROOT; ?>/medewerkers" class="dashboard-nav-card">
+          <div class="card-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <h3>Medewerkers</h3>
+          <p>Manage staff and employees</p>
+          <span class="card-link">Go to Medewerkers <i class="bi bi-arrow-right"></i></span>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="<?= URLROOT; ?>/tickets" class="dashboard-nav-card">
+          <div class="card-icon">
+            <i class="bi bi-ticket-detailed"></i>
+          </div>
+          <h3>Tickets</h3>
+          <p>View and manage all tickets</p>
+          <span class="card-link">Go to Tickets <i class="bi bi-arrow-right"></i></span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row g-4 mb-5">
       <div class="col-md-6 col-lg-3">
         <div class="dashboard-card">
           <div class="card-icon">
@@ -31,7 +67,6 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </div>
           <h3>My Bookings</h3>
           <p class="card-stat">0</p>
-          <a href="#" class="card-link">View All <i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
 
@@ -42,7 +77,6 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </div>
           <h3>Upcoming Shows</h3>
           <p class="card-stat">3</p>
-          <a href="#" class="card-link">Explore <i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
 
@@ -53,7 +87,6 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </div>
           <h3>Profile</h3>
           <p class="card-stat"><?= htmlspecialchars($data['firstName']); ?></p>
-          <a href="#" class="card-link">Edit <i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
 
@@ -64,13 +97,12 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </div>
           <h3>Settings</h3>
           <p class="card-stat">-</p>
-          <a href="#" class="card-link">Configure <i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
     </div>
 
     <!-- Quick Info -->
-    <div class="row g-4 mt-5">
+    <div class="row g-4">
       <div class="col-lg-8">
         <div class="info-card">
           <h3>Account Information</h3>
@@ -110,6 +142,64 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     min-height: 600px;
   }
 
+  .dashboard-nav-card {
+    display: block;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--primary-teal);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+  }
+
+  .dashboard-nav-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-gold);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+  }
+
+  .dashboard-nav-card .card-icon {
+    font-size: 50px;
+    color: var(--primary-teal);
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+  }
+
+  .dashboard-nav-card:hover .card-icon {
+    color: var(--accent-gold);
+  }
+
+  .dashboard-nav-card h3 {
+    color: white;
+    font-size: 20px;
+    margin: 15px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .dashboard-nav-card p {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 10px 0 20px 0;
+    font-size: 14px;
+  }
+
+  .dashboard-nav-card .card-link {
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
+  .dashboard-nav-card:hover .card-link {
+    color: white;
+  }
+
   .dashboard-card {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 215, 0, 0.2);
@@ -146,17 +236,6 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     font-weight: bold;
     color: white;
     margin: 15px 0;
-  }
-
-  .card-link {
-    color: var(--accent-gold);
-    text-decoration: none;
-    font-size: 14px;
-    transition: all 0.3s ease;
-  }
-
-  .card-link:hover {
-    color: white;
   }
 
   .info-card {

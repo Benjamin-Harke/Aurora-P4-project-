@@ -31,36 +31,34 @@
             <a class="nav-link" href="#shows">Voorstellingen</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<?= URLROOT; ?>/voorstellingen">Alle Voorstellingen</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?= URLROOT; ?>/medewerkers">Medewerkers</a>
-          </li>
-          <li class="nav-item">
             <a class="nav-link" href="#about">Over ons</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#contact">Contact</a>
           </li>
-          <li class="nav-item">
-            <?php if (isset($_SESSION['accountId'])): ?>
+          <?php if (isset($_SESSION['accountId'])): ?>
+            <li class="nav-item">
               <a class="nav-link" href="<?= URLROOT; ?>/dashboard">
                 <i class="bi bi-speedometer2"></i> Dashboard
               </a>
-            <?php else: ?>
-              <button class="btn btn-primary-custom ms-2" data-bs-toggle="modal" data-bs-target="#loginModal">
-                <i class="bi bi-box-arrow-in-right"></i> Login
-              </button>
-              <button class="btn btn-primary-custom ms-2" data-bs-toggle="modal" data-bs-target="#registerModal">
-                <i class="bi bi-person-plus"></i> Register
-              </button>
-            <?php endif; ?>
-            <?php if (isset($_SESSION['accountId'])): ?>
+            </li>
+            <li class="nav-item">
               <a class="btn btn-outline-custom ms-2" href="<?= URLROOT; ?>/auth/logout">
                 <i class="bi bi-box-arrow-right"></i> Logout
               </a>
-            <?php endif; ?>
-          </li>
+            </li>
+          <?php else: ?>
+            <li class="nav-item ms-2">
+              <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="bi bi-box-arrow-in-right"></i> Login
+              </button>
+            </li>
+            <li class="nav-item ms-2">
+              <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#registerModal">
+                <i class="bi bi-person-plus"></i> Register
+              </button>
+            </li>
+          <?php endif; ?>
         </ul>
       </div>
     </div>
