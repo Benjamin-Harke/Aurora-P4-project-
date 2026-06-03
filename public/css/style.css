@@ -57,7 +57,7 @@ body {
    ================================ */
 
 .hero {
-    background-image: url('../img/hero.png');
+    background-image: url('../img/hero2.png');
     background-size: cover;
     background-position: center;
     min-height: 80vh;        /* maak de hero hoger */
@@ -75,7 +75,7 @@ body {
 .hero h1 {
   font-size: 4rem;
   font-weight: 900;
-  color: rgb(189, 30, 30);
+  color: rgb(255, 255, 255);
   text-shadow: #050505;
   text-decoration: underline;
   margin-bottom: 1rem;
@@ -90,9 +90,11 @@ body {
 
 .hero-description {
   font-size: 1.1rem;
-  color: var(--text-muted);
+  color: aliceblue;
   margin-bottom: 2rem;
   line-height: 1.8;
+  font-weight: bold;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 /* ================================
