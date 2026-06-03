@@ -148,3 +148,14 @@
     </div>
     <?php unset($_SESSION['success']); ?>
   <?php endif; ?>
+
+  <!-- Auto-open Login Modal -->
+  <?php if (isset($_SESSION['showLoginModal']) && $_SESSION['showLoginModal']): ?>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+      });
+    </script>
+    <?php unset($_SESSION['showLoginModal']); ?>
+  <?php endif; ?>
