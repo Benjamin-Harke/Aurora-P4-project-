@@ -34,11 +34,10 @@
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
           </div>
-          <p>"An absolutely magical evening! The production quality and venue atmosphere are unmatched."</p>
-          <h5>Sarah Mitchell</h5>
-          <span>Theatre Enthusiast</span>
+          <p>"Een prachtige avond van begin tot eind. De voorstelling was indrukwekkend en de sfeer in het theater maakte de ervaring compleet."</p>
+          <h5>Emma de Vries</h5>
+          <span>REGELMATIGE BEZOEKER</span>
         </div>
       </div>
 
@@ -52,9 +51,9 @@
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
           </div>
-          <p>"Aurora Theatre is a cultural gem. The historic architecture combined with modern amenities makes it special."</p>
-          <h5>James Richardson</h5>
-          <span>Arts Patron</span>
+          <p>"Het theater combineert klassieke charme met moderne faciliteiten. Een van de mooiste locaties die ik heb bezocht."</p>
+          <h5>Mark Jansen</h5>
+          <span>THEATERLIEFHEBBER</span>
         </div>
       </div>
 
@@ -66,11 +65,10 @@
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
-            <i class="bi bi-star-fill"></i>
           </div>
-          <p>"Every visit feels like stepping back in time while enjoying world-class entertainment. Highly recommended!"</p>
-          <h5>Elizabeth Garcia</h5>
-          <span>Family Visitor</span>
+          <p>"Vriendelijke medewerkers, comfortabele zitplaatsen en een geweldige voorstelling. Wij komen zeker terug.</p>
+          <h5>Sophie Bakker</h5>
+          <span>FAMILIEBEZOEKER</span>
         </div>
       </div>
 
