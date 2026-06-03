@@ -1,55 +1,75 @@
 <?php
 
 class Test extends BaseController {
-    // Declaring the property fixes the "Deprecated" error
     private $gebruikerModel;
 
     public function __construct() {
         parent::__construct();
-        // This will test if your Gebruiker model is working
+        // Load the model to test database connection
         $this->gebruikerModel = $this->model('Gebruiker');
     }
 
+    /**
+     * The default method: /test
+     */
     public function index() {
-        echo "<h1>Test Controller is Active</h1>";
+        echo "<h1>Test Controller & Role Switcher</h1>";
         echo "<ul>";
-        echo "<li><a href='/test/session'>1. Create Test Session</a></li>";
-        echo "<li><a href='/test/sessionStatus'>2. Check Session Data</a></li>";
-        echo "<li><a href='/test/logout'>3. Logout</a></li>";
+        echo "<li><a href='/test/session/admin'>1. Login as ADMIN (User ID 1)</a></li>";
+        echo "<li><a href='/test/session/customer'>2. Login as CUSTOMER (User ID 3)</a></li>";
+        echo "<li><a href='/test/sessionStatus'>3. Check Session Status</a></li>";
+        echo "<li><a href='/test/logout'>4. Logout / Clear Session</a></li>";
         echo "</ul>";
         
-        echo "<hr><h3>Database Connection Test (ERD Check):</h3>";
+        echo "<hr><h3>Quick Links:</h3>";
+        echo "<a href='/admintickets'>Go to Admin Dashboard</a> | ";
+        echo "<a href='/usertickets/mytickets'>Go to My User Tickets</a>";
+
+        echo "<hr><h3>Database Connection Test:</h3>";
         try {
-            // This is the line that triggers the "Table not found" error
             $users = $this->gebruikerModel->getAll();
-            
-            echo "<b style='color:green'>Success! Table 'gebruiker' exists and is reachable.</b><br>";
-            echo "Found " . count($users) . " users.<br>";
-            echo "<pre>";
-            print_r($users);
-            echo "</pre>";
-        } catch (PDOException $e) {
-            echo "<b style='color:red'>Database Error:</b> " . $e->getMessage();
-            echo "<br><br><i>Tip: Make sure you ran the SQL script in your database manager for the 'mvc_project' database.</i>";
+            echo "Successfully connected! Users in DB: " . count($users);
+        } catch (Exception $e) {
+            echo "Database Error: " . $e->getMessage();
         }
     }
 
-    public function session() {
-        $_SESSION['user_id'] = 3; 
-        $_SESSION['user_email'] = 'customer@test.com';
-        $_SESSION['user_role'] = 'customer';
-        echo "Test session created! <a href='/test/sessionStatus'>Check it here</a>";
+    /**
+     * Unified Session Creator
+     * URL: /test/session/admin OR /test/session/customer
+     */
+    public function session($role = 'customer') {
+        if ($role === 'admin') {
+            $_SESSION['user_id'] = 1; // John Doe from our SQL script
+            $_SESSION['user_email'] = 'admin@test.com';
+            $_SESSION['user_role'] = 'admin';
+            $msg = "Logged in as ADMIN (User 1)";
+        } else {
+            $_SESSION['user_id'] = 3; // Jane Doe from our SQL script
+            $_SESSION['user_email'] = 'customer@test.com';
+            $_SESSION['user_role'] = 'customer';
+            $msg = "Logged in as CUSTOMER (User 3)";
+        }
+        
+        echo "<h2>$msg</h2>";
+        echo "<a href='/test/index'>Back to Test Index</a>";
     }
 
     public function logout() {
         session_destroy();
+        session_start();
+        $_SESSION['info'] = 'Session cleared';
         header("Location: /test/index");
         exit;
     }
 
     public function sessionStatus() {
         echo '<pre><h2>Current Session Data:</h2>';
-        print_r($_SESSION);
+        if(isset($_SESSION)) {
+            print_r($_SESSION);
+        } else {
+            echo "No session active.";
+        }
         echo '<hr><a href="/test/index">Back to Index</a></pre>';
     }
 }
