@@ -65,35 +65,19 @@ class PublicTickets extends BaseController {
             return;
         }
 
-        $availableCount = $ticketModel->getAvailableCountByPerformanceId($performanceId);
+        // Get ticket stats for this performance
+        $allTickets = $ticketModel->getByVoorstellingIdWithNames($performanceId) ?? [];
+        $bookedCount = count($allTickets);
+        $availableSeats = $performance->max_aantal_tickets - $bookedCount;
 
-        $data = [];
-        $data['performance'] = $performance;
-        $data['available_seats'] = $availableCount;
-        $data['is_sold_out'] = $availableCount === 0;
+        $data = [
+            'performance' => $performance,
+            'available_seats' => $availableSeats,
+            'is_sold_out' => $availableSeats <= 0,
+            'total_seats' => $performance->max_aantal_tickets,
+            'booked_seats' => $bookedCount
+        ];
 
         $this->view('publictickets/performance', $data);
-    }
-
-    /**
-     * Sort performances by specified criteria
-     */
-    private function sortPerformances($performances, $sortBy) {
-        usort($performances, function($a, $b) use ($sortBy) {
-            switch ($sortBy) {
-                case 'price_asc':
-                    return floatval($a->price ?? 0) <=> floatval($b->price ?? 0);
-                case 'price_desc':
-                    return floatval($b->price ?? 0) <=> floatval($a->price ?? 0);
-                case 'popularity': // Could be enhanced with view counts
-                    return 0; // Placeholder
-                case 'date':
-                default:
-                    $dateA = strtotime($a->performance_date . ' ' . $a->performance_time);
-                    $dateB = strtotime($b->performance_date . ' ' . $b->performance_time);
-                    return $dateA <=> $dateB;
-            }
-        });
-        return $performances;
     }
 }
