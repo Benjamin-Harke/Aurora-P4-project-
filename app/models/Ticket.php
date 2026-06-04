@@ -97,4 +97,61 @@ class Ticket {
         $this->db->bind(':id', $id);
         return $this->db->execute();
     }
+
+    /**
+     * SCANNING: Get ticket by barcode with customer and performance info
+     */
+    public function getByBarcode($barcode) {
+        $this->db->query('
+            SELECT 
+                t.*, 
+                v.naam as voorstelling_naam,
+                v.datum as voorstelling_datum,
+                v.tijd as voorstelling_tijd,
+                g.voornaam, g.achternaam,
+                p.tarief
+            FROM ticket t
+            JOIN voorstelling v ON t.voorstelling_id = v.id
+            JOIN bezoeker b ON t.bezoeker_id = b.id
+            JOIN gebruiker g ON b.gebruiker_id = g.id
+            JOIN prijs p ON t.prijs_id = p.id
+            WHERE t.barcode = :barcode
+        ');
+        $this->db->bind(':barcode', $barcode);
+        return $this->db->single();
+    }
+
+    /**
+     * SCANNING: Mark a ticket as scanned/used
+     */
+    public function markAsScanned($id) {
+        $this->db->query('UPDATE ticket SET status = :status WHERE id = :id');
+        $this->db->bind(':status', 'Gescand', PDO::PARAM_STR);
+        $this->db->bind(':id', $id, PDO::PARAM_INT);
+        return $this->db->execute();
+    }
+
+    /**
+     * SCANNING: Get scanning statistics for a performance
+     */
+    public function getStatsByPerformance($performanceId) {
+        // Total tickets for performance
+        $this->db->query('SELECT COUNT(*) as count FROM ticket WHERE voorstelling_id = :id');
+        $this->db->bind(':id', $performanceId, PDO::PARAM_INT);
+        $totalResult = $this->db->single();
+        $total = $totalResult->count ?? 0;
+
+        // Scanned tickets for performance
+        $this->db->query('SELECT COUNT(*) as count FROM ticket WHERE voorstelling_id = :id AND (status = :status1 OR status = :status2)');
+        $this->db->bind(':id', $performanceId, PDO::PARAM_INT);
+        $this->db->bind(':status1', 'Gescand', PDO::PARAM_STR);
+        $this->db->bind(':status2', 'used', PDO::PARAM_STR);
+        $scannedResult = $this->db->single();
+        $scanned = $scannedResult->count ?? 0;
+
+        return [
+            'total' => $total,
+            'scanned' => $scanned
+        ];
+    }
 }
