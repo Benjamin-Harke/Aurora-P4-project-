@@ -15,7 +15,8 @@ class Dashboard extends BaseController
             'title' => 'Dashboard',
             'firstName' => $_SESSION['firstName'],
             'lastName' => $_SESSION['lastName'],
-            'email' => $_SESSION['email']
+            'email' => $_SESSION['email'],
+            'role' => $_SESSION['rolle'] ?? 'bezoeker'
         ];
 
         $this->view('dashboard/index', $data);

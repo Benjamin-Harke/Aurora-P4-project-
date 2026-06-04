@@ -8,56 +8,40 @@ class PublicTickets extends BaseController {
 
     /**
      * Browse all available shows and performances
-     * Supports filtering by date range, genre, search, and sorting
      */
     public function index() {
-        $showModel = $this->model('Show');
-        $performanceModel = $this->model('Performance');
-        $genreModel = $this->model('Genre');
+        $voorstellingModel = $this->model('Voorstelling');
 
-        $data = [];
-        $data['genres'] = $genreModel->getAll();
-        
-        // Get all upcoming performances with filter/search support
-        $startDate = $_GET['start_date'] ?? date('Y-m-d');
-        $endDate = $_GET['end_date'] ?? date('Y-m-d', strtotime('+3 months'));
-        $genreId = $_GET['genre_id'] ?? null;
-        $searchQuery = $_GET['search'] ?? null;
-        $sortBy = $_GET['sort'] ?? 'date'; // date, price_asc, price_desc
+        // Get all active performances
+        $performances = $voorstellingModel->getAll() ?? [];
 
-        // Determine which performances to fetch
+        // Filter by search query if provided
+        $searchQuery = $_GET['search'] ?? '';
         if (!empty($searchQuery)) {
-            // Search by show title
-            $shows = $showModel->searchByTitle($searchQuery);
-            $performances = [];
-            foreach ($shows as $show) {
-                $perfs = $performanceModel->getByShowId($show->id);
-                $performances = array_merge($performances, $perfs);
-            }
-        } elseif ($genreId) {
-            // Filter by genre
-            $performances = $performanceModel->getByGenreId($genreId);
-        } else {
-            // Get all upcoming performances in date range
-            $performances = $performanceModel->getByDateRange($startDate, $endDate);
-        }
-
-        // Filter by date range if no search
-        if (empty($searchQuery)) {
-            $performances = array_filter($performances, function($perf) use ($startDate, $endDate) {
-                return $perf->performance_date >= $startDate && $perf->performance_date <= $endDate;
+            $performances = array_filter($performances, function($perf) use ($searchQuery) {
+                return stripos($perf->naam, $searchQuery) !== false;
             });
         }
 
-        // Apply sorting
-        $performances = $this->sortPerformances($performances, $sortBy);
+        // Filter by date range
+        $startDate = $_GET['start_date'] ?? date('Y-m-d');
+        $endDate = $_GET['end_date'] ?? date('Y-m-d', strtotime('+3 months'));
+        $performances = array_filter($performances, function($perf) use ($startDate, $endDate) {
+            return $perf->datum >= $startDate && $perf->datum <= $endDate;
+        });
 
-        $data['performances'] = array_values($performances);
-        $data['search_query'] = $searchQuery;
-        $data['selected_genre'] = $genreId;
-        $data['start_date'] = $startDate;
-        $data['end_date'] = $endDate;
-        $data['sort_by'] = $sortBy;
+        // Sort by date (earliest first)
+        usort($performances, function($a, $b) {
+            return strcmp($a->datum, $b->datum);
+        });
+
+        $data = [
+            'performances' => array_values($performances),
+            'search_query' => $searchQuery,
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'genres' => []
+        ];
 
         $this->view('publictickets/index', $data);
     }
@@ -67,16 +51,18 @@ class PublicTickets extends BaseController {
      */
     public function performance($performanceId = null) {
         if (!$performanceId) {
-            redirect('publictickets');
+            header('Location: ' . URLROOT . '/publictickets');
+            return;
         }
 
-        $performanceModel = $this->model('Performance');
+        $voorstellingModel = $this->model('Voorstelling');
         $ticketModel = $this->model('Ticket');
 
-        $performance = $performanceModel->getById($performanceId);
+        $performance = $voorstellingModel->getById($performanceId);
         
         if (!$performance) {
-            redirect('publictickets');
+            header('Location: ' . URLROOT . '/publictickets');
+            return;
         }
 
         $availableCount = $ticketModel->getAvailableCountByPerformanceId($performanceId);

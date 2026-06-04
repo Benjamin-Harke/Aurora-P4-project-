@@ -22,6 +22,20 @@ class Admintickets extends BaseController {
      * DASHBOARD: The main "Ticket Overzicht"
      */
     public function dashboard() {
+        // Check if user is logged in and is an admin
+        if (!isset($_SESSION['accountId'])) {
+            $_SESSION['error'] = 'Please log in to access admin features';
+            header('Location: ' . URLROOT);
+            return;
+        }
+
+        $userRole = $_SESSION['rolle'] ?? 'bezoeker';
+        if (strtolower($userRole) !== 'admin') {
+            $_SESSION['error'] = 'You do not have permission to access admin features';
+            header('Location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
         $performances = $this->voorstellingModel->getAll();
         $allTickets = $this->ticketModel->getAll(); // Uses the JOIN query in model
 
@@ -79,6 +93,20 @@ class Admintickets extends BaseController {
      * INVENTORY: Capacity management
      */
     public function inventory() {
+        // Check if user is logged in and is an admin
+        if (!isset($_SESSION['accountId'])) {
+            $_SESSION['error'] = 'Please log in to access admin features';
+            header('Location: ' . URLROOT);
+            return;
+        }
+
+        $userRole = $_SESSION['rolle'] ?? 'bezoeker';
+        if (strtolower($userRole) !== 'admin') {
+            $_SESSION['error'] = 'You do not have permission to access admin features';
+            header('Location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
         $performances = $this->voorstellingModel->getAll();
         $allTickets = $this->ticketModel->getAll();
 
