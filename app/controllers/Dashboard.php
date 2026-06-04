@@ -6,7 +6,8 @@ class Dashboard extends BaseController
     {
         // Check if user is logged in
         if (!isset($_SESSION['accountId'])) {
-            header('location:' . URLROOT . '/auth');
+            $_SESSION['showLoginModal'] = true;
+            header('Location: ' . URLROOT);
             return;
         }
 

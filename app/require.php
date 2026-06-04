@@ -16,9 +16,8 @@
     require_once 'config/config.php';
     
     /**
-     * Initialize database (create tables if they don't exist)
+     * Database initialization now happens via public/db-init.php
      */
-    require_once 'db/init.php';
     
     /**
      * Maak een instantie of object van de Core-Class

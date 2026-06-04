@@ -3,7 +3,8 @@
  * Dashboard View
  * @var array $data Contains: title, firstName, lastName, email
  */
-require_once APPROOT . '/views/includes/header.php'; ?>
+require_once APPROOT . '/views/includes/header.php';
+require_once APPROOT . '/views/includes/messages.php'; ?>
 
 <!-- Dashboard Hero Section -->
 <section class="hero" style="min-height: 300px;">
@@ -12,8 +13,8 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     <div class="row h-100 align-items-center">
       <div class="col-lg-8 hero-content">
         <h1>Welcome back, <?= htmlspecialchars($data['firstName']); ?>!</h1>
-        <p class="hero-subtitle"><?php echo (isset($data['role']) && strtolower($data['role']) === 'admin') ? 'Aurora Theatre Admin Dashboard' : 'Aurora Theatre Booking Dashboard'; ?></p>
-        <p class="hero-description"><?php echo (isset($data['role']) && strtolower($data['role']) === 'admin') ? 'Manage bookings, scan tickets, and administer shows.' : 'Browse available shows, manage your bookings, and view your tickets.'; ?></p>
+        <p class="hero-subtitle"><?php echo strtolower($data['role']) === 'admin' ? 'Your Aurora Theatre Admin Dashboard' : 'Your Aurora Theatre Booking Dashboard'; ?></p>
+        <p class="hero-description"><?php echo strtolower($data['role']) === 'admin' ? 'Manage bookings, scan tickets, and administer shows and staff.' : 'Browse available shows, manage your bookings, and view your tickets.'; ?></p>
       </div>
     </div>
   </div>
@@ -22,10 +23,10 @@ require_once APPROOT . '/views/includes/header.php'; ?>
 <!-- Dashboard Content -->
 <section class="dashboard-section">
   <div class="container">
-    <!-- Admin Navigation Cards -->
-    <?php if (isset($data['role']) && strtolower($data['role']) === 'admin'): ?>
+    <!-- Admin Navigation Grid -->
+    <?php if (strtolower($data['role']) === 'admin'): ?>
     <div class="row g-4 mb-5">
-      <div class="col-md-6 col-lg-3">
+      <div class="col-md-6 col-lg-4">
         <a href="<?= URLROOT; ?>/admintickets/dashboard" class="dashboard-nav-card">
           <div class="card-icon">
             <i class="bi bi-graph-up"></i>
@@ -36,7 +37,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
         </a>
       </div>
 
-      <div class="col-md-6 col-lg-3">
+      <div class="col-md-6 col-lg-4">
         <a href="<?= URLROOT; ?>/ticketscanning" class="dashboard-nav-card">
           <div class="card-icon">
             <i class="bi bi-qr-code"></i>
@@ -47,32 +48,41 @@ require_once APPROOT . '/views/includes/header.php'; ?>
         </a>
       </div>
 
-      <div class="col-md-6 col-lg-3">
+      <div class="col-md-6 col-lg-4">
         <a href="<?= URLROOT; ?>/voorstellingen" class="dashboard-nav-card">
           <div class="card-icon">
             <i class="bi bi-calendar-event"></i>
           </div>
-          <h3>Performances</h3>
-          <p>Manage shows & events</p>
-          <span class="card-link">Go to Performances <i class="bi bi-arrow-right"></i></span>
+          <h3>Voorstellingen</h3>
+          <p>Manage all shows and performances</p>
+          <span class="card-link">Go to Voorstellingen <i class="bi bi-arrow-right"></i></span>
         </a>
       </div>
 
-      <div class="col-md-6 col-lg-3">
+      <div class="col-md-6 col-lg-4">
         <a href="<?= URLROOT; ?>/medewerkers" class="dashboard-nav-card">
           <div class="card-icon">
             <i class="bi bi-people"></i>
           </div>
-          <h3>Staff</h3>
-          <p>Manage employees</p>
-          <span class="card-link">Go to Staff <i class="bi bi-arrow-right"></i></span>
+          <h3>Medewerkers</h3>
+          <p>Manage staff and employees</p>
+          <span class="card-link">Go to Medewerkers <i class="bi bi-arrow-right"></i></span>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <a href="<?= URLROOT; ?>/accounts" class="dashboard-nav-card">
+          <div class="card-icon">
+            <i class="bi bi-person-vcard"></i>
+          </div>
+          <h3>Accounts</h3>
+          <p>View all registered accounts</p>
+          <span class="card-link">Go to Accounts <i class="bi bi-arrow-right"></i></span>
         </a>
       </div>
     </div>
-    <?php endif; ?>
-
-    <!-- User/Guest Quick Actions -->
-    <?php if (!isset($data['role']) || strtolower($data['role']) !== 'admin'): ?>
+    <?php else: ?>
+    <!-- User Navigation Grid -->
     <div class="row g-4 mb-5">
       <div class="col-md-6 col-lg-4">
         <a href="<?= URLROOT; ?>/publictickets" class="dashboard-nav-card">
@@ -80,7 +90,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
             <i class="bi bi-ticket-detailed"></i>
           </div>
           <h3>Available Tickets</h3>
-          <p>Browse & book performances</p>
+          <p>Browse and book theatre performances</p>
           <span class="card-link">Browse Tickets <i class="bi bi-arrow-right"></i></span>
         </a>
       </div>
@@ -110,16 +120,15 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     <?php endif; ?>
 
     <!-- Quick Stats Row -->
-    <div class="row g-4">
-      <!-- Quick Stats -->
+    <?php if (strtolower($data['role']) === 'admin'): ?>
+    <div class="row g-4 mb-5">
       <div class="col-md-6 col-lg-3">
         <div class="dashboard-card">
           <div class="card-icon">
             <i class="bi bi-ticket-detailed"></i>
           </div>
-          <h3>My Bookings</h3>
-          <p class="card-stat">0</p>
-          <a href="#" class="card-link">View All <i class="bi bi-arrow-right"></i></a>
+          <h3>Total Tickets</h3>
+          <p class="card-stat">-</p>
         </div>
       </div>
 
@@ -128,9 +137,8 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           <div class="card-icon">
             <i class="bi bi-calendar-event"></i>
           </div>
-          <h3>Upcoming Shows</h3>
-          <p class="card-stat">3</p>
-          <a href="#" class="card-link">Explore <i class="bi bi-arrow-right"></i></a>
+          <h3>Performances</h3>
+          <p class="card-stat">-</p>
         </div>
       </div>
 
@@ -141,7 +149,6 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </div>
           <h3>Profile</h3>
           <p class="card-stat"><?= htmlspecialchars($data['firstName']); ?></p>
-          <a href="#" class="card-link">Edit <i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
 
@@ -152,13 +159,56 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </div>
           <h3>Settings</h3>
           <p class="card-stat">-</p>
-          <a href="#" class="card-link">Configure <i class="bi bi-arrow-right"></i></a>
         </div>
       </div>
     </div>
+    <?php else: ?>
+    <!-- User Quick Stats -->
+    <div class="row g-4 mb-5">
+      <div class="col-md-6 col-lg-3">
+        <a href="<?= URLROOT; ?>/usertickets/mytickets" class="dashboard-card">
+          <div class="card-icon">
+            <i class="bi bi-ticket-detailed"></i>
+          </div>
+          <h3>My Bookings</h3>
+          <p class="card-stat">View</p>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <a href="<?= URLROOT; ?>/publictickets" class="dashboard-card">
+          <div class="card-icon">
+            <i class="bi bi-calendar-event"></i>
+          </div>
+          <h3>Available Shows</h3>
+          <p class="card-stat">Browse</p>
+        </a>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="dashboard-card">
+          <div class="card-icon">
+            <i class="bi bi-person-circle"></i>
+          </div>
+          <h3>Profile</h3>
+          <p class="card-stat"><?= htmlspecialchars($data['firstName']); ?></p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="dashboard-card">
+          <div class="card-icon">
+            <i class="bi bi-gear"></i>
+          </div>
+          <h3>Settings</h3>
+          <p class="card-stat">-</p>
+        </div>
+      </div>
+    </div>
+    <?php endif; ?>
 
     <!-- Quick Info -->
-    <div class="row g-4 mt-5">
+    <div class="row g-4">
       <div class="col-lg-8">
         <div class="info-card">
           <h3>Account Information</h3>
@@ -201,6 +251,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
   .dashboard-nav-card {
     display: block;
     background: rgba(255, 255, 255, 0.05);
+<<<<<<< HEAD
     border: 2px solid rgba(0, 188, 212, 0.3);
     border-radius: 12px;
     padding: 30px;
@@ -231,13 +282,41 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     border-color: var(--accent-cyan);
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0, 188, 212, 0.2);
+=======
+    border: 2px solid var(--primary-teal);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+  }
+
+  .dashboard-nav-card:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--accent-gold);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+>>>>>>> dev
   }
 
   .dashboard-nav-card .card-icon {
     font-size: 50px;
+<<<<<<< HEAD
     color: var(--accent-cyan);
     margin-bottom: 15px;
     display: block;
+=======
+    color: var(--primary-teal);
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+  }
+
+  .dashboard-nav-card:hover .card-icon {
+    color: var(--accent-gold);
+>>>>>>> dev
   }
 
   .dashboard-nav-card h3 {
@@ -250,6 +329,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
 
   .dashboard-nav-card p {
     color: rgba(255, 255, 255, 0.7);
+<<<<<<< HEAD
     font-size: 14px;
     margin: 10px 0;
   }
@@ -266,6 +346,22 @@ require_once APPROOT . '/views/includes/header.php'; ?>
   .dashboard-nav-card:hover .card-link {
     color: var(--accent-gold);
     margin-left: 5px;
+=======
+    margin: 10px 0 20px 0;
+    font-size: 14px;
+  }
+
+  .dashboard-nav-card .card-link {
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
+  .dashboard-nav-card:hover .card-link {
+    color: white;
+>>>>>>> dev
   }
 
   .dashboard-card {
@@ -304,17 +400,6 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     font-weight: bold;
     color: white;
     margin: 15px 0;
-  }
-
-  .card-link {
-    color: var(--accent-gold);
-    text-decoration: none;
-    font-size: 14px;
-    transition: all 0.3s ease;
-  }
-
-  .card-link:hover {
-    color: white;
   }
 
   .info-card {
