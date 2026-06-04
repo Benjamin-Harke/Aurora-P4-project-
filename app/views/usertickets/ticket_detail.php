@@ -55,12 +55,16 @@ require APPROOT . '/views/includes/header.php'; ?>
                         <div class="text-center mb-4">
                             <h6>Entry QR Code</h6>
                             <p class="text-muted small">Show this QR code at the entrance</p>
-                            <div class="bg-light p-4" style="display: inline-block;">
-                                <p class="text-muted">QR Code Placeholder</p>
-                                <p class="text-muted small"><?php echo htmlspecialchars($data['ticket']->qr_code ?? 'QR Code will be generated at booking'); ?></p>
+                            
+                            <!-- The QR Code Image -->
+                            <div class="bg-white p-3 d-inline-block border shadow-sm">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<?php echo $data['ticket']->barcode; ?>" 
+                                    alt="Ticket QR Code" 
+                                    style="width: 200px; height: 200px;">
                             </div>
+                            
+                            <p class="mt-2"><small class="text-muted">Code: <?php echo htmlspecialchars($data['ticket']->barcode); ?></small></p>
                         </div>
-
                         <hr>
                     <?php endif; ?>
 
@@ -88,6 +92,7 @@ require APPROOT . '/views/includes/header.php'; ?>
             <!-- Printable Section -->
             <div class="d-none d-print-block">
                 <h2><?php echo htmlspecialchars($data['ticket']->show_title); ?></h2>
+                <p><strong>VALIDATION CODE:</strong> <?php echo htmlspecialchars($data['ticket']->barcode); ?></p>
                 <p>Seat: <?php echo htmlspecialchars($data['ticket']->seat_number); ?></p>
                 <p>Date: <?php echo date('d F Y H:i', strtotime($data['ticket']->performance_date . ' ' . $data['ticket']->performance_time)); ?></p>
                 <p>Venue: <?php echo htmlspecialchars($data['ticket']->venue); ?></p>
@@ -100,6 +105,8 @@ require APPROOT . '/views/includes/header.php'; ?>
                     <h5 class="mb-0">Ticket Summary</h5>
                 </div>
                 <div class="card-body">
+                    <p><small class="text-muted">VALIDATION CODE</small><br><strong style="..."><?php echo htmlspecialchars($data['ticket']->barcode ?? 'N/A'); ?></strong></p>
+                    <hr>
                     <p><small class="text-muted">SHOW TITLE</small><br><?php echo htmlspecialchars($data['ticket']->show_title); ?></p>
                     <hr>
                     <p><small class="text-muted">DATE & TIME</small><br>
@@ -113,12 +120,20 @@ require APPROOT . '/views/includes/header.php'; ?>
                     <hr>
                     <p><small class="text-muted">PRICE</small><br><strong>€<?php echo number_format($data['ticket']->price, 2); ?></strong></p>
                 </div>
+                <div class="d-none d-print-block">
+                    <h2><?php echo htmlspecialchars($data['ticket']->show_title); ?></h2>
+                    <!-- Add the QR code image here for printing -->
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?php echo $data['ticket']->barcode; ?>">
+                    <p><strong>VALIDATION CODE:</strong> <?php echo htmlspecialchars($data['ticket']->barcode); ?></p>
+                    ...
+                </div>
             </div>
 
             <!-- Important Info -->
             <div class="alert alert-info mt-3">
                 <h6>Important</h6>
                 <ul class="mb-0 small">
+                    <li>Show your <strong>validation code</strong> at entrance</li>
                     <li>Arrive 15 minutes early</li>
                     <li>Bring a valid ID</li>
                     <li>Keep this ticket safe</li>

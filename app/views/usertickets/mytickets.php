@@ -16,6 +16,24 @@ require APPROOT . '/views/includes/header.php'; ?>
 
     <?php if ($data['has_tickets']): ?>
         
+        <!-- UNHAPPY FLOW 1: Show warning if user has tickets but none are valid -->
+        <?php 
+        $hasValidTickets = count(array_filter($data['upcomingTickets'], fn($t) => !($t->is_invalid ?? false))) > 0;
+        $hasInvalidTickets = count(array_filter($data['tickets'], fn($t) => ($t->is_invalid ?? false))) > 0;
+        ?>
+        <?php if ($hasInvalidTickets && !$hasValidTickets): ?>
+            <div class="alert alert-danger mb-4" role="alert">
+                <h5 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> No Valid Tickets Available</h5>
+                <p class="mb-0">All your booked tickets are either expired, invalid, or have been cancelled. 
+                <a href="<?= URLROOT; ?>/publictickets" class="alert-link">Browse and book new shows</a> to get started!</p>
+            </div>
+        <?php elseif ($hasInvalidTickets): ?>
+            <div class="alert alert-warning mb-4" role="alert">
+                <h5 class="alert-heading"><i class="bi bi-exclamation-circle"></i> Some Tickets Invalid</h5>
+                <p class="mb-0">Some of your tickets are expired or invalid. See the "Past Shows" tab for details.</p>
+            </div>
+        <?php endif; ?>
+        
         <!-- Filter Section -->
         <div class="card mb-4 bg-light">
             <div class="card-body">
@@ -45,7 +63,9 @@ require APPROOT . '/views/includes/header.php'; ?>
                             <option value="">All Statuses</option>
                             <option value="booked">Booked</option>
                             <option value="reserved">Reserved</option>
+                            <option value="gescand">Scanned</option>
                             <option value="cancelled">Cancelled</option>
+                            <option value="invalid">Invalid</option>
                         </select>
                     </div>
                     <div class="col-md-3">
@@ -155,7 +175,7 @@ require APPROOT . '/views/includes/header.php'; ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Past Tickets Tab -->
+            <!-- Past/Invalid Tickets Tab -->
             <?php if($data['has_past']): ?>
                 <div class="tab-pane fade <?php echo !$data['has_upcoming'] ? 'show active' : ''; ?>" id="past" role="tabpanel" aria-labelledby="past-tab">
                     <div class="table-responsive">
@@ -173,13 +193,17 @@ require APPROOT . '/views/includes/header.php'; ?>
                             </thead>
                             <tbody>
                                 <?php foreach ($data['pastTickets'] as $ticket): ?>
-                                    <tr class="ticket-row" data-genre="<?php echo htmlspecialchars($ticket->genre_name ?? ''); ?>" 
+                                    <tr class="ticket-row <?php echo ($ticket->is_invalid ?? false) ? 'table-danger' : ''; ?>" 
+                                        data-genre="<?php echo htmlspecialchars($ticket->genre_name ?? ''); ?>" 
                                         data-show="<?php echo htmlspecialchars(strtolower($ticket->show_title)); ?>"
                                         data-status="<?php echo htmlspecialchars($ticket->status); ?>"
-                                        style="opacity: 0.7;">
+                                        style="<?php echo ($ticket->is_invalid ?? false) ? 'opacity: 1; background-color: rgba(220, 53, 69, 0.15);' : 'opacity: 0.7;'; ?>">
                                         <td>
                                             <strong><?php echo htmlspecialchars($ticket->show_title); ?></strong><br>
                                             <small class="text-muted"><?php echo htmlspecialchars($ticket->genre_name ?? 'Unknown'); ?></small>
+                                            <?php if ($ticket->is_invalid ?? false): ?>
+                                                <br><small class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($ticket->expiry_message); ?></small>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php echo date('d M Y', strtotime($ticket->performance_date)); ?><br>
@@ -193,7 +217,9 @@ require APPROOT . '/views/includes/header.php'; ?>
                                             $statusBadge = [
                                                 'booked' => 'success',
                                                 'reserved' => 'info',
+                                                'gescand' => 'primary',
                                                 'cancelled' => 'danger',
+                                                'invalid' => 'danger',
                                                 'available' => 'secondary'
                                             ];
                                             $badgeClass = $statusBadge[$ticket->status] ?? 'secondary';
@@ -230,16 +256,124 @@ require APPROOT . '/views/includes/header.php'; ?>
             </p>
         </div>
     <?php else: ?>
-        <div class="alert alert-warning">
-            <h5>No Tickets Yet</h5>
-            <p>You haven't booked any tickets yet. <a href="/publictickets" class="alert-link">Browse available shows</a> to get started!</p>
+        <!-- UNHAPPY FLOW 1: No tickets purchased yet -->
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <h5 class="alert-heading"><i class="bi bi-info-circle"></i> No Tickets Available</h5>
+            <p>You haven't purchased any tickets yet. Theatre experiences are waiting for you!</p>
+            <hr>
+            <p class="mb-0">
+                <a href="<?= URLROOT; ?>/publictickets" class="btn btn-primary btn-sm">
+                    <i class="bi bi-calendar-check"></i> Browse Available Shows
+                </a>
+            </p>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Empty State Illustration -->
+        <div class="text-center py-5">
+            <i class="bi bi-ticket2" style="font-size: 5rem; color: #00d9ff; opacity: 0.5;"></i>
+            <h3 class="mt-3">No Bookings Yet</h3>
+            <p class="text-muted">Start by browsing our theatre performances and book your first ticket!</p>
+            <a href="<?= URLROOT; ?>/publictickets" class="btn btn-primary">
+                <i class="bi bi-search"></i> Explore Shows
+            </a>
         </div>
     <?php endif; ?>
 
     <div class="mt-5">
         <a href="/publictickets" class="btn btn-primary">Browse More Shows</a>
     </div>
-</div>
+
+    <!-- TEST SCENARIO CONTROLS (for demonstration) -->
+    <div class="mt-5 pt-4 border-top">
+        <div class="card bg-light">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-flask"></i> Test Controls - Unhappy Flow Scenarios</h6>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3"><small>These controls allow you to test the unhappy flow scenarios:</small></p>
+                <div class="row g-2">
+                    <div class="col-12">
+                        <h6 class="mb-2">Scenario 1: Empty Tickets (No Bookings)</h6>
+                        <p class="text-muted"><small>To test the "no tickets" scenario, simply delete all your tickets or create a test account with no bookings.</small></p>
+                    </div>
+                    <div class="col-12">
+                        <h6 class="mb-2">Scenario 2: Invalid/Expired Tickets</h6>
+                        <p class="text-muted"><small>Use the buttons below to mark any of your tickets as invalid for testing:</small></p>
+                    </div>
+                </div>
+
+                <?php if ($data['has_tickets']): ?>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ticket</th>
+                                    <th>Status</th>
+                                    <th>Test Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($data['tickets'] as $ticket): ?>
+                                    <tr>
+                                        <td>
+                                            <small><?php echo htmlspecialchars($ticket->show_title); ?></small><br>
+                                            <small class="text-muted"><?php echo date('d M Y', strtotime($ticket->performance_date)); ?></small>
+                                        </td>
+                                        <td>
+                                            <small>
+                                                <span class="badge bg-<?php 
+                                                    $statusBadge = [
+                                                        'booked' => 'success',
+                                                        'reserved' => 'info',
+                                                        'gescand' => 'primary',
+                                                        'invalid' => 'danger',
+                                                        'cancelled' => 'danger'
+                                                    ];
+                                                    echo $statusBadge[$ticket->status] ?? 'secondary'; 
+                                                ?>">
+                                                    <?php echo ucfirst($ticket->status); ?>
+                                                </span>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <?php if ($ticket->status !== 'invalid'): ?>
+                                                <a href="/usertickets/testMarkInvalid/<?php echo $ticket->id; ?>" 
+                                                   class="btn btn-sm btn-danger" 
+                                                   onclick="return confirm('Mark this ticket as invalid for testing?');"
+                                                   title="Test: Mark as invalid/expired">
+                                                    <i class="bi bi-x-circle"></i> Mark Invalid
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="/usertickets/testResetTicket/<?php echo $ticket->id; ?>" 
+                                                   class="btn btn-sm btn-success"
+                                                   onclick="return confirm('Reset this ticket back to booked?');"
+                                                   title="Test: Reset ticket">
+                                                    <i class="bi bi-arrow-clockwise"></i> Reset
+                                                </a>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else: ?>
+                    <p class="text-muted"><small>You have no tickets to test with. <a href="/publictickets">Book some tickets first</a>.</small></p>
+                <?php endif; ?>
+
+                <div class="mt-3 pt-3 border-top">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>How to test:</strong><br>
+                        1. Click "Mark Invalid" on a ticket to simulate an expired/invalid scenario<br>
+                        2. View "Past Shows" tab to see the invalid ticket with warning message<br>
+                        3. Click "Reset" to restore the ticket to normal status
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <!-- Filtering Script -->
 <script>
