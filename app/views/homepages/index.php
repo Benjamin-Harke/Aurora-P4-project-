@@ -8,11 +8,11 @@
       <div class="col-lg-8 hero-content">
         <span class="hero-badge">✨ LIVE PERFORMANCES</span>
         <h1>Aurora Theatre</h1>
-        <p class="hero-subtitle">Where Stories Come to Life</p>
-        <p class="hero-description">Step into a world of drama, comedy, and wonder. Experience world-class performances in our beautifully restored 100-year-old theatre.</p>
+        <p class="hero-subtitle">Waar verhalen tot leven komen.</p>
+        <p class="hero-description">Betreed een wereld vol drama, komedie en verwondering. Beleef voorstellingen van wereldklasse in ons prachtig gerestaureerde theater van 100 jaar oud.</p>
         <div class="hero-buttons">
           <button class="btn btn-primary-custom btn-lg" data-bs-toggle="modal" data-bs-target="#bookingModal">
-            <i class="bi bi-ticket-detailed"></i> Book Tickets Now
+            <i class="bi bi-ticket-detailed"></i> Book Tickets Nu
           </button>
           <button class="btn btn-outline-custom btn-lg">
             <i class="bi bi-calendar-event"></i> View Shows
@@ -40,10 +40,10 @@
           <div class="show-content">
             <h3>Hamlet: A Timeless Tragedy</h3>
             <p class="show-date"><i class="bi bi-calendar"></i> June 15-25, 2026</p>
-            <p class="show-desc">Shakespeare's masterpiece brought to life with stunning performances and elaborate set design.</p>
+            <p class="show-desc">Shakespeares meesterwerk komt tot leven met indrukwekkende acteerprestaties en een prachtig uitgewerkt decor.</p>
             <div class="show-footer">
               <span class="show-time">8:00 PM</span>
-              <button class="btn btn-sm btn-primary-custom">Book Now</button>
+              <button class="btn btn-sm btn-primary-custom">Book Nu</button>
             </div>
           </div>
         </div>
@@ -56,10 +56,10 @@
           <div class="show-content">
             <h3>Musical: Echoes of Tomorrow</h3>
             <p class="show-date"><i class="bi bi-calendar"></i> July 5-20, 2026</p>
-            <p class="show-desc">A contemporary musical celebrating hope, love, and the power of human connection.</p>
+            <p class="show-desc">Een eigentijdse musical die hoop, liefde en de kracht van menselijke verbondenheid viert.</p>
             <div class="show-footer">
               <span class="show-time">7:30 PM</span>
-              <button class="btn btn-sm btn-primary-custom">Book Now</button>
+              <button class="btn btn-sm btn-primary-custom">Book Nu</button>
             </div>
           </div>
         </div>
@@ -72,10 +72,10 @@
           <div class="show-content">
             <h3>Comedy Night Extravaganza</h3>
             <p class="show-date"><i class="bi bi-calendar"></i> August 2-10, 2026</p>
-            <p class="show-desc">An evening of laughter with renowned comedians performing their best routines.</p>
+            <p class="show-desc">Een avond vol lachen met bekende cabaretiers die hun beste acts en grappen ten gehore brengen.</p>
             <div class="show-footer">
               <span class="show-time">9:00 PM</span>
-              <button class="btn btn-sm btn-primary-custom">Book Now</button>
+              <button class="btn btn-sm btn-primary-custom">Book Nu</button>
             </div>
           </div>
         </div>
@@ -100,8 +100,8 @@
         <div class="about-content">
           <span class="section-badge">Our Story</span>
           <h2>A Century of Excellence</h2>
-          <p>Founded in 1924, Aurora Theatre stands as a beacon of artistic excellence and cultural heritage. Our beautifully restored venue has hosted thousands of unforgettable performances, from classical theatre to contemporary productions.</p>
-          <p>With state-of-the-art facilities, premium seating, and world-class acoustics, we provide the perfect setting for every type of performance and audience.</p>
+          <p>Opgericht in 1924 staat Aurora Theatre bekend als een symbool van artistieke kwaliteit en cultureel erfgoed. Ons prachtig gerestaureerde theater heeft duizenden onvergetelijke voorstellingen gehost, van klassieke toneelstukken tot moderne producties.</p>
+          <p>Met ultramoderne faciliteiten, comfortabele zitplaatsen en akoestiek van wereldklasse bieden wij de perfecte omgeving voor iedere voorstelling en elke bezoeker.</p>
           <div class="about-features">
             <div class="about-feature">
               <i class="bi bi-check-circle-fill"></i>
@@ -127,8 +127,8 @@
 <section class="testimonials-section">
   <div class="container">
     <div class="section-header">
-      <h2>What Our Patrons Say</h2>
-      <p>Experience the magic through their words</p>
+      <h2>Wat onze bezoekers zeggen</h2>
+      <p>Ervaar de magie door hun woorden.</p>
     </div>
     <div class="row g-4">
       <div class="col-md-6 col-lg-4">
@@ -140,10 +140,10 @@
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
           </div>
-          <p>"An absolutely magical evening! The production quality and venue atmosphere are unmatched."</p>
+          <p>"Een absoluut magische avond! De kwaliteit van de voorstelling en de sfeer van het theater zijn ongeëvenaard."</p>
           <div class="testimonial-author">
             <h4>Sarah Mitchell</h4>
-            <p>Theatre Enthusiast</p>
+            <p>Theaterliefhebber</p>
           </div>
         </div>
       </div>
@@ -156,10 +156,10 @@
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
           </div>
-          <p>"Aurora Theatre is a cultural gem. The historic architecture combined with modern amenities makes it special."</p>
+          <p>"Aurora Theatre is een cultureel juweeltje. De historische architectuur in combinatie met moderne voorzieningen maakt het echt bijzonder."</p>
           <div class="testimonial-author">
             <h4>James Richardson</h4>
-            <p>Arts Patron</p>
+            <p>Kunstliefhebber</p>
           </div>
         </div>
       </div>
@@ -172,10 +172,10 @@
             <i class="bi bi-star-fill"></i>
             <i class="bi bi-star-fill"></i>
           </div>
-          <p>"Every visit feels like stepping back in time while enjoying world-class entertainment. Highly recommended!"</p>
+          <p>"Elk bezoek voelt alsof je terug in de tijd stapt terwijl je geniet van entertainment van wereldklasse. Absoluut een aanrader!"</p>
           <div class="testimonial-author">
             <h4>Elizabeth Garcia</h4>
-            <p>Family Visitor</p>
+            <p>Bezoeker met familie</p>
           </div>
         </div>
       </div>
@@ -187,14 +187,14 @@
 <section class="cta-section">
   <div class="container">
     <div class="cta-content">
-      <h2>Ready for an Unforgettable Evening?</h2>
-      <p>Join our community of theatre lovers and never miss a show</p>
+      <h2>Klaar voor een onvergetelijke avond?</h2>
+      <p>Sluit je aan bij onze gemeenschap van theaterliefhebbers en mis nooit meer een voorstelling.</p>
       <div class="cta-buttons">
         <button class="btn btn-primary-custom btn-lg" data-bs-toggle="modal" data-bs-target="#bookingModal">
-          <i class="bi bi-ticket-detailed"></i> Book Tickets
+          <i class="bi bi-ticket-detailed"></i> Tickets Reserveren
         </button>
         <button class="btn btn-outline-custom btn-lg">
-          <i class="bi bi-envelope"></i> Subscribe
+          <i class="bi bi-envelope"></i> Abonneren
         </button>
       </div>
     </div>
@@ -207,27 +207,27 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
-          <i class="bi bi-box-arrow-in-right"></i> Login to Aurora
+          <i class="bi bi-box-arrow-in-right"></i> Inloggen bij Aurora  
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <div class="mb-3">
-          <label for="email" class="form-label">Email Address</label>
+          <label for="email" class="form-label">E-mailadres</label>
           <input type="email" class="form-control" id="email">
         </div>
         <div class="mb-3">
-          <label for="password" class="form-label">Password</label>
+          <label for="password" class="form-label">Wachtwoord</label>
           <input type="password" class="form-control" id="password">
         </div>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" id="remember">
-          <label class="form-check-label" for="remember">Remember me</label>
+          <label class="form-check-label" for="remember">Onthoud mij</label>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary-custom">Login</button>
+        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Annuleren</button>
+        <button type="button" class="btn btn-primary-custom">Inloggen</button>
       </div>
     </div>
   </div>
@@ -239,18 +239,18 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">
-          <i class="bi bi-ticket-detailed"></i> Book Your Tickets
+          <i class="bi bi-ticket-detailed"></i> Reserveer je tickets
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p>Ticket booking will be available soon! Check back shortly.</p>
+        <p>Ticketreserveringen zijn binnenkort beschikbaar. Kom snel terug voor meer informatie.</p>
         <div class="alert alert-info">
-          <i class="bi bi-info-circle"></i> Subscribe to be notified when tickets go on sale!
+          <i class="bi bi-info-circle"></i> Abonneer je om een melding te ontvangen zodra de tickets in verkoop gaan!
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Sluiten</button>
       </div>
     </div>
   </div>

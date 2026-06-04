@@ -8,7 +8,7 @@
       </div>
       <div class="col-md-4 mb-4">
         <h5>Quick Links</h5>
-        <ul>
+        <ul> <!--Hier de sitemap van de website-->
           <li><a href="localhost/bestaatNiet">Home</a></li>
           <li><a href="#">Voorstellingen</a></li>
           <li><a href="#">Over Ons</a></li>
