@@ -217,4 +217,24 @@ class Ticket
         // Return just an array of numbers: [1, 5, 12...]
         return array_column($results, 'nummer');
     }
+
+    /**
+     * Get ALL tickets in the system with associated names
+     * Used for the Admin Dashboard / Ticket Overview
+     */
+    public function getAll()
+    {
+        $this->db->query("SELECT t.*, 
+                                 v.naam as show_title, 
+                                 CONCAT(g.voornaam, ' ', g.achternaam) as customer_name,
+                                 p.tarief -- ADDED THIS
+                          FROM ticket t
+                          JOIN voorstelling v ON t.voorstelling_id = v.id
+                          JOIN bezoeker b ON t.bezoeker_id = b.id
+                          JOIN gebruiker g ON b.gebruiker_id = g.id
+                          JOIN prijs p ON t.prijs_id = p.id -- JOINED PRIJS TABLE
+                          ORDER BY t.datum_aangemaakt DESC");
+        
+        return $this->db->resultSet();
+    }
 }
