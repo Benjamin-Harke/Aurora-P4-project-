@@ -117,4 +117,33 @@ class Usertickets extends BaseController {
 
         $this->view('usertickets/ticket_detail', ['ticket' => $ticket]);
     }
+
+    /**
+     * Allow a user to cancel/delete their own ticket
+     */
+    public function cancelTicket($id = null)
+    {
+        if (!$id || !isset($_SESSION['user_id'])) {
+            redirect('usertickets/mytickets');
+        }
+
+        // 1. Get the ticket and the current visitor ID
+        $ticket = $this->ticketModel->getById($id);
+        $bezoeker = $this->bezoekerModel->getByGebruikerId($_SESSION['user_id']);
+
+        // 2. SECURITY: Check if the ticket actually belongs to the logged-in user
+        if (!$ticket || $ticket->bezoeker_id != $bezoeker->id) {
+            $_SESSION['error'] = 'You do not have permission to delete this ticket.';
+            redirect('usertickets/mytickets');
+        }
+
+        // 3. Delete the ticket
+        if ($this->ticketModel->delete($id)) {
+            $_SESSION['success'] = 'Ticket has been successfully cancelled.';
+        } else {
+            $_SESSION['error'] = 'Something went wrong. Please try again.';
+        }
+
+        redirect('usertickets/mytickets');
+    }
 }

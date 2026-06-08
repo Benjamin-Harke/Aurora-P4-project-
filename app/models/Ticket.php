@@ -14,21 +14,22 @@ class Ticket {
         $this->db->query('
             SELECT 
                 t.*, 
-                v.naam as voorstelling_naam,
+                v.naam as show_title,
                 v.id as voorstelling_id,
-                g.voornaam, g.achternaam,
+                CONCAT(g.voornaam, " ", g.achternaam) as customer_name,
                 p.tarief
             FROM ticket t
             JOIN voorstelling v ON t.voorstelling_id = v.id
             JOIN bezoeker b ON t.bezoeker_id = b.id
             JOIN gebruiker g ON b.gebruiker_id = g.id
             JOIN prijs p ON t.prijs_id = p.id
+            ORDER BY t.datum_aangemaakt DESC
         ');
         return $this->db->resultSet();
     }
 
     /**
-     * USER: Get tickets for a specific visitor (Jane Doe test)
+     * USER: Get tickets for a specific visitor
      */
     public function getByBezoekerIdWithNames($bezoekerId) {
         $this->db->query('
@@ -49,32 +50,43 @@ class Ticket {
     }
 
     /**
-     * ADMIN: Get tickets for a specific show with Customer Names
+     * SEAT SELECTION: Get taken seats for a show
      */
-    public function getByVoorstellingIdWithNames($id) {
-        $this->db->query('
-            SELECT t.*, g.voornaam, g.tussenvoegsel, g.achternaam, p.tarief
-            FROM ticket t
-            JOIN bezoeker b ON t.bezoeker_id = b.id
-            JOIN gebruiker g ON b.gebruiker_id = g.id
-            JOIN prijs p ON t.prijs_id = p.id
-            WHERE t.voorstelling_id = :id
-        ');
-        $this->db->bind(':id', $id);
-        return $this->db->resultSet();
+    public function getTakenSeats($performanceId) {
+        $this->db->query("SELECT nummer FROM ticket WHERE voorstelling_id = :id AND status != 'cancelled'");
+        $this->db->bind(':id', $performanceId);
+        $results = $this->db->resultSet();
+        return array_column($results, 'nummer');
     }
 
     /**
-     * Standard CRUD: Get one ticket by ID
+     * SCANNING: Get stats for a show
+     */
+    public function getStats($perfId) {
+        $this->db->query("SELECT 
+                            COUNT(*) as total, 
+                            SUM(CASE WHEN status = 'Gescand' THEN 1 ELSE 0 END) as scanned 
+                          FROM ticket WHERE voorstelling_id = :id");
+        $this->db->bind(':id', $perfId);
+        return $this->db->single();
+    }
+
+    /**
+     * CRUD: Get one ticket by ID
      */
     public function getById($id) {
-        $this->db->query('SELECT * FROM ticket WHERE id = :id');
+        $this->db->query('
+            SELECT t.*, v.naam as voorstelling_naam, p.tarief 
+            FROM ticket t 
+            JOIN voorstelling v ON t.voorstelling_id = v.id
+            JOIN prijs p ON t.prijs_id = p.id
+            WHERE t.id = :id');
         $this->db->bind(':id', $id);
         return $this->db->single();
     }
 
     /**
-     * Standard CRUD: Create a new ticket
+     * CRUD: Create a new ticket
      */
     public function create($data) {
         $this->db->query('INSERT INTO ticket (bezoeker_id, voorstelling_id, prijs_id, nummer, barcode, datum, tijd, status) VALUES (:bezoeker_id, :voorstelling_id, :prijs_id, :nummer, :barcode, :datum, :tijd, :status)');
@@ -90,7 +102,17 @@ class Ticket {
     }
 
     /**
-     * Standard CRUD: Delete a ticket
+     * CRUD: Update status
+     */
+    public function updateStatus($id, $status) {
+        $this->db->query('UPDATE ticket SET status = :status WHERE id = :id');
+        $this->db->bind(':status', $status);
+        $this->db->bind(':id', $id);
+        return $this->db->execute();
+    }
+
+    /**
+     * CRUD: Delete a ticket
      */
     public function delete($id) {
         $this->db->query('DELETE FROM ticket WHERE id = :id');
@@ -99,59 +121,51 @@ class Ticket {
     }
 
     /**
-     * SCANNING: Get ticket by barcode with customer and performance info
+     * SCANNING: Verify and Scan logic
      */
-    public function getByBarcode($barcode) {
+    public function verifyAndScan($barcode, $perfId) {
+        $this->db->query("SELECT t.*, p.tarief as prijs, 
+                                 CONCAT(g.voornaam, ' ', g.achternaam) as owner_name
+                          FROM ticket t
+                          JOIN bezoeker b ON t.bezoeker_id = b.id
+                          JOIN gebruiker g ON b.gebruiker_id = g.id
+                          JOIN prijs p ON t.prijs_id = p.id
+                          WHERE t.barcode = :barcode AND t.voorstelling_id = :perfId");
+        
+        $this->db->bind(':barcode', $barcode);
+        $this->db->bind(':perfId', $perfId);
+        $ticket = $this->db->single();
+
+        if (!$ticket) return 'INVALID';
+        if ($ticket->status === 'Gescand') return 'ALREADY_SCANNED';
+
+        $this->db->query("UPDATE ticket SET status = 'Gescand' WHERE id = :id");
+        $this->db->bind(':id', $ticket->id);
+        
+        if ($this->db->execute()) {
+            $ticket->naam = $ticket->owner_name; 
+            return $ticket;
+        }
+        return 'INVALID';
+    }
+
+    /**
+     * Get all tickets for a specific performance
+     * Used to calculate available seats
+     */
+    public function getByVoorstellingIdWithNames($id) {
+        // We query the ticket table for the specific show ID
         $this->db->query('
-            SELECT 
-                t.*, 
-                v.naam as voorstelling_naam,
-                v.datum as voorstelling_datum,
-                v.tijd as voorstelling_tijd,
-                g.voornaam, g.achternaam,
-                p.tarief
+            SELECT t.*, g.voornaam, g.achternaam, p.tarief
             FROM ticket t
-            JOIN voorstelling v ON t.voorstelling_id = v.id
             JOIN bezoeker b ON t.bezoeker_id = b.id
             JOIN gebruiker g ON b.gebruiker_id = g.id
             JOIN prijs p ON t.prijs_id = p.id
-            WHERE t.barcode = :barcode
+            WHERE t.voorstelling_id = :id
         ');
-        $this->db->bind(':barcode', $barcode);
-        return $this->db->single();
-    }
-
-    /**
-     * SCANNING: Mark a ticket as scanned/used
-     */
-    public function markAsScanned($id) {
-        $this->db->query('UPDATE ticket SET status = :status WHERE id = :id');
-        $this->db->bind(':status', 'Gescand', PDO::PARAM_STR);
-        $this->db->bind(':id', $id, PDO::PARAM_INT);
-        return $this->db->execute();
-    }
-
-    /**
-     * SCANNING: Get scanning statistics for a performance
-     */
-    public function getStatsByPerformance($performanceId) {
-        // Total tickets for performance
-        $this->db->query('SELECT COUNT(*) as count FROM ticket WHERE voorstelling_id = :id');
-        $this->db->bind(':id', $performanceId, PDO::PARAM_INT);
-        $totalResult = $this->db->single();
-        $total = $totalResult->count ?? 0;
-
-        // Scanned tickets for performance
-        $this->db->query('SELECT COUNT(*) as count FROM ticket WHERE voorstelling_id = :id AND (status = :status1 OR status = :status2)');
-        $this->db->bind(':id', $performanceId, PDO::PARAM_INT);
-        $this->db->bind(':status1', 'Gescand', PDO::PARAM_STR);
-        $this->db->bind(':status2', 'used', PDO::PARAM_STR);
-        $scannedResult = $this->db->single();
-        $scanned = $scannedResult->count ?? 0;
-
-        return [
-            'total' => $total,
-            'scanned' => $scanned
-        ];
+        $this->db->bind(':id', $id);
+        
+        // resultSet returns an array, which allows count() to work in the controller
+        return $this->db->resultSet();
     }
 }

@@ -21,69 +21,55 @@ class Admintickets extends BaseController {
     /**
      * DASHBOARD: The main "Ticket Overzicht"
      */
+    /**
+     * DASHBOARD: The main "Ticket Overzicht"
+     */
     public function dashboard() {
-        // Check if user is logged in and is an admin
+        // 1. Security Check
         if (!isset($_SESSION['accountId'])) {
             $_SESSION['error'] = 'Please log in to access admin features';
             header('Location: ' . URLROOT);
             return;
         }
 
-        $userRole = $_SESSION['rolle'] ?? 'bezoeker';
-        if (strtolower($userRole) !== 'admin') {
-            $_SESSION['error'] = 'You do not have permission to access admin features';
-            header('Location: ' . URLROOT . '/dashboard');
-            return;
+        // 2. Fetch Data from Models
+        $performances = $this->voorstellingModel->getAll();
+        $allTickets = $this->ticketModel->getAll(); 
+
+        // 3. Calculate Global Stats for the Top Cards
+        $totalRevenue = 0;
+        $scannedCount = 0;
+        foreach($allTickets as $ticket) {
+            $totalRevenue += $ticket->tarief;
+            // Check for Dutch status from your DB
+            if($ticket->status == 'Gescand') {
+                $scannedCount++;
+            }
         }
 
-        $performances = $this->voorstellingModel->getAll();
-        $allTickets = $this->ticketModel->getAll(); // Uses the JOIN query in model
-
+        // 4. Calculate Analytics (per show) for your internal logic
         $analyticsData = [];
-        $totalRevenue = 0;
-        $totalBooked = 0;
-        $totalCapacity = 0;
-
         foreach ($performances as $perf) {
             $bookedForThis = 0;
-            $revenueForThis = 0;
-            
             foreach($allTickets as $ticket) {
-                if($ticket->voorstelling_id == $perf->id) {
-                    $bookedForThis++;
-                    $revenueForThis += $ticket->tarief;
-                }
+                if($ticket->voorstelling_id == $perf->id) $bookedForThis++;
             }
-
-            $totalSeats = $perf->max_aantal_tickets;
-            $availableSeats = $totalSeats - $bookedForThis;
-            $rowOccupancy = ($totalSeats > 0) ? round(($bookedForThis / $totalSeats) * 100, 2) : 0;
-
-            // MAP DUTCH DB -> ENGLISH VIEW KEYS
             $analyticsData[] = [
                 'id' => $perf->id,
                 'show_title' => $perf->naam,
-                'performance_date' => $perf->datum,
-                'performance_time' => $perf->tijd,
-                'venue' => 'Main Stage',
-                'total_seats' => $totalSeats,
                 'booked_seats' => $bookedForThis,
-                'available_seats' => $availableSeats,
-                'occupancy_rate' => $rowOccupancy,
-                'revenue' => $revenueForThis
+                'total_seats' => $perf->max_aantal_tickets
             ];
-
-            $totalRevenue += $revenueForThis;
-            $totalBooked += $bookedForThis;
-            $totalCapacity += $totalSeats;
         }
 
+        // 5. Prepare Data - Names here MUST match the View
         $data = [
-            'analytics' => $analyticsData,
-            'total_revenue' => $totalRevenue,
-            'total_booked' => $totalBooked,
-            'occupancy_rate' => $totalCapacity > 0 ? round(($totalBooked / $totalCapacity) * 100, 2) : 0,
-            'total_shows' => count($performances)
+            'tickets'         => $allTickets,             // Matches line 62 in View
+            'total_tickets'   => count($allTickets),      // Matches line 19 in View
+            'total_revenue'   => $totalRevenue,           // Matches View
+            'scanned_count'   => $scannedCount,           // Matches line 35 in View
+            'analytics'       => $analyticsData,
+            'total_shows'     => count($performances)
         ];
 
         $this->view('admintickets/dashboard', $data);
@@ -195,5 +181,27 @@ class Admintickets extends BaseController {
         ];
 
         $this->view('admintickets/performance_details', $data);
+    }
+
+    /**
+     * Allow an admin to delete any ticket from the dashboard
+     */
+    public function delete($id = null)
+    {
+        // Simple security: check if logged in (you could add a role check here)
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . URLROOT . '/test/index');
+            exit;
+        }
+
+        if ($this->ticketModel->delete($id)) {
+            $_SESSION['success'] = 'Ticket #' . $id . ' has been deleted by admin.';
+        } else {
+            $_SESSION['error'] = 'Failed to delete ticket.';
+        }
+
+        // Redirect back to the admin dashboard
+        header('Location: ' . URLROOT . '/admintickets/dashboard');
+        exit;
     }
 }
