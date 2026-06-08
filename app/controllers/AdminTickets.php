@@ -21,15 +21,19 @@ class Admintickets extends BaseController {
     /**
      * DASHBOARD: The main "Ticket Overzicht"
      */
-    /**
-     * DASHBOARD: The main "Ticket Overzicht"
-     */
     public function dashboard() {
         // 1. Security Check
         if (!isset($_SESSION['accountId'])) {
             $_SESSION['error'] = 'Please log in to access admin features';
             header('Location: ' . URLROOT);
-            return;
+            exit;
+        }
+
+        $userRole = $_SESSION['rolle'] ?? 'bezoeker';
+        if (strtolower($userRole) !== 'admin') {
+            $_SESSION['error'] = 'You do not have permission to access admin features';
+            header('Location: ' . URLROOT . '/dashboard');
+            exit;
         }
 
         // 2. Fetch Data from Models
@@ -42,7 +46,7 @@ class Admintickets extends BaseController {
         foreach($allTickets as $ticket) {
             $totalRevenue += $ticket->tarief;
             // Check for Dutch status from your DB
-            if($ticket->status == 'Gescand') {
+            if($ticket->status == 'Gescand' || $ticket->status == 'gescand') {
                 $scannedCount++;
             }
         }
@@ -64,10 +68,10 @@ class Admintickets extends BaseController {
 
         // 5. Prepare Data - Names here MUST match the View
         $data = [
-            'tickets'         => $allTickets,             // Matches line 62 in View
-            'total_tickets'   => count($allTickets),      // Matches line 19 in View
-            'total_revenue'   => $totalRevenue,           // Matches View
-            'scanned_count'   => $scannedCount,           // Matches line 35 in View
+            'tickets'         => $allTickets,
+            'total_tickets'   => count($allTickets),
+            'total_revenue'   => $totalRevenue,
+            'scanned_count'   => $scannedCount,
             'analytics'       => $analyticsData,
             'total_shows'     => count($performances)
         ];
@@ -79,18 +83,9 @@ class Admintickets extends BaseController {
      * INVENTORY: Capacity management
      */
     public function inventory() {
-        // Check if user is logged in and is an admin
-        if (!isset($_SESSION['accountId'])) {
-            $_SESSION['error'] = 'Please log in to access admin features';
+        if (!isset($_SESSION['accountId']) || strtolower($_SESSION['rolle'] ?? '') !== 'admin') {
             header('Location: ' . URLROOT);
-            return;
-        }
-
-        $userRole = $_SESSION['rolle'] ?? 'bezoeker';
-        if (strtolower($userRole) !== 'admin') {
-            $_SESSION['error'] = 'You do not have permission to access admin features';
-            header('Location: ' . URLROOT . '/dashboard');
-            return;
+            exit;
         }
 
         $performances = $this->voorstellingModel->getAll();
@@ -107,7 +102,6 @@ class Admintickets extends BaseController {
             $availableSeats = $totalSeats - $bookedCount;
             $percentage = ($totalSeats > 0) ? ($bookedCount / $totalSeats) * 100 : 0;
 
-            // Cast as object so the view's -> syntax works
             $inventoryData[] = (object) [
                 'performance' => $perf,
                 'available_seats' => $availableSeats,
@@ -121,76 +115,13 @@ class Admintickets extends BaseController {
         $this->view('admintickets/inventory', $data);
     }
 
-   public function performanceDetails($id = null) {
-        if (!$id) {
-            redirect('admintickets/dashboard');
-        }
-
-        $performance = $this->voorstellingModel->getById($id);
-        if (!$performance) {
-            redirect('admintickets/dashboard');
-        }
-
-        $tickets = $this->ticketModel->getByVoorstellingIdWithNames($id);
-
-        /**
-         * 1. MAP PERFORMANCE HEADER
-         */
-        $performance->show_title = $performance->naam;
-        $performance->performance_date = $performance->datum;
-        $performance->performance_time = $performance->tijd;
-        $performance->venue = "Main Hall"; 
-        $performance->genre = "Musical";   
-        $performance->status = $performance->beschikbaarheid;
-        $performance->total_seats = $performance->max_aantal_tickets;
-
-        /**
-         * 2. MAP EVERY TICKET FOR THE TABLE
-         */
-        foreach ($tickets as $ticket) {
-            $ticket->seat_number = $ticket->nummer;        
-            $ticket->price = $ticket->tarief;              
-            
-            // Map the name fields
-            $ticket->firstname = $ticket->voornaam;
-            $ticket->infix = $ticket->tussenvoegsel;
-            $ticket->lastname = $ticket->achternaam;
-            
-            // FIX: Map the user_id property that line 116 is looking for
-            // We use the bezoeker_id or gebruiker_id here
-            $ticket->user_id = $ticket->bezoeker_id; 
-            
-            $ticket->qr_code = $ticket->barcode;
-            $ticket->booking_date = $ticket->datum_aangemaakt; 
-        }
-
-        /**
-         * 3. CALCULATE STATS
-         */
-        $bookedCount = count($tickets);
-        $totalSeats = (int) $performance->max_aantal_tickets;
-        if ($totalSeats < 1) { $totalSeats = 1; } 
-        $availableSeats = $totalSeats - $bookedCount;
-
-        $data = [
-            'performance' => $performance,
-            'tickets' => $tickets,
-            'total_tickets' => $totalSeats,
-            'booked_tickets' => $bookedCount,
-            'available_tickets' => $availableSeats
-        ];
-
-        $this->view('admintickets/performance_details', $data);
-    }
-
     /**
-     * Allow an admin to delete any ticket from the dashboard
+     * DELETE: Permanently remove a ticket
      */
     public function delete($id = null)
     {
-        // Simple security: check if logged in (you could add a role check here)
-        if (!isset($_SESSION['user_id'])) {
-            header('Location: ' . URLROOT . '/test/index');
+        if (!$id || !isset($_SESSION['accountId'])) {
+            header('Location: ' . URLROOT . '/admintickets/dashboard');
             exit;
         }
 
@@ -200,8 +131,65 @@ class Admintickets extends BaseController {
             $_SESSION['error'] = 'Failed to delete ticket.';
         }
 
-        // Redirect back to the admin dashboard
         header('Location: ' . URLROOT . '/admintickets/dashboard');
+        exit;
+    }
+
+    /**
+     * VALIDATE TICKET: Display the validation tool interface
+     */
+    public function validateTicket() {
+        if (!isset($_SESSION['accountId']) || strtolower($_SESSION['rolle'] ?? '') !== 'admin') {
+            header('Location: ' . URLROOT);
+            exit;
+        }
+
+        $this->view('admintickets/validate_ticket');
+    }
+
+    /**
+     * VALIDATE TICKET API: Check if a ticket barcode is valid
+     */
+    public function validateTicketAPI() {
+        $barcode = $_POST['code'] ?? $_GET['code'] ?? null;
+
+        if (!$barcode) {
+            echo json_encode(['valid' => false, 'message' => 'No barcode provided']);
+            exit;
+        }
+
+        // Search database by barcode column instead of ID
+        $ticket = $this->ticketModel->getByBarcode($barcode);
+
+        if (!$ticket) {
+            echo json_encode(['valid' => false, 'message' => 'Ticket not found']);
+            exit;
+        }
+
+        $isValid = ($ticket->status === 'booked' || $ticket->status === 'reserved');
+        $isScanned = strtolower($ticket->status) === 'gescand';
+        $message = '';
+
+        if ($isScanned) {
+            $message = 'Ticket has already been scanned';
+        } elseif ($ticket->status === 'cancelled') {
+            $message = 'Ticket has been cancelled';
+        } elseif (!$isValid) {
+            $message = 'Invalid status: ' . $ticket->status;
+        } else {
+            $message = 'Ticket is valid and ready to scan';
+        }
+
+        echo json_encode([
+            'valid' => $isValid,
+            'scanned' => $isScanned,
+            'message' => $message,
+            'ticket_id' => $ticket->id,
+            'barcode' => $ticket->barcode,
+            'seat_number' => $ticket->nummer ?? 'N/A',
+            'performance_name' => $ticket->voorstelling_naam ?? 'Unknown',
+            'status' => $ticket->status
+        ]);
         exit;
     }
 }

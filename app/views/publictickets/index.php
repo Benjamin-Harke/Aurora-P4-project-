@@ -10,6 +10,13 @@ require APPROOT . '/views/includes/header.php'; ?>
         <div class="card-body">
             <form method="get" action="/publictickets" id="filterForm">
                 <div class="row g-3">
+                    <?php if ($data['is_medewerker']): ?>
+                        <div class="mb-4 text-end">
+                            <a href="<?php echo URLROOT; ?>/adminperformances/create" class="btn btn-success btn-lg">
+                                <i class="bi bi-plus-circle"></i> Create New Performance
+                            </a>
+                        </div>
+                    <?php endif; ?>
                     <!-- Search -->
                     <div class="col-md-6">
                         <label for="search" class="form-label">Search Show Title</label>

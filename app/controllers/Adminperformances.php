@@ -1,0 +1,53 @@
+<?php
+
+class AdminPerformances extends BaseController {
+    private $voorstellingModel;
+    private $medewerkerModel;
+
+    public function __construct() {
+        $this->voorstellingModel = $this->model('Voorstelling');
+        $this->medewerkerModel = $this->model('Medewerker');
+        
+        // Basic Security Check: Ensure user is logged in
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: ' . URLROOT . '/test/index');
+            exit;
+        }
+    }
+
+    public function create() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // Sanitize POST data
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+
+            // Get the Medewerker ID of the logged-in admin
+            $medewerker = $this->medewerkerModel->getByGebruikerId($_SESSION['user_id']);
+
+            if (!$medewerker) {
+            $_SESSION['error'] = 'Access Denied: You must be logged in as an Employee to create shows.';
+            header('Location: ' . URLROOT . '/publictickets');
+            exit;
+            }
+            $data = [
+                'medewerker_id' => $medewerker->id,
+                'naam' => trim($_POST['naam']),
+                'beschrijving' => trim($_POST['beschrijving']),
+                'datum' => trim($_POST['datum']),
+                'tijd' => trim($_POST['tijd']),
+                'max_aantal_tickets' => trim($_POST['max_aantal_tickets']),
+            ];
+
+            // Simple Validation
+            if (!empty($data['naam']) && !empty($data['datum'])) {
+                if ($this->voorstellingModel->create($data)) {
+                    $_SESSION['success'] = 'New show created successfully!';
+                    header('Location: ' . URLROOT . '/publictickets');
+                } else {
+                    die('Something went wrong.');
+                }
+            }
+        } else {
+            $this->view('admin/performances/create');
+        }
+    }
+}

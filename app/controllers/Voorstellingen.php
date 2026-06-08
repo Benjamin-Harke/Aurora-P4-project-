@@ -10,13 +10,25 @@ class Voorstellingen extends BaseController
     public function index()
     {
         $voorstellingModel = $this->model('Voorstelling');
-        
-        // Get all performances
+        $medewerkerModel = $this->model('Medewerker'); // Load the employee model
+
+        // 1. Check if the user is a staff member (for the button)
+        $isMedewerker = false;
+        if (isset($_SESSION['user_id'])) {
+            $medewerker = $medewerkerModel->getByGebruikerId($_SESSION['user_id']);
+            if ($medewerker) {
+                $isMedewerker = true;
+            }
+        }
+
+        // 2. Get all performances (your original logic)
         $voorstellingen = $voorstellingModel->getAll();
         
+        // 3. Prepare data - MAKE SURE THE NAMES MATCH YOUR VIEW
         $data = [
             'title' => 'Alle Voorstellingen',
-            'voorstellingen' => $voorstellingen
+            'voorstellingen' => $voorstellingen, // Keep this name so your cards work
+            'is_medewerker' => $isMedewerker     // Add this for the button
         ];
 
         $this->view('voorstellingen/index', $data);
