@@ -1237,3 +1237,182 @@ footer .text-center {
   font-size: 0.9rem;
   line-height: 1.7;
 }
+
+@media (max-width: 991px) {
+  .navbar {
+    padding: 0.8rem 1rem;
+  }
+
+  .nav-link {
+    margin: 0;
+    padding: 0.7rem 0;
+  }
+
+  .hero {
+    padding: 6rem 1rem;
+    min-height: auto;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 9vw, 4rem);
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1.1rem, 4vw, 1.7rem);
+  }
+
+  .hero-description {
+    font-size: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .section-header h2,
+  .about-content h2,
+  .cta-section h2 {
+    font-size: clamp(1.7rem, 6vw, 2.7rem);
+  }
+
+  .shows-section,
+  .about-section,
+  .testimonials-section {
+    padding: 4rem 1rem;
+  }
+
+  .about-image-placeholder {
+    height: 320px;
+  }
+
+  .cta-buttons,
+  .hero-buttons {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .hero {
+    padding: 4rem 1rem;
+    text-align: center;
+  }
+
+  .hero-badge {
+    font-size: 0.7rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+    letter-spacing: 1px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+  }
+
+  .hero-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .hero-buttons,
+  .cta-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-primary-custom,
+  .btn-outline-custom,
+  .btn-lg {
+    width: 100%;
+    padding: 0.9rem 1rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .show-content,
+  .testimonial-card {
+    padding: 1.3rem;
+  }
+
+  .show-footer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .show-footer .btn {
+    width: 100%;
+  }
+
+  .about-feature {
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .bell-dropdown {
+    position: fixed;
+    top: 75px;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+  }
+
+  .melding-card .d-flex {
+    flex-direction: column;
+  }
+
+  .melding-streep {
+    width: 100%;
+    height: 5px;
+  }
+
+  .melding-empty {
+    padding: 2.5rem 1rem;
+  }
+
+  footer {
+    text-align: center;
+  }
+
+  @media (max-width: 991px) {
+  .bell-wrapper {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .bell-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 12px 16px;
+    border-radius: 8px;
+  }
+
+  .bell-badge {
+    position: static;
+    margin-left: 8px;
+  }
+
+  .bell-dropdown {
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+    transform: none;
+  }
+
+  .bell-dropdown.open {
+    transform: none;
+  }
+}
+}
