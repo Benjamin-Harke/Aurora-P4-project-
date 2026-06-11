@@ -168,8 +168,154 @@ class Account
     {
         $this->db->query('SELECT naam FROM rol WHERE gebruiker_id = :id AND is_actief = 1 LIMIT 1');
         $this->db->bind(':id', $id, PDO::PARAM_INT);
-        
+
         $role = $this->db->single();
         return $role ? $role->naam : 'bezoeker';
+    }
+
+    /**
+     * Check if an email address is already in use (as gebruikersnaam or in contact table).
+     * Uses two distinct placeholders because PDO native prepared statements do not allow
+     * the same named parameter to appear more than once.
+     */
+    public function checkEmailInUse($email)
+    {
+        $email = strtolower(trim($email));
+        $this->db->query(
+            'SELECT g.id FROM gebruiker g
+             LEFT JOIN contact c ON g.id = c.gebruiker_id
+             WHERE LOWER(g.gebruikersnaam) = :email1 OR LOWER(c.email) = :email2'
+        );
+        $this->db->bind(':email1', $email, PDO::PARAM_STR);
+        $this->db->bind(':email2', $email, PDO::PARAM_STR);
+        return $this->db->single() ? true : false;
+    }
+
+    /**
+     * Check if a username already exists in the gebruiker table.
+     */
+    public function usernameExists($username)
+    {
+        $username = strtolower(trim($username));
+        $this->db->query('SELECT id FROM gebruiker WHERE LOWER(gebruikersnaam) = :username');
+        $this->db->bind(':username', $username, PDO::PARAM_STR);
+        return $this->db->single() ? true : false;
+    }
+
+    /**
+     * Create a full user account transactionally:
+     * gebruiker → rol → contact → bezoeker|medewerker
+     */
+    public function createAccount($data)
+    {
+        try {
+            $this->db->query('START TRANSACTION');
+            $this->db->execute();
+
+            // 1. Hash password and insert gebruiker
+            $hashedPassword = password_hash($data['wachtwoord'], PASSWORD_DEFAULT);
+            $this->db->query(
+                'INSERT INTO gebruiker (voornaam, tussenvoegsel, achternaam, gebruikersnaam, wachtwoord, is_actief, is_ingelogd)
+                 VALUES (:voornaam, :tussenvoegsel, :achternaam, :gebruikersnaam, :wachtwoord, 1, 0)'
+            );
+            $this->db->bind(':voornaam',      $data['voornaam'],      PDO::PARAM_STR);
+            $this->db->bind(':tussenvoegsel', !empty($data['tussenvoegsel']) ? $data['tussenvoegsel'] : null, PDO::PARAM_STR);
+            $this->db->bind(':achternaam',    $data['achternaam'],    PDO::PARAM_STR);
+            $this->db->bind(':gebruikersnaam',$data['gebruikersnaam'],PDO::PARAM_STR);
+            $this->db->bind(':wachtwoord',    $hashedPassword,        PDO::PARAM_STR);
+
+            if (!$this->db->execute()) {
+                $this->db->query('ROLLBACK');
+                $this->db->execute();
+                return false;
+            }
+
+            // Get new gebruiker ID
+            $this->db->query('SELECT LAST_INSERT_ID() as id');
+            $gebruikerId = $this->db->single()->id;
+
+            // 2. Insert rol
+            $this->db->query('INSERT INTO rol (gebruiker_id, naam, is_actief) VALUES (:gebruiker_id, :naam, 1)');
+            $this->db->bind(':gebruiker_id', $gebruikerId,    PDO::PARAM_INT);
+            $this->db->bind(':naam',         $data['rol'],    PDO::PARAM_STR);
+
+            if (!$this->db->execute()) {
+                $this->db->query('ROLLBACK');
+                $this->db->execute();
+                return false;
+            }
+
+            // 3. Insert contact
+            $mobiel = !empty($data['mobiel']) ? $data['mobiel'] : '';
+            $this->db->query(
+                'INSERT INTO contact (gebruiker_id, email, mobiel, is_actief)
+                 VALUES (:gebruiker_id, :email, :mobiel, 1)'
+            );
+            $this->db->bind(':gebruiker_id', $gebruikerId,    PDO::PARAM_INT);
+            $this->db->bind(':email',        $data['email'],  PDO::PARAM_STR);
+            $this->db->bind(':mobiel',       $mobiel,         PDO::PARAM_STR);
+
+            if (!$this->db->execute()) {
+                $this->db->query('ROLLBACK');
+                $this->db->execute();
+                return false;
+            }
+
+            // 4. Role-specific sub-table
+            $roleLower = strtolower($data['rol']);
+            if ($roleLower === 'bezoeker') {
+                $this->db->query('SELECT MAX(relatienummer) as max_num FROM bezoeker');
+                $result  = $this->db->single();
+                $nextNum = ($result && $result->max_num) ? $result->max_num + 1 : 50001;
+
+                $this->db->query(
+                    'INSERT INTO bezoeker (gebruiker_id, relatienummer, is_actief)
+                     VALUES (:gebruiker_id, :relatienummer, 1)'
+                );
+                $this->db->bind(':gebruiker_id',  $gebruikerId, PDO::PARAM_INT);
+                $this->db->bind(':relatienummer', $nextNum,     PDO::PARAM_INT);
+
+                if (!$this->db->execute()) {
+                    $this->db->query('ROLLBACK');
+                    $this->db->execute();
+                    return false;
+                }
+            } else {
+                // Admin, Medewerker, Receptie
+                $this->db->query('SELECT MAX(nummer) as max_num FROM medewerker');
+                $result  = $this->db->single();
+                $nextNum = ($result && $result->max_num) ? $result->max_num + 1 : 101;
+
+                $medewerkersoort = 'Medewerker';
+                if ($roleLower === 'admin' || $roleLower === 'administrator') {
+                    $medewerkersoort = 'Beheerder';
+                } elseif ($roleLower === 'receptie') {
+                    $medewerkersoort = 'Receptie';
+                }
+
+                $this->db->query(
+                    'INSERT INTO medewerker (gebruiker_id, nummer, medewerkersoort, is_actief)
+                     VALUES (:gebruiker_id, :nummer, :medewerkersoort, 1)'
+                );
+                $this->db->bind(':gebruiker_id',    $gebruikerId,    PDO::PARAM_INT);
+                $this->db->bind(':nummer',          $nextNum,        PDO::PARAM_INT);
+                $this->db->bind(':medewerkersoort', $medewerkersoort,PDO::PARAM_STR);
+
+                if (!$this->db->execute()) {
+                    $this->db->query('ROLLBACK');
+                    $this->db->execute();
+                    return false;
+                }
+            }
+
+            $this->db->query('COMMIT');
+            $this->db->execute();
+            return true;
+
+        } catch (Exception $e) {
+            $this->db->query('ROLLBACK');
+            $this->db->execute();
+            return false;
+        }
     }
 }

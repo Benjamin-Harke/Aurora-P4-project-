@@ -14,10 +14,13 @@ require_once APPROOT . '/views/includes/header.php'; ?>
       <p class="subtitle">Manage and view all registered accounts</p>
     </div>
 
-    <!-- Back to Dashboard Button -->
-    <div class="mb-4">
+    <!-- Action bar: Back (left) + Create Account (right) -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <a href="<?= URLROOT; ?>/dashboard" class="btn btn-outline-custom">
         <i class="bi bi-arrow-left"></i> Back to Dashboard
+      </a>
+      <a href="<?= URLROOT; ?>/accounts/create" class="btn btn-primary-custom">
+        <i class="bi bi-plus-lg"></i> Create Account
       </a>
     </div>
 
