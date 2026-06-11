@@ -59,6 +59,51 @@
               </button>
             </li>
           <?php endif; ?>
+
+          <!-- Melding Bell -->
+          <li class="nav-item d-flex align-items-center ms-2">
+            <div class="bell-wrapper" id="bellWrapper">
+              <button class="bell-btn" id="bellBtn" type="button" aria-label="Meldingen">
+                <i class="bi bi-bell-fill"></i>
+                <?php
+                if (isset($_SESSION['bezoeker_id'])) {
+                  $__meldingModel = new Melding();
+                  $__meldingen = $__meldingModel->getByBezoekerId($_SESSION['bezoeker_id']);
+                  $__actief = count(array_filter($__meldingen ?? [], fn($m) => $m->is_actief == 1));
+                  if ($__actief > 0): ?>
+                    <span class="bell-badge" aria-label="<?= $__actief ?> actieve meldingen"></span>
+                  <?php endif;
+                }
+                ?>
+              </button>
+
+              <div class="bell-dropdown" id="bellDropdown">
+                <div class="bell-dropdown-header">
+                  <span><i class="bi bi-bell me-1"></i> Meldingen</span>
+                </div>
+                <div class="bell-dropdown-body">
+                  <?php if (isset($_SESSION['accountId'])): ?>
+                    <p class="bell-dropdown-text">
+                      Bekijk al je meldingen in het overzicht.
+                    </p>
+                  <?php else: ?>
+                    <p class="bell-dropdown-text">
+                      Log eerst in om je meldingen te bekijken.
+                    </p>
+                  <?php endif; ?>
+                </div>
+                <?php if (isset($_SESSION['accountId'])): ?>
+                  <div class="bell-dropdown-footer">
+                    <a href="<?= URLROOT ?>/meldingen" class="bell-overzicht-btn">
+                      Overzicht <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                  </div>
+                <?php endif; ?>
+              </div>
+            </div>
+          </li>
+          <!-- /Melding Bell -->
+
         </ul>
       </div>
     </div>
@@ -116,12 +161,14 @@
             </div>
             <div class="mb-3">
               <label for="registerPassword" class="form-label">Password</label>
-              <input type="password" class="form-control" id="registerPassword" name="register_password" required minlength="6">
+              <input type="password" class="form-control" id="registerPassword" name="register_password" required
+                minlength="6">
               <small class="form-text text-muted">At least 6 characters</small>
             </div>
             <div class="mb-3">
               <label for="registerPasswordConfirm" class="form-label">Confirm Password</label>
-              <input type="password" class="form-control" id="registerPasswordConfirm" name="register_password_confirm" required minlength="6">
+              <input type="password" class="form-control" id="registerPasswordConfirm" name="register_password_confirm"
+                required minlength="6">
             </div>
           </div>
           <div class="modal-footer border-top-0">
@@ -152,10 +199,31 @@
   <!-- Auto-open Login Modal -->
   <?php if (isset($_SESSION['showLoginModal']) && $_SESSION['showLoginModal']): ?>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('DOMContentLoaded', function () {
         const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
         loginModal.show();
       });
     </script>
     <?php unset($_SESSION['showLoginModal']); ?>
   <?php endif; ?>
+
+  <!-- Bell Dropdown Toggle -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const bellBtn = document.getElementById('bellBtn');
+      const bellDropdown = document.getElementById('bellDropdown');
+
+      if (bellBtn && bellDropdown) {
+        bellBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          bellDropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', function (e) {
+          if (!bellBtn.contains(e.target) && !bellDropdown.contains(e.target)) {
+            bellDropdown.classList.remove('open');
+          }
+        });
+      }
+    });
+  </script>
