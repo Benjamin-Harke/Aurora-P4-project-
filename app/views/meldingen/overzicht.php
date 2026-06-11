@@ -5,9 +5,16 @@ extract($data ?? []);
 
 <div class="container py-5">
 
-    <div class="meldingen-pagina-header mb-4">
-        <h1>Mijn Meldingen</h1>
-        <p>Een overzicht van al je meldingen</p>
+    <div class="meldingen-pagina-header mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+            <h1>Mijn Meldingen</h1>
+            <p>Een overzicht van al je meldingen</p>
+        </div>
+        <?php if (isset($_SESSION['accountId'])): ?>
+            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#nieuweMeldingModal">
+                <i class="bi bi-plus-lg me-1"></i> Nieuwe Melding
+            </button>
+        <?php endif; ?>
     </div>
 
     <?php if ($heeft_meldingen): ?>
@@ -40,8 +47,7 @@ extract($data ?? []);
                                     echo $datum->format('d M Y \o\m H:i');
                                     ?>
                                 </span>
-                                <span
-                                    class="melding-status <?= $melding->is_actief ? 'melding-status--actief' : 'melding-status--gesloten' ?>">
+                                <span class="melding-status <?= $melding->is_actief ? 'melding-status--actief' : 'melding-status--gesloten' ?>">
                                     <?= $melding->is_actief ? 'Actief' : 'Gesloten' ?>
                                 </span>
                             </div>
@@ -54,7 +60,7 @@ extract($data ?? []);
 
     <?php else: ?>
 
-        <!-- UNHAPPY FLOW -->
+        <!-- UNHAPPY FLOW - geen meldingen -->
         <div class="melding-empty">
             <i class="bi bi-bell-slash mb-3"></i>
             <h4 class="mt-2 mb-2">Geen meldingen</h4>
@@ -70,5 +76,76 @@ extract($data ?? []);
     <?php endif; ?>
 
 </div>
+
+<!-- Nieuwe Melding Modal -->
+<div class="modal fade" id="nieuweMeldingModal" tabindex="-1" aria-labelledby="nieuweMeldingLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="nieuweMeldingLabel">
+                    <i class="bi bi-bell-fill me-2"></i> Nieuwe Melding Opstellen
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="<?= URLROOT ?>/meldingen/opslaan">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="meldingType" class="form-label">Type</label>
+                        <select class="form-control" id="meldingType" name="type" required>
+                            <option value="" disabled selected>Kies een type...</option>
+                            <option value="info">Info</option>
+                            <option value="waarschuwing">Waarschuwing</option>
+                            <option value="succes">Succes</option>
+                            <option value="fout">Fout</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="meldingBericht" class="form-label">Bericht</label>
+                        <textarea class="form-control" id="meldingBericht" name="bericht" rows="4"
+                            maxlength="250" placeholder="Typ hier je melding..." required></textarea>
+                        <small class="text-muted">Maximaal 250 tekens.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleren</button>
+                    <button type="submit" class="btn btn-primary-custom">
+                        <i class="bi bi-send me-1"></i> Versturen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- UNHAPPY FLOW - database fout popup -->
+<?php if (isset($_SESSION['melding_db_fout']) && $_SESSION['melding_db_fout']): ?>
+    <div class="modal fade" id="dbFoutModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-color: var(--accent-magenta);">
+                <div class="modal-header" style="border-color: var(--accent-magenta);">
+                    <h5 class="modal-title" style="color: var(--accent-magenta);">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> Fout
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0" style="color: var(--text-secondary);">
+                        Momenteel niet beschikbaar.<br>
+                        Geen connectie met database gevonden.
+                    </p>
+                </div>
+                <div class="modal-footer" style="border-color: var(--accent-magenta);">
+                    <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">Sluiten</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new bootstrap.Modal(document.getElementById('dbFoutModal')).show();
+        });
+    </script>
+    <?php unset($_SESSION['melding_db_fout']); ?>
+<?php endif; ?>
 
 <?php require_once APPROOT . '/views/includes/footer.php'; ?>
