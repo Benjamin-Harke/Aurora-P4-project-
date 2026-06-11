@@ -11,9 +11,20 @@ extract($data ?? []);
             <p>Een overzicht van al je meldingen</p>
         </div>
         <?php if (isset($_SESSION['accountId'])): ?>
-            <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#nieuweMeldingModal">
-                <i class="bi bi-plus-lg me-1"></i> Nieuwe Melding
-            </button>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#nieuweMeldingModal">
+                    <i class="bi bi-plus-lg me-1"></i> Nieuwe Melding
+                </button>
+                <!-- Testknop unhappy flow -->
+                <form method="POST" action="<?= URLROOT ?>/meldingen/opslaan" style="display:inline;">
+                    <input type="hidden" name="type" value="">
+                    <input type="hidden" name="bericht" value="">
+                    <input type="hidden" name="is_actief" value="1">
+                    <button type="submit" class="btn btn-outline-custom" style="border-color: var(--accent-magenta); color: var(--accent-magenta);">
+                        <i class="bi bi-bug me-1"></i> Test Unhappy
+                    </button>
+                </form>
+            </div>
         <?php endif; ?>
     </div>
 
@@ -90,20 +101,38 @@ extract($data ?? []);
             <form method="POST" action="<?= URLROOT ?>/meldingen/opslaan">
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label for="meldingType" class="form-label">Type</label>
-                        <select class="form-control" id="meldingType" name="type" required>
+                        <label for="meldingType" class="form-label">Type <span class="text-danger">*</span></label>
+                        <select class="form-control melding-select" id="meldingType" name="type" required>
                             <option value="" disabled selected>Kies een type...</option>
-                            <option value="info">Info</option>
-                            <option value="waarschuwing">Waarschuwing</option>
-                            <option value="succes">Succes</option>
-                            <option value="fout">Fout</option>
+                            <option value="notificatie">Notificatie</option>
+                            <option value="klacht">Klacht</option>
+                            <option value="review">Review</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="meldingBericht" class="form-label">Bericht</label>
-                        <textarea class="form-control" id="meldingBericht" name="bericht" rows="4"
+                        <label for="meldingBericht" class="form-label">Bericht <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="meldingBericht" name="bericht" rows="3"
                             maxlength="250" placeholder="Typ hier je melding..." required></textarea>
-                        <small class="text-muted">Maximaal 250 tekens.</small>
+                        <small style="color: #8a9bb0;">Maximaal 250 tekens.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="meldingOpmerking" class="form-label">Opmerking</label>
+                        <textarea class="form-control" id="meldingOpmerking" name="opmerking" rows="2"
+                            maxlength="250" placeholder="Optionele opmerking..."></textarea>
+                        <small style="color: #8a9bb0;">Maximaal 250 tekens.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="is_actief" id="isActiefJa" value="1" checked>
+                                <label class="form-check-label" for="isActiefJa">Actief</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="is_actief" id="isActiefNee" value="0">
+                                <label class="form-check-label" for="isActiefNee">Gesloten</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">

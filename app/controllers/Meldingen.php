@@ -37,8 +37,8 @@ class Meldingen extends BaseController
         }
 
         $data = [
-            'title' => 'Mijn Meldingen',
-            'meldingen' => $meldingen,
+            'title'          => 'Mijn Meldingen',
+            'meldingen'      => $meldingen,
             'heeft_meldingen' => !empty($meldingen),
         ];
 
@@ -65,11 +65,13 @@ class Meldingen extends BaseController
         }
 
         $bezoeker_id = $_SESSION['bezoeker_id'] ?? null;
-        $type = trim($_POST['type'] ?? '');
-        $bericht = trim($_POST['bericht'] ?? '');
+        $type        = trim($_POST['type']      ?? '');
+        $bericht     = trim($_POST['bericht']   ?? '');
+        $opmerking   = trim($_POST['opmerking'] ?? '') ?: null;
+        $is_actief   = isset($_POST['is_actief']) ? (int)$_POST['is_actief'] : 1;
 
         // Basisvalidatie
-        $toegestane_types = ['info', 'waarschuwing', 'succes', 'fout'];
+        $toegestane_types = ['notificatie', 'klacht', 'review'];
         if (
             !$bezoeker_id
             || !in_array($type, $toegestane_types)
@@ -81,17 +83,21 @@ class Meldingen extends BaseController
             return;
         }
 
-        // Uniek nummer genereren (tijdstempel-gebaseerd)
-        $nummer = (int) (microtime(true) * 100) % 9000000 + 1000000;
+        // Uniek nummer genereren
+        do {
+            $nummer = random_int(100000, 999999);
+            $bestaat = $this->meldingModel->getByNummer($nummer);
+        } while ($bestaat);
 
         // Opslaan via model
         try {
             $result = $this->meldingModel->create([
                 'bezoeker_id' => $bezoeker_id,
-                'nummer' => $nummer,
-                'type' => $type,
-                'bericht' => $bericht,
-                'is_actief' => 1,
+                'nummer'      => $nummer,
+                'type'        => $type,
+                'bericht'     => $bericht,
+                'opmerking'   => $opmerking,
+                'is_actief'   => $is_actief,
             ]);
 
             if (!$result) {

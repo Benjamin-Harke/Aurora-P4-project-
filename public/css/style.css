@@ -1227,11 +1227,13 @@ footer .text-center {
 }
 
 .melding-streep--info,
-.melding-streep--informatie {
+.melding-streep--informatie,
+.melding-streep--notificatie {
   background: var(--primary-teal);
 }
 .melding-streep--waarschuwing,
-.melding-streep--warning {
+.melding-streep--warning,
+.melding-streep--klacht {
   background: #eab308;
 }
 .melding-streep--fout,
@@ -1239,7 +1241,8 @@ footer .text-center {
   background: var(--accent-magenta);
 }
 .melding-streep--succes,
-.melding-streep--success {
+.melding-streep--success,
+.melding-streep--review {
   background: #22c55e;
 }
 
@@ -1254,14 +1257,16 @@ footer .text-center {
 }
 
 .melding-badge--info,
-.melding-badge--informatie {
+.melding-badge--informatie,
+.melding-badge--notificatie {
   background: rgba(0, 217, 255, 0.12);
   color: var(--primary-teal);
   border: 1px solid rgba(0, 217, 255, 0.3);
 }
 
 .melding-badge--waarschuwing,
-.melding-badge--warning {
+.melding-badge--warning,
+.melding-badge--klacht {
   background: rgba(234, 179, 8, 0.12);
   color: #eab308;
   border: 1px solid rgba(234, 179, 8, 0.3);
@@ -1275,7 +1280,8 @@ footer .text-center {
 }
 
 .melding-badge--succes,
-.melding-badge--success {
+.melding-badge--success,
+.melding-badge--review {
   background: rgba(34, 197, 94, 0.12);
   color: #22c55e;
   border: 1px solid rgba(34, 197, 94, 0.3);
@@ -1346,6 +1352,22 @@ footer .text-center {
   color: var(--text-muted);
   font-size: 0.9rem;
   line-height: 1.7;
+}
+
+.modal-body small {
+  color: #8a9bb0 !important;
+  font-size: 0.78rem;
+}
+
+/* Select dropdown fix - opties leesbaar */
+.melding-select,
+.melding-select option {
+  background-color: #1a1a2e;
+  color: var(--text-light);
+}
+
+.melding-select option:disabled {
+  color: var(--text-muted);
 }
 
 /* ========================================
