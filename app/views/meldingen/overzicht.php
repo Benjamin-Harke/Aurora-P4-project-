@@ -128,7 +128,7 @@ extract($data ?? []);
                             <option value="iedereen">Iedereen</option>
                             <option value="alle_bezoekers">Alle bezoekers</option>
                             <option value="alle_medewerkers">Alle medewerkers</option>
-                            <option value="bezoeker">Alleen mij als bezoeker</option>
+                            <option value="bezoeker">Alleen naar mij</option>
                         </select>
                     </div>
 
