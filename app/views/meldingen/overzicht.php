@@ -12,8 +12,7 @@ extract($data ?? []);
 
             <p style="color: #8a9bb0;">
                 Huidige flow:
-                <strong
-                    style="color: <?= $melding_flow === 'happy' ? 'var(--accent-cyan)' : 'var(--accent-magenta)' ?>;">
+                <strong style="color: <?= $melding_flow === 'happy' ? 'var(--accent-cyan)' : 'var(--accent-magenta)' ?>;">
                     <?= ucfirst($melding_flow) ?>
                 </strong>
             </p>
@@ -23,8 +22,9 @@ extract($data ?? []);
             <div class="d-flex gap-2 flex-wrap">
                 <a href="<?= URLROOT ?>/meldingen/happy" class="btn btn-primary-custom">Happy</a>
 
-                <a href="<?= URLROOT ?>/meldingen/unhappy" class="btn btn-outline-custom"
-                    style="border-color: var(--accent-magenta); color: var(--accent-magenta);">
+                <a href="<?= URLROOT ?>/meldingen/unhappy"
+                   class="btn btn-outline-custom"
+                   style="border-color: var(--accent-magenta); color: var(--accent-magenta);">
                     Unhappy
                 </a>
 
@@ -65,6 +65,19 @@ extract($data ?? []);
                                 </p>
                             <?php endif; ?>
 
+                            <div style="color: #8a9bb0; font-size: 14px; margin-top: 12px;">
+                                <p>Id: <?= htmlspecialchars($melding->id) ?></p>
+                                <p>BezoekerId: <?= htmlspecialchars($melding->bezoeker_id ?? 'NULL') ?></p>
+                                <p>MedewerkerId: <?= htmlspecialchars($melding->medewerker_id ?? 'NULL') ?></p>
+                                <p>Nummer: <?= htmlspecialchars($melding->nummer) ?></p>
+                                <p>Type: <?= htmlspecialchars($melding->type) ?></p>
+                                <p>Bericht: <?= htmlspecialchars($melding->bericht) ?></p>
+                                <p>Isactief: <?= htmlspecialchars($melding->is_actief) ?></p>
+                                <p>Opmerking: <?= htmlspecialchars($melding->opmerking ?? 'NULL') ?></p>
+                                <p>Datumaangemaakt: <?= htmlspecialchars($melding->datum_aangemaakt) ?></p>
+                                <p>Datumgewijzigd: <?= htmlspecialchars($melding->datum_gewijzigd) ?></p>
+                            </div>
+
                             <div class="d-flex align-items-center justify-content-between">
                                 <span class="melding-datum">
                                     <i class="bi bi-clock me-1"></i>
@@ -74,8 +87,7 @@ extract($data ?? []);
                                     ?>
                                 </span>
 
-                                <span
-                                    class="melding-status <?= $melding->is_actief ? 'melding-status--actief' : 'melding-status--gesloten' ?>">
+                                <span class="melding-status <?= $melding->is_actief ? 'melding-status--actief' : 'melding-status--gesloten' ?>">
                                     <?= $melding->is_actief ? 'Actief' : 'Gesloten' ?>
                                 </span>
                             </div>
@@ -129,7 +141,28 @@ extract($data ?? []);
                             <option value="alle_bezoekers">Alle bezoekers</option>
                             <option value="alle_medewerkers">Alle medewerkers</option>
                             <option value="bezoeker">Alleen naar mij</option>
+                            <option value="specifieke_bezoeker">Specifieke bezoeker</option>
+                            <option value="specifieke_medewerker">Specifieke medewerker</option>
+                            <option value="specifieke_administrator">Specifieke administrator</option>
                         </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="specifiekeBezoekerId" class="form-label">Specifieke BezoekerId</label>
+                        <input type="number"
+                               class="form-control"
+                               id="specifiekeBezoekerId"
+                               name="specifieke_bezoeker_id"
+                               placeholder="Bijvoorbeeld 3">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="specifiekeMedewerkerId" class="form-label">Specifieke MedewerkerId / AdministratorId</label>
+                        <input type="number"
+                               class="form-control"
+                               id="specifiekeMedewerkerId"
+                               name="specifieke_medewerker_id"
+                               placeholder="Bijvoorbeeld 1">
                     </div>
 
                     <div class="mb-3">
@@ -150,8 +183,13 @@ extract($data ?? []);
                             Bericht <span class="text-danger">*</span>
                         </label>
 
-                        <textarea class="form-control" id="meldingBericht" name="bericht" rows="3" maxlength="250"
-                            placeholder="Typ hier je melding..." required></textarea>
+                        <textarea class="form-control"
+                                  id="meldingBericht"
+                                  name="bericht"
+                                  rows="3"
+                                  maxlength="250"
+                                  placeholder="Typ hier je melding..."
+                                  required></textarea>
 
                         <small style="color: #8a9bb0;">Maximaal 250 tekens.</small>
                     </div>
@@ -161,8 +199,12 @@ extract($data ?? []);
                             Opmerking
                         </label>
 
-                        <textarea class="form-control" id="meldingOpmerking" name="opmerking" rows="2" maxlength="250"
-                            placeholder="Optionele opmerking..."></textarea>
+                        <textarea class="form-control"
+                                  id="meldingOpmerking"
+                                  name="opmerking"
+                                  rows="2"
+                                  maxlength="250"
+                                  placeholder="Optionele opmerking..."></textarea>
 
                         <small style="color: #8a9bb0;">Maximaal 250 tekens.</small>
                     </div>
@@ -172,8 +214,12 @@ extract($data ?? []);
 
                         <div class="d-flex gap-3">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="is_actief" id="isActiefJa" value="1"
-                                    checked>
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="is_actief"
+                                       id="isActiefJa"
+                                       value="1"
+                                       checked>
 
                                 <label class="form-check-label" for="isActiefJa">
                                     Actief
@@ -181,8 +227,11 @@ extract($data ?? []);
                             </div>
 
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="is_actief" id="isActiefNee"
-                                    value="0">
+                                <input class="form-check-input"
+                                       type="radio"
+                                       name="is_actief"
+                                       id="isActiefNee"
+                                       value="0">
 
                                 <label class="form-check-label" for="isActiefNee">
                                     Gesloten
