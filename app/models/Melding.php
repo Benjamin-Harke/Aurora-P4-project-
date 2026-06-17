@@ -2,6 +2,7 @@
 
 class Melding
 {
+    // Database verbinding
     private $db;
 
     public function __construct()
@@ -9,6 +10,26 @@ class Melding
         $this->db = new Database();
     }
 
+    // Rollen ophalen van een gebruiker
+    public function getRollenByGebruikerId($gebruiker_id)
+    {
+        try {
+            $this->db->query(
+                'SELECT naam
+                 FROM rol
+                 WHERE gebruiker_id = :gebruiker_id
+                 AND is_actief = 1'
+            );
+
+            $this->db->bind(':gebruiker_id', $gebruiker_id, PDO::PARAM_INT);
+
+            return $this->db->resultSet();
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    // Nieuwe melding opslaan in de database
     public function create(array $data = [])
     {
         try {
@@ -29,15 +50,16 @@ class Melding
 
             return $this->db->execute();
         } catch (PDOException $e) {
-            die('Database fout bij opslaan: ' . $e->getMessage());
+            return false;
         }
     }
 
+    // Controleren of een meldingsnummer al bestaat
     public function getByNummer($nummer)
     {
         try {
             $this->db->query('SELECT id FROM melding WHERE nummer = :nummer');
-            $this->db->bind(':nummer', $nummer);
+            $this->db->bind(':nummer', $nummer, PDO::PARAM_INT);
 
             return $this->db->single();
         } catch (PDOException $e) {
@@ -45,6 +67,7 @@ class Melding
         }
     }
 
+    // Meldingen ophalen voor een bezoeker
     public function getByBezoekerId($bezoeker_id)
     {
         try {
@@ -55,7 +78,7 @@ class Melding
                  ORDER BY datum_aangemaakt DESC'
             );
 
-            $this->db->bind(':bezoeker_id', $bezoeker_id);
+            $this->db->bind(':bezoeker_id', $bezoeker_id, PDO::PARAM_INT);
 
             return $this->db->resultSet();
         } catch (PDOException $e) {
@@ -63,6 +86,7 @@ class Melding
         }
     }
 
+    // Meldingen ophalen voor een medewerker
     public function getByMedewerkerId($medewerker_id)
     {
         try {
@@ -73,7 +97,7 @@ class Melding
                  ORDER BY datum_aangemaakt DESC'
             );
 
-            $this->db->bind(':medewerker_id', $medewerker_id);
+            $this->db->bind(':medewerker_id', $medewerker_id, PDO::PARAM_INT);
 
             return $this->db->resultSet();
         } catch (PDOException $e) {
@@ -81,23 +105,75 @@ class Melding
         }
     }
 
+    // Alle actieve bezoekers ophalen
     public function getAllBezoekers()
     {
         try {
-            $this->db->query('SELECT id FROM bezoeker WHERE is_actief = 1');
+            $this->db->query(
+                'SELECT id
+                 FROM bezoeker
+                 WHERE is_actief = 1'
+            );
+
             return $this->db->resultSet();
         } catch (PDOException $e) {
             return [];
         }
     }
 
+    // Alle actieve medewerkers ophalen
     public function getAllMedewerkers()
     {
         try {
-            $this->db->query('SELECT id FROM medewerker WHERE is_actief = 1');
+            $this->db->query(
+                'SELECT id
+                 FROM medewerker
+                 WHERE is_actief = 1'
+            );
+
             return $this->db->resultSet();
         } catch (PDOException $e) {
             return [];
+        }
+    }
+
+    // Bezoeker id ophalen via gebruiker id
+    public function getBezoekerByGebruikerId($gebruiker_id)
+    {
+        try {
+            $this->db->query(
+                'SELECT id
+                 FROM bezoeker
+                 WHERE gebruiker_id = :gebruiker_id
+                 AND is_actief = 1
+                 LIMIT 1'
+            );
+
+            $this->db->bind(':gebruiker_id', $gebruiker_id, PDO::PARAM_INT);
+
+            return $this->db->single();
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
+    // Medewerker id ophalen via gebruiker id
+    public function getMedewerkerByGebruikerId($gebruiker_id)
+    {
+        try {
+            $this->db->query(
+                'SELECT id
+                 FROM medewerker
+                 WHERE gebruiker_id = :gebruiker_id
+                 AND is_actief = 1
+                 LIMIT 1'
+            );
+
+            $this->db->bind(':gebruiker_id', $gebruiker_id, PDO::PARAM_INT);
+
+            return $this->db->single();
+        } catch (PDOException $e) {
+            return null;
         }
     }
 }

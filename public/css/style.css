@@ -1776,3 +1776,216 @@ footer .text-center {
     padding: 2rem 1rem;
   }
 }
+
+/* ========================================
+        Meldingen overzicht tabel
+   ======================================== */
+
+.meldingen-overzicht-page .melding-flow {
+  color: var(--text-muted);
+}
+
+.meldingen-overzicht-page .flow-happy {
+  color: var(--primary-teal);
+}
+
+.meldingen-overzicht-page .flow-unhappy {
+  color: var(--accent-magenta);
+}
+
+.meldingen-overzicht-page .melding-unhappy-btn {
+  border-color: var(--accent-magenta);
+  color: var(--accent-magenta);
+}
+
+.meldingen-overzicht-page .melding-table-wrapper {
+  width: 100%;
+  margin-top: 2.5rem;
+  border: 2px solid rgba(0, 217, 255, 0.45);
+  border-radius: 14px;
+  overflow-x: auto;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 217, 255, 0.08),
+    rgba(255, 0, 110, 0.06)
+  );
+  box-shadow: 0 0 28px rgba(0, 217, 255, 0.14);
+}
+
+.meldingen-overzicht-page .melding-table {
+  width: 100%;
+  min-width: 780px;
+  border-collapse: collapse;
+  color: var(--text-light);
+  background: transparent;
+}
+
+.meldingen-overzicht-page .melding-table thead {
+  background: rgba(0, 217, 255, 0.1);
+}
+
+.meldingen-overzicht-page .melding-table th {
+  padding: 1.2rem 1.4rem;
+  color: var(--primary-teal);
+  font-size: 1rem;
+  font-weight: 800;
+  text-align: left;
+  border-bottom: 2px solid rgba(0, 217, 255, 0.45);
+}
+
+.meldingen-overzicht-page .melding-table td {
+  padding: 1.2rem 1.4rem;
+  color: var(--text-light);
+  font-size: 0.95rem;
+  vertical-align: top;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.meldingen-overzicht-page .melding-table tbody tr:hover {
+  background: rgba(0, 217, 255, 0.06);
+}
+
+.meldingen-overzicht-page .melding-table td strong {
+  display: block;
+  color: var(--text-white);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.meldingen-overzicht-page .melding-table td span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.meldingen-overzicht-page .melding-form-help {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.melding-error-modal {
+  border-color: var(--accent-magenta);
+}
+
+.melding-error-modal .modal-header,
+.melding-error-modal .modal-footer {
+  border-color: var(--accent-magenta);
+}
+
+.melding-error-modal .modal-title {
+  color: var(--accent-magenta);
+}
+
+/* mobiel */
+@media (max-width: 576px) {
+  .meldingen-overzicht-page .melding-table {
+    min-width: 650px;
+  }
+}
+
+
+/* Meldingen tabel */
+
+.meldingen-overzicht-page .melding-table {
+  min-width: 1100px;
+}
+
+.meldingen-overzicht-page .melding-table td,
+.meldingen-overzicht-page .melding-table th {
+  white-space: nowrap;
+}
+
+.meldingen-overzicht-page .melding-table td:nth-child(4) {
+  white-space: normal;
+  min-width: 260px;
+}
+
+/* Meldingen error popup duidelijker */
+
+.melding-error-modal {
+  background: linear-gradient(
+    135deg,
+    rgba(10, 15, 25, 0.98),
+    rgba(45, 8, 35, 0.98)
+  ) !important;
+  border: 2px solid var(--accent-magenta) !important;
+  box-shadow: 0 0 35px rgba(255, 0, 128, 0.45) !important;
+}
+
+.melding-error-modal .modal-header {
+  background: rgba(255, 0, 128, 0.08);
+  border-bottom: 2px solid var(--accent-magenta) !important;
+}
+
+.melding-error-modal .modal-title {
+  color: var(--accent-magenta) !important;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+
+.melding-error-modal .modal-body {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.melding-error-modal .modal-body p {
+  color: #ffffff !important;
+  font-size: 1rem;
+  line-height: 1.7;
+  font-weight: 600;
+}
+
+.melding-error-modal .modal-footer {
+  border-top: 2px solid var(--accent-magenta) !important;
+}
+
+.melding-error-modal .btn-outline-custom {
+  color: var(--accent-cyan) !important;
+  border-color: var(--accent-cyan) !important;
+}
+
+/* - Error modal sluitknop */
+
+.melding-error-modal .modal-footer .btn,
+.melding-error-modal .modal-footer .btn-outline-custom {
+  color: var(--accent-cyan) !important;
+  border: 2px solid var(--accent-cyan) !important;
+  background: transparent !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.melding-error-modal .modal-footer .btn:hover,
+.melding-error-modal .modal-footer .btn-outline-custom:hover {
+  color: #000 !important;
+  background: var(--accent-cyan) !important;
+}
+
+/* Ali - Error modal sluitknop definitieve fix */
+
+.melding-error-modal .modal-footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  padding: 1rem !important;
+}
+
+.melding-error-modal .modal-footer button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 130px !important;
+  padding: 0.75rem 1.4rem !important;
+  border: 2px solid var(--accent-cyan) !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--accent-cyan) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+}
+
+.melding-error-modal .modal-footer button:hover {
+  background: var(--accent-cyan) !important;
+  color: #050505 !important;
+}
