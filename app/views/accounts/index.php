@@ -56,7 +56,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
               <tr>
                 <td class="email-cell"><?= htmlspecialchars($user['email']); ?></td>
                 <td><?= htmlspecialchars($user['voornaam']); ?></td>
-                <td><?= htmlspecialchars($user['achternaam']); ?></td>
+                <td><?= htmlspecialchars(($user['tussenvoegsel'] ? $user['tussenvoegsel'] . ' ' : '') . $user['achternaam']); ?></td>
                 <td>
                   <?php if (!empty($user['roles'])): ?>
                     <?php foreach ($user['roles'] as $role): ?>
