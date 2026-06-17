@@ -21,9 +21,7 @@ extract($data ?? []);
 
         <?php if (isset($_SESSION['accountId'])): ?>
             <div class="d-flex gap-2 flex-wrap">
-                <a href="<?= URLROOT ?>/meldingen/happy" class="btn btn-primary-custom">
-                    Happy
-                </a>
+                <a href="<?= URLROOT ?>/meldingen/happy" class="btn btn-primary-custom">Happy</a>
 
                 <a href="<?= URLROOT ?>/meldingen/unhappy" class="btn btn-outline-custom"
                     style="border-color: var(--accent-magenta); color: var(--accent-magenta);">
@@ -119,6 +117,20 @@ extract($data ?? []);
 
             <form method="POST" action="<?= URLROOT ?>/meldingen/opslaan">
                 <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="doelgroep" class="form-label">
+                            Ontvanger <span class="text-danger">*</span>
+                        </label>
+
+                        <select class="form-control melding-select" id="doelgroep" name="doelgroep" required>
+                            <option value="" disabled selected>Kies ontvanger...</option>
+                            <option value="iedereen">Iedereen</option>
+                            <option value="alle_bezoekers">Alle bezoekers</option>
+                            <option value="alle_medewerkers">Alle medewerkers</option>
+                            <option value="bezoeker">Alleen mij als bezoeker</option>
+                        </select>
+                    </div>
 
                     <div class="mb-3">
                         <label for="meldingType" class="form-label">
