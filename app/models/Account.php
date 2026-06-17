@@ -151,10 +151,11 @@ class Account
      */
     public function getAllWithRoles()
     {
-        $this->db->query('SELECT g.id, g.voornaam, g.achternaam, g.gebruikersnaam, 
-                         g.is_actief, g.datum_aangemaakt, GROUP_CONCAT(r.naam) as roles 
+        $this->db->query('SELECT g.id, g.voornaam, g.tussenvoegsel, g.achternaam, g.gebruikersnaam, 
+                         g.is_actief, g.datum_aangemaakt, GROUP_CONCAT(r.naam) as roles, c.email 
                          FROM gebruiker g 
                          LEFT JOIN rol r ON g.id = r.gebruiker_id 
+                         LEFT JOIN contact c ON g.id = c.gebruiker_id
                          GROUP BY g.id 
                          ORDER BY g.datum_aangemaakt DESC');
         
