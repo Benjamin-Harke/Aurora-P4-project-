@@ -76,9 +76,10 @@ class Meldingen extends BaseController
             exit;
         }
 
-        $bezoeker_id = $_SESSION['bezoeker_id'] ?? $_SESSION['accountId'];
+        $mijn_bezoeker_id = $_SESSION['bezoeker_id'] ?? $_SESSION['accountId'];
 
         $doelgroep = trim($_POST['doelgroep'] ?? '');
+        $ontvanger_id = trim($_POST['ontvanger_id'] ?? '');
         $type = trim($_POST['type'] ?? '');
         $bericht = trim($_POST['bericht'] ?? '');
         $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
@@ -87,7 +88,6 @@ class Meldingen extends BaseController
         $toegestane_types = ['notificatie', 'klacht', 'review'];
 
         if (
-            $doelgroep === '' ||
             !in_array($type, $toegestane_types) ||
             $bericht === '' ||
             mb_strlen($bericht) > 250
@@ -97,16 +97,29 @@ class Meldingen extends BaseController
             exit;
         }
 
+        if ($doelgroep === '' && $ontvanger_id === '') {
+            $_SESSION['melding_db_fout'] = true;
+            header('location:' . URLROOT . '/meldingen');
+            exit;
+        }
+
         $ontvangers = [];
 
-        if ($doelgroep === 'bezoeker') {
+        if ($ontvanger_id !== '') {
             $ontvangers[] = [
-                'bezoeker_id' => $bezoeker_id,
+                'bezoeker_id' => (int) $ontvanger_id,
                 'medewerker_id' => null
             ];
         }
 
-        if ($doelgroep === 'alle_bezoekers' || $doelgroep === 'iedereen') {
+        if ($ontvanger_id === '' && $doelgroep === 'bezoeker') {
+            $ontvangers[] = [
+                'bezoeker_id' => $mijn_bezoeker_id,
+                'medewerker_id' => null
+            ];
+        }
+
+        if ($ontvanger_id === '' && ($doelgroep === 'alle_bezoekers' || $doelgroep === 'iedereen')) {
             foreach ($this->meldingModel->getAllBezoekers() as $bezoeker) {
                 $ontvangers[] = [
                     'bezoeker_id' => $bezoeker->id,
@@ -115,13 +128,19 @@ class Meldingen extends BaseController
             }
         }
 
-        if ($doelgroep === 'alle_medewerkers' || $doelgroep === 'iedereen') {
+        if ($ontvanger_id === '' && ($doelgroep === 'alle_medewerkers' || $doelgroep === 'iedereen')) {
             foreach ($this->meldingModel->getAllMedewerkers() as $medewerker) {
                 $ontvangers[] = [
                     'bezoeker_id' => null,
                     'medewerker_id' => $medewerker->id
                 ];
             }
+        }
+
+        if (empty($ontvangers)) {
+            $_SESSION['melding_db_fout'] = true;
+            header('location:' . URLROOT . '/meldingen');
+            exit;
         }
 
         foreach ($ontvangers as $ontvanger) {
