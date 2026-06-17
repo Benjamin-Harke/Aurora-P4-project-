@@ -54,7 +54,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           <tbody>
             <?php foreach ($data['users'] as $user): ?>
               <tr>
-                <td class="email-cell"><?= htmlspecialchars($user['gebruikersnaam']); ?></td>
+                <td class="email-cell"><?= htmlspecialchars($user['email']); ?></td>
                 <td><?= htmlspecialchars($user['voornaam']); ?></td>
                 <td><?= htmlspecialchars($user['achternaam']); ?></td>
                 <td>
