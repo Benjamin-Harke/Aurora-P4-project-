@@ -147,7 +147,7 @@ class Account
     }
 
     /**
-     * Get all users with their roles
+     * Get all users with their roles, infix, and email
      */
     public function getAllWithRoles()
     {
