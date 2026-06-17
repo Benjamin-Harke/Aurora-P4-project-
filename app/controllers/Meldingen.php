@@ -77,14 +77,17 @@ class Meldingen extends BaseController
         }
 
         $bezoeker_id = $_SESSION['bezoeker_id'] ?? $_SESSION['accountId'];
+
+        $doelgroep = trim($_POST['doelgroep'] ?? '');
         $type = trim($_POST['type'] ?? '');
         $bericht = trim($_POST['bericht'] ?? '');
         $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
-        $is_actief = isset($_POST['is_actief']) ? (int)$_POST['is_actief'] : 1;
+        $is_actief = isset($_POST['is_actief']) ? (int) $_POST['is_actief'] : 1;
 
         $toegestane_types = ['notificatie', 'klacht', 'review'];
 
         if (
+            $doelgroep === '' ||
             !in_array($type, $toegestane_types) ||
             $bericht === '' ||
             mb_strlen($bericht) > 250
@@ -94,25 +97,48 @@ class Meldingen extends BaseController
             exit;
         }
 
-        do {
-            $nummer = random_int(100000, 999999);
-            $bestaat = $this->meldingModel->getByNummer($nummer);
-        } while ($bestaat);
+        $ontvangers = [];
 
-        $result = $this->meldingModel->create([
-            'bezoeker_id' => $bezoeker_id,
-            'medewerker_id' => null,
-            'nummer' => $nummer,
-            'type' => $type,
-            'bericht' => $bericht,
-            'opmerking' => $opmerking,
-            'is_actief' => $is_actief
-        ]);
+        if ($doelgroep === 'bezoeker') {
+            $ontvangers[] = [
+                'bezoeker_id' => $bezoeker_id,
+                'medewerker_id' => null
+            ];
+        }
 
-        if (!$result) {
-            $_SESSION['melding_db_fout'] = true;
-            header('location:' . URLROOT . '/meldingen');
-            exit;
+        if ($doelgroep === 'alle_bezoekers' || $doelgroep === 'iedereen') {
+            foreach ($this->meldingModel->getAllBezoekers() as $bezoeker) {
+                $ontvangers[] = [
+                    'bezoeker_id' => $bezoeker->id,
+                    'medewerker_id' => null
+                ];
+            }
+        }
+
+        if ($doelgroep === 'alle_medewerkers' || $doelgroep === 'iedereen') {
+            foreach ($this->meldingModel->getAllMedewerkers() as $medewerker) {
+                $ontvangers[] = [
+                    'bezoeker_id' => null,
+                    'medewerker_id' => $medewerker->id
+                ];
+            }
+        }
+
+        foreach ($ontvangers as $ontvanger) {
+            do {
+                $nummer = random_int(100000, 999999);
+                $bestaat = $this->meldingModel->getByNummer($nummer);
+            } while ($bestaat);
+
+            $this->meldingModel->create([
+                'bezoeker_id' => $ontvanger['bezoeker_id'],
+                'medewerker_id' => $ontvanger['medewerker_id'],
+                'nummer' => $nummer,
+                'type' => $type,
+                'bericht' => $bericht,
+                'is_actief' => $is_actief,
+                'opmerking' => $opmerking
+            ]);
         }
 
         unset($_SESSION['melding_db_fout']);
