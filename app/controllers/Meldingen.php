@@ -9,108 +9,115 @@ class Meldingen extends BaseController
         $this->meldingModel = $this->model('Melding');
     }
 
-    /**
-     * Overzicht van meldingen voor de ingelogde bezoeker.
-     * Happy flow: gesorteerd op datum.
-     * Unhappy flow: melding dat er geen meldingen zijn.
-     */
     public function index()
     {
-        // Niet ingelogd? Terug naar home
         if (!isset($_SESSION['accountId'])) {
             header('location:' . URLROOT);
-            return;
+            exit;
         }
 
-        $bezoeker_id = $_SESSION['bezoeker_id'] ?? null;
+        if (!isset($_SESSION['melding_flow'])) {
+            $_SESSION['melding_flow'] = 'happy';
+        }
 
-        $meldingen = [];
-        if ($bezoeker_id) {
-            $meldingen = $this->meldingModel->getByBezoekerId($bezoeker_id);
+        $bezoeker_id = $_SESSION['bezoeker_id'] ?? $_SESSION['accountId'];
 
-            // Sorteer op datum_aangemaakt, nieuwste eerst
-            if (!empty($meldingen)) {
-                usort($meldingen, function ($a, $b) {
-                    return strtotime($b->datum_aangemaakt) - strtotime($a->datum_aangemaakt);
-                });
-            }
+        $meldingen = $this->meldingModel->getByBezoekerId($bezoeker_id);
+
+        if (!empty($meldingen)) {
+            usort($meldingen, function ($a, $b) {
+                return strtotime($b->datum_aangemaakt) - strtotime($a->datum_aangemaakt);
+            });
         }
 
         $data = [
-            'title'          => 'Mijn Meldingen',
-            'meldingen'      => $meldingen,
+            'title' => 'Mijn Meldingen',
+            'meldingen' => $meldingen,
             'heeft_meldingen' => !empty($meldingen),
+            'melding_flow' => $_SESSION['melding_flow']
         ];
 
         $this->view('meldingen/overzicht', $data);
     }
 
-    /**
-     * Nieuwe melding opslaan (POST).
-     * Happy flow:  melding opgeslagen → redirect naar overzicht.
-     * Unhappy flow: db-fout → popup via sessie-flag.
-     */
+    public function happy()
+    {
+        $_SESSION['melding_flow'] = 'happy';
+        unset($_SESSION['melding_db_fout']);
+
+        header('location:' . URLROOT . '/meldingen');
+        exit;
+    }
+
+    public function unhappy()
+    {
+        $_SESSION['melding_flow'] = 'unhappy';
+        unset($_SESSION['melding_db_fout']);
+
+        header('location:' . URLROOT . '/meldingen');
+        exit;
+    }
+
     public function opslaan()
     {
-        // Niet ingelogd? Terug naar home
         if (!isset($_SESSION['accountId'])) {
             header('location:' . URLROOT);
-            return;
+            exit;
         }
 
-        // Alleen POST toegestaan
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('location:' . URLROOT . '/meldingen');
-            return;
+            exit;
         }
 
-        $bezoeker_id = $_SESSION['bezoeker_id'] ?? null;
-        $type        = trim($_POST['type']      ?? '');
-        $bericht     = trim($_POST['bericht']   ?? '');
-        $opmerking   = trim($_POST['opmerking'] ?? '') ?: null;
-        $is_actief   = isset($_POST['is_actief']) ? (int)$_POST['is_actief'] : 1;
+        if ($_SESSION['melding_flow'] === 'unhappy') {
+            $_SESSION['melding_db_fout'] = true;
+            header('location:' . URLROOT . '/meldingen');
+            exit;
+        }
 
-        // Basisvalidatie
+        $bezoeker_id = $_SESSION['bezoeker_id'] ?? $_SESSION['accountId'];
+        $type = trim($_POST['type'] ?? '');
+        $bericht = trim($_POST['bericht'] ?? '');
+        $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
+        $is_actief = isset($_POST['is_actief']) ? (int)$_POST['is_actief'] : 1;
+
         $toegestane_types = ['notificatie', 'klacht', 'review'];
+
         if (
-            !$bezoeker_id
-            || !in_array($type, $toegestane_types)
-            || empty($bericht)
-            || mb_strlen($bericht) > 250
+            !in_array($type, $toegestane_types) ||
+            $bericht === '' ||
+            mb_strlen($bericht) > 250
         ) {
             $_SESSION['melding_db_fout'] = true;
             header('location:' . URLROOT . '/meldingen');
-            return;
+            exit;
         }
 
-        // Uniek nummer genereren
         do {
             $nummer = random_int(100000, 999999);
             $bestaat = $this->meldingModel->getByNummer($nummer);
         } while ($bestaat);
 
-        // Opslaan via model
-        try {
-            $result = $this->meldingModel->create([
-                'bezoeker_id' => $bezoeker_id,
-                'nummer'      => $nummer,
-                'type'        => $type,
-                'bericht'     => $bericht,
-                'opmerking'   => $opmerking,
-                'is_actief'   => $is_actief,
-            ]);
+        $result = $this->meldingModel->create([
+            'bezoeker_id' => $bezoeker_id,
+            'medewerker_id' => null,
+            'nummer' => $nummer,
+            'type' => $type,
+            'bericht' => $bericht,
+            'opmerking' => $opmerking,
+            'is_actief' => $is_actief
+        ]);
 
-            if (!$result) {
-                throw new Exception('Insert mislukt');
-            }
-
-            // Happy flow: terug naar overzicht
-            header('location:' . URLROOT . '/meldingen');
-
-        } catch (Exception $e) {
-            // Unhappy flow: toon fout-popup
+        if (!$result) {
             $_SESSION['melding_db_fout'] = true;
             header('location:' . URLROOT . '/meldingen');
+            exit;
         }
+
+        unset($_SESSION['melding_db_fout']);
+
+        header('location:' . URLROOT . '/meldingen');
+        exit;
     }
 }
