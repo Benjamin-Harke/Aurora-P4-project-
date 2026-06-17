@@ -20,7 +20,9 @@ extract($data ?? []);
 
         <?php if (isset($_SESSION['accountId'])): ?>
             <div class="d-flex gap-2 flex-wrap">
-                <a href="<?= URLROOT ?>/meldingen/happy" class="btn btn-primary-custom">Happy</a>
+                <a href="<?= URLROOT ?>/meldingen/happy" class="btn btn-primary-custom">
+                    Happy
+                </a>
 
                 <a href="<?= URLROOT ?>/meldingen/unhappy"
                    class="btn btn-outline-custom"
@@ -37,65 +39,59 @@ extract($data ?? []);
 
     <?php if ($heeft_meldingen): ?>
 
-        <div class="d-flex flex-column gap-3">
-            <?php foreach ($meldingen as $melding): ?>
-                <div class="melding-card">
-                    <div class="d-flex">
+        <div class="melding-card p-0 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table mb-0" style="color: var(--text-primary);">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--accent-cyan);">
+                            <th style="padding: 18px;">Gebruiker ID</th>
+                            <th style="padding: 18px;">Rol</th>
+                            <th style="padding: 18px;">Melding Titel</th>
+                            <th style="padding: 18px;">Melding Bericht</th>
+                        </tr>
+                    </thead>
 
-                        <div class="melding-streep melding-streep--<?= htmlspecialchars(strtolower($melding->type)) ?>"></div>
+                    <tbody>
+                        <?php foreach ($meldingen as $melding): ?>
+                            <tr style="border-bottom: 1px solid rgba(0, 229, 255, 0.25);">
+                                <td style="padding: 18px;">
+                                    <?= htmlspecialchars($melding->bezoeker_id ?? $melding->medewerker_id ?? 'NULL') ?>
+                                </td>
 
-                        <div class="p-3 flex-grow-1">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <span class="melding-badge melding-badge--<?= htmlspecialchars(strtolower($melding->type)) ?>">
-                                    <?= htmlspecialchars(ucfirst($melding->type)) ?>
-                                </span>
+                                <td style="padding: 18px;">
+                                    <?= !empty($melding->bezoeker_id) ? 'Bezoeker' : 'Medewerker' ?>
+                                </td>
 
-                                <span class="melding-datum ms-auto">
-                                    #<?= htmlspecialchars($melding->nummer) ?>
-                                </span>
-                            </div>
+                                <td style="padding: 18px;">
+                                    <span class="melding-badge melding-badge--<?= htmlspecialchars(strtolower($melding->type)) ?>">
+                                        <?= htmlspecialchars(ucfirst($melding->type)) ?>
+                                    </span>
+                                </td>
 
-                            <p class="melding-bericht">
-                                <?= htmlspecialchars($melding->bericht) ?>
-                            </p>
+                                <td style="padding: 18px;">
+                                    <div>
+                                        <?= htmlspecialchars($melding->bericht) ?>
+                                    </div>
 
-                            <?php if (!empty($melding->opmerking)): ?>
-                                <p class="melding-bericht" style="color: #8a9bb0;">
-                                    <?= htmlspecialchars($melding->opmerking) ?>
-                                </p>
-                            <?php endif; ?>
+                                    <?php if (!empty($melding->opmerking)): ?>
+                                        <div style="color: #8a9bb0; margin-top: 6px;">
+                                            <?= htmlspecialchars($melding->opmerking) ?>
+                                        </div>
+                                    <?php endif; ?>
 
-                            <div style="color: #8a9bb0; font-size: 14px; margin-top: 12px;">
-                                <p>Id: <?= htmlspecialchars($melding->id) ?></p>
-                                <p>BezoekerId: <?= htmlspecialchars($melding->bezoeker_id ?? 'NULL') ?></p>
-                                <p>MedewerkerId: <?= htmlspecialchars($melding->medewerker_id ?? 'NULL') ?></p>
-                                <p>Nummer: <?= htmlspecialchars($melding->nummer) ?></p>
-                                <p>Type: <?= htmlspecialchars($melding->type) ?></p>
-                                <p>Bericht: <?= htmlspecialchars($melding->bericht) ?></p>
-                                <p>Isactief: <?= htmlspecialchars($melding->is_actief) ?></p>
-                                <p>Opmerking: <?= htmlspecialchars($melding->opmerking ?? 'NULL') ?></p>
-                                <p>Datumaangemaakt: <?= htmlspecialchars($melding->datum_aangemaakt) ?></p>
-                                <p>Datumgewijzigd: <?= htmlspecialchars($melding->datum_gewijzigd) ?></p>
-                            </div>
-
-                            <div class="d-flex align-items-center justify-content-between">
-                                <span class="melding-datum">
-                                    <i class="bi bi-clock me-1"></i>
-                                    <?php
-                                    $datum = new DateTime($melding->datum_aangemaakt);
-                                    echo $datum->format('d M Y \o\m H:i');
-                                    ?>
-                                </span>
-
-                                <span class="melding-status <?= $melding->is_actief ? 'melding-status--actief' : 'melding-status--gesloten' ?>">
-                                    <?= $melding->is_actief ? 'Actief' : 'Gesloten' ?>
-                                </span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            <?php endforeach; ?>
+                                    <div style="color: #8a9bb0; font-size: 13px; margin-top: 8px;">
+                                        #<?= htmlspecialchars($melding->nummer) ?>
+                                        |
+                                        <?= htmlspecialchars($melding->is_actief ? 'Actief' : 'Gesloten') ?>
+                                        |
+                                        <?= htmlspecialchars($melding->datum_aangemaakt) ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     <?php else: ?>
@@ -132,37 +128,28 @@ extract($data ?? []);
 
                     <div class="mb-3">
                         <label for="doelgroep" class="form-label">
-                            Ontvanger <span class="text-danger">*</span>
+                            Ontvanger
                         </label>
 
-                        <select class="form-control melding-select" id="doelgroep" name="doelgroep" required>
-                            <option value="" disabled selected>Kies ontvanger...</option>
+                        <select class="form-control melding-select" id="doelgroep" name="doelgroep">
+                            <option value="" selected>Kies ontvanger...</option>
                             <option value="iedereen">Iedereen</option>
                             <option value="alle_bezoekers">Alle bezoekers</option>
                             <option value="alle_medewerkers">Alle medewerkers</option>
                             <option value="bezoeker">Alleen naar mij</option>
-                            <option value="specifieke_bezoeker">Specifieke bezoeker</option>
-                            <option value="specifieke_medewerker">Specifieke medewerker</option>
-                            <option value="specifieke_administrator">Specifieke administrator</option>
                         </select>
                     </div>
 
                     <div class="mb-3">
-                        <label for="specifiekeBezoekerId" class="form-label">Specifieke BezoekerId</label>
-                        <input type="number"
-                               class="form-control"
-                               id="specifiekeBezoekerId"
-                               name="specifieke_bezoeker_id"
-                               placeholder="Bijvoorbeeld 3">
-                    </div>
+                        <label for="ontvangerId" class="form-label">
+                            Ontvanger ID
+                        </label>
 
-                    <div class="mb-3">
-                        <label for="specifiekeMedewerkerId" class="form-label">Specifieke MedewerkerId / AdministratorId</label>
                         <input type="number"
                                class="form-control"
-                               id="specifiekeMedewerkerId"
-                               name="specifieke_medewerker_id"
-                               placeholder="Bijvoorbeeld 1">
+                               id="ontvangerId"
+                               name="ontvanger_id"
+                               placeholder="Vul ID in als je naar 1 bezoeker wilt sturen">
                     </div>
 
                     <div class="mb-3">
