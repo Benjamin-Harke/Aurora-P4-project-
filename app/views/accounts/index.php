@@ -1,7 +1,7 @@
 <?php
 /**
  * Account Overview View
- * @var array $data Contains: title, accounts
+ * @var array $data Contains: title, users
  */
 require_once APPROOT . '/views/includes/header.php'; ?>
 
