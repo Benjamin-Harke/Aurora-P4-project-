@@ -4,17 +4,6 @@ class Melding
 {
     private $db;
 
-    public $id;
-    public $bezoeker_id;
-    public $medewerker_id;
-    public $nummer;
-    public $type;
-    public $bericht;
-    public $is_actief;
-    public $opmerking;
-    public $datum_aangemaakt;
-    public $datum_gewijzigd;
-
     public function __construct()
     {
         $this->db = new Database();
@@ -22,30 +11,23 @@ class Melding
 
     public function create(array $data = [])
     {
-        $bezoeker_id = $data['bezoeker_id'] ?? null;
-        $nummer = $data['nummer'] ?? null;
-        $type = $data['type'] ?? null;
-        $bericht = $data['bericht'] ?? null;
-        $is_actief = $data['is_actief'] ?? 1;
-        $opmerking = $data['opmerking'] ?? null;
-
         try {
             $this->db->query(
-                'INSERT INTO melding 
-                (bezoeker_id, nummer, type, bericht, is_actief, opmerking) 
-                VALUES 
-                (:bezoeker_id, :nummer, :type, :bericht, :is_actief, :opmerking)'
+                'INSERT INTO melding
+                (bezoeker_id, medewerker_id, nummer, type, bericht, is_actief, opmerking)
+                VALUES
+                (:bezoeker_id, :medewerker_id, :nummer, :type, :bericht, :is_actief, :opmerking)'
             );
 
-            $this->db->bind(':bezoeker_id', $bezoeker_id);
-            $this->db->bind(':nummer', $nummer);
-            $this->db->bind(':type', $type);
-            $this->db->bind(':bericht', $bericht);
-            $this->db->bind(':is_actief', (int) $is_actief, PDO::PARAM_INT);
-            $this->db->bind(':opmerking', $opmerking);
+            $this->db->bind(':bezoeker_id', $data['bezoeker_id'] ?? null);
+            $this->db->bind(':medewerker_id', $data['medewerker_id'] ?? null);
+            $this->db->bind(':nummer', $data['nummer']);
+            $this->db->bind(':type', $data['type']);
+            $this->db->bind(':bericht', $data['bericht']);
+            $this->db->bind(':is_actief', (int)$data['is_actief'], PDO::PARAM_INT);
+            $this->db->bind(':opmerking', $data['opmerking'] ?? null);
 
             return $this->db->execute();
-
         } catch (PDOException $e) {
             die('Database fout bij opslaan: ' . $e->getMessage());
         }
@@ -58,32 +40,6 @@ class Melding
             $this->db->bind(':nummer', $nummer);
 
             return $this->db->single();
-
-        } catch (PDOException $e) {
-            return null;
-        }
-    }
-
-    public function getAll()
-    {
-        try {
-            $this->db->query('SELECT * FROM melding ORDER BY datum_aangemaakt DESC');
-
-            return $this->db->resultSet();
-
-        } catch (PDOException $e) {
-            return [];
-        }
-    }
-
-    public function getById($id)
-    {
-        try {
-            $this->db->query('SELECT * FROM melding WHERE id = :id');
-            $this->db->bind(':id', $id);
-
-            return $this->db->single();
-
         } catch (PDOException $e) {
             return null;
         }
@@ -93,8 +49,7 @@ class Melding
     {
         try {
             $this->db->query(
-                'SELECT * 
-                 FROM melding 
+                'SELECT * FROM melding
                  WHERE bezoeker_id = :bezoeker_id
                  ORDER BY datum_aangemaakt DESC'
             );
@@ -102,7 +57,6 @@ class Melding
             $this->db->bind(':bezoeker_id', $bezoeker_id);
 
             return $this->db->resultSet();
-
         } catch (PDOException $e) {
             return [];
         }
@@ -112,8 +66,7 @@ class Melding
     {
         try {
             $this->db->query(
-                'SELECT * 
-                 FROM melding 
+                'SELECT * FROM melding
                  WHERE medewerker_id = :medewerker_id
                  ORDER BY datum_aangemaakt DESC'
             );
@@ -121,77 +74,28 @@ class Melding
             $this->db->bind(':medewerker_id', $medewerker_id);
 
             return $this->db->resultSet();
-
         } catch (PDOException $e) {
             return [];
         }
     }
 
-    public function update()
+    public function getAllBezoekers()
     {
         try {
-            $this->db->query(
-                'UPDATE melding 
-                 SET bezoeker_id = :bezoeker_id,
-                     nummer = :nummer,
-                     type = :type,
-                     bericht = :bericht,
-                     is_actief = :is_actief,
-                     opmerking = :opmerking
-                 WHERE id = :id'
-            );
-
-            $this->db->bind(':id', $this->id);
-            $this->db->bind(':bezoeker_id', $this->bezoeker_id);
-            $this->db->bind(':nummer', $this->nummer);
-            $this->db->bind(':type', $this->type);
-            $this->db->bind(':bericht', $this->bericht);
-            $this->db->bind(':is_actief', $this->is_actief);
-            $this->db->bind(':opmerking', $this->opmerking);
-
-            return $this->db->execute();
-
+            $this->db->query('SELECT id FROM bezoeker WHERE is_actief = 1');
+            return $this->db->resultSet();
         } catch (PDOException $e) {
-            return false;
+            return [];
         }
     }
 
-    public function delete($id)
+    public function getAllMedewerkers()
     {
         try {
-            $this->db->query('DELETE FROM melding WHERE id = :id');
-            $this->db->bind(':id', $id);
-
-            return $this->db->execute();
-
+            $this->db->query('SELECT id FROM medewerker WHERE is_actief = 1');
+            return $this->db->resultSet();
         } catch (PDOException $e) {
-            return false;
+            return [];
         }
-    }
-
-    public function deleteAll()
-    {
-        try {
-            $this->db->query('DELETE FROM melding');
-
-            return $this->db->execute();
-
-        } catch (PDOException $e) {
-            return false;
-        }
-    }
-
-    public function getBezoeker()
-    {
-        $bezoekerModel = new Bezoeker();
-
-        return $bezoekerModel->getById($this->bezoeker_id);
-    }
-
-    public function getMedewerker()
-    {
-        $medewerkerModel = new Medewerker();
-
-        return $medewerkerModel->getById($this->medewerker_id);
     }
 }
