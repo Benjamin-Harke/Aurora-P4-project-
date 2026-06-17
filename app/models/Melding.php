@@ -24,7 +24,7 @@ class Melding
             $this->db->bind(':nummer', $data['nummer']);
             $this->db->bind(':type', $data['type']);
             $this->db->bind(':bericht', $data['bericht']);
-            $this->db->bind(':is_actief', (int)$data['is_actief'], PDO::PARAM_INT);
+            $this->db->bind(':is_actief', (int) $data['is_actief'], PDO::PARAM_INT);
             $this->db->bind(':opmerking', $data['opmerking'] ?? null);
 
             return $this->db->execute();
@@ -49,7 +49,8 @@ class Melding
     {
         try {
             $this->db->query(
-                'SELECT * FROM melding
+                'SELECT *
+                 FROM melding
                  WHERE bezoeker_id = :bezoeker_id
                  ORDER BY datum_aangemaakt DESC'
             );
@@ -66,7 +67,8 @@ class Melding
     {
         try {
             $this->db->query(
-                'SELECT * FROM melding
+                'SELECT *
+                 FROM melding
                  WHERE medewerker_id = :medewerker_id
                  ORDER BY datum_aangemaakt DESC'
             );
