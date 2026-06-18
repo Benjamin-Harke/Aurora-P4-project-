@@ -31,6 +31,7 @@ class Voorstellingen extends BaseController
             redirect('homepages');
         }
 
+        // Performance-specific form data for creating a new voorstelling
         $data = [
             'title' => 'Nieuwe Voorstelling',
             'naam' => '',
@@ -57,6 +58,7 @@ class Voorstellingen extends BaseController
                 $data['errors']['naam'] = 'Vul een titel in voor de voorstelling.';
             }
 
+            // Validate date for the voorstelling to ensure it's a future performance
             if (empty($data['datum'])) {
                 $data['errors']['datum'] = 'Vul een datum in voor de voorstelling.';
             } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $data['datum']) || !strtotime($data['datum'])) {
@@ -93,11 +95,13 @@ class Voorstellingen extends BaseController
                 $voorstellingModel->medewerker_id = $medewerker->id;
                 $voorstellingModel->naam = $data['naam'];
                 $voorstellingModel->beschrijving = $data['beschrijving'];
+                // Map performance-specific fields into the Voorstelling model
                 $voorstellingModel->datum = $data['datum'];
                 $voorstellingModel->tijd = $data['tijd'];
                 $voorstellingModel->max_aantal_tickets = intval($data['max_aantal_tickets']);
                 $voorstellingModel->beschikbaarheid = $data['beschikbaarheid'];
                 $voorstellingModel->is_actief = 1;
+                // Location is stored in opmerking because the Voorstelling model currently does not have a dedicated locatie column
                 $voorstellingModel->opmerking = 'Locatie: ' . $data['locatie'];
 
                 if ($voorstellingModel->create()) {
