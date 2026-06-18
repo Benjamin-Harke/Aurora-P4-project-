@@ -40,6 +40,9 @@
 
     <!-- Quick Actions Bar -->
     <div class="d-flex flex-wrap gap-2 mb-4">
+        <a href="<?php echo URLROOT; ?>/admintickets/create" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i> Nieuw ticket toevoegen
+        </a>
         <a href="/admintickets/inventory" class="btn btn-outline-info">
             <i class="bi bi-box"></i> View Inventory
         </a>

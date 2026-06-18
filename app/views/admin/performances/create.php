@@ -14,29 +14,29 @@
                         
                         <div class="mb-3">
                             <label class="form-label fw-bold">Performance Name (naam)</label>
-                            <input type="text" name="naam" class="form-control" placeholder="e.g. The Lion King" required>
+                            <input type="text" name="naam" class="form-control" placeholder="e.g. The Lion King" value="<?php echo isset($data['naam']) ? htmlspecialchars($data['naam']) : ''; ?>" required>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Description (beschrijving)</label>
-                            <textarea name="beschrijving" class="form-control" rows="3" placeholder="Tell the audience about the show..."></textarea>
+                            <textarea name="beschrijving" class="form-control" rows="3" placeholder="Tell the audience about the show..."><?php echo isset($data['beschrijving']) ? htmlspecialchars($data['beschrijving']) : ''; ?></textarea>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Date (datum)</label>
-                                <input type="date" name="datum" class="form-control" required>
+                                <input type="date" name="datum" class="form-control" value="<?php echo isset($data['datum']) ? htmlspecialchars($data['datum']) : ''; ?>" required>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Start Time (tijd)</label>
-                                <input type="time" name="tijd" class="form-control" required>
+                                <input type="time" name="tijd" class="form-control" value="<?php echo isset($data['tijd']) ? htmlspecialchars($data['tijd']) : ''; ?>" required>
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Total Seats (max_aantal_tickets)</label>
-                                <input type="number" name="max_aantal_tickets" class="form-control" value="80" min="1" required>
+                                <input type="number" name="max_aantal_tickets" class="form-control" value="<?php echo isset($data['max_aantal_tickets']) ? htmlspecialchars($data['max_aantal_tickets']) : '80'; ?>" min="1" required>
                                 <small class="text-muted">Maximum capacity of the hall.</small>
                             </div>
                             <div class="col-md-6 mb-3">

@@ -56,7 +56,7 @@ class Ticket
         $this->db->query("SELECT nummer FROM ticket WHERE voorstelling_id = :id AND status != 'cancelled'");
         $this->db->bind(':id', $performanceId);
         $results = $this->db->resultSet();
-        return array_column($results, 'nummer');
+        return array_map('intval', array_column($results, 'nummer'));
     }
 
     /**
@@ -163,8 +163,19 @@ class Ticket
         return $this->db->execute();
     }
 
+
+
     /**
-     * CRUD: Delete a ticket
+     * Returns the next available unique ticket number (MAX + 1)
+     */
+    public function getNextTicketNumber() {
+        $this->db->query('SELECT COALESCE(MAX(nummer), 87999) + 1 as next_number FROM ticket');
+        $result = $this->db->single();
+        return $result->next_number;
+    }
+
+    /**
+     * Standard CRUD: Delete a ticket
      */
     public function delete($id)
     {

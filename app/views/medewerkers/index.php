@@ -2,12 +2,15 @@
 <?php require_once APPROOT . '/views/includes/messages.php'; ?>
 
 <div class="container mt-5 mb-5">
-    <div class="row mb-4">
-        <div class="col-lg-8">
+    <div class="row mb-4 align-items-center">
+        <div class="col-lg-6">
             <h1 class="display-4">Medewerkers Directory</h1>
-            <p class="lead text-muted">Vind contactgegevens van onze medewerkers en organiseer eenvoudig communicatie</p>
+            <p class="lead text-muted mb-0">Vind contactgegevens van onze medewerkers en organiseer eenvoudig communicatie</p>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-6 text-lg-end mt-3 mt-lg-0 d-flex gap-2 justify-content-lg-end align-items-center">
+            <a href="<?= URLROOT; ?>/accounts/create" class="btn btn-outline-primary" id="btnAddEmployee">
+                <i class="bi bi-person-plus-fill me-1"></i> Nieuwe medewerker toevoegen
+            </a>
             <div class="search-box">
                 <input type="text" class="form-control" placeholder="Zoek medewerker..." id="searchInput">
             </div>

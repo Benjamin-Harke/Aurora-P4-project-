@@ -122,7 +122,11 @@ class Accounts extends BaseController
 
             // Duplicate e-mail check (acceptance criterion: "Email is al in gebruik")
             if (empty($data['email_err']) && $this->accountModel->checkEmailInUse($data['email'])) {
-                $data['email_err'] = 'Email is al in gebruik';
+                if (strtolower($data['rol']) !== 'bezoeker') {
+                    $data['email_err'] = 'Het opgegeven e-mailadres is al gekoppeld aan een andere medewerker. Gebruik een ander e-mailadres.';
+                } else {
+                    $data['email_err'] = 'Email is al in gebruik';
+                }
             }
 
             // Duplicate username check
@@ -140,7 +144,12 @@ class Accounts extends BaseController
             if (!$hasErrors) {
                 if ($this->accountModel->createAccount($data)) {
                     $_SESSION['success'] = 'Account succesvol aangemaakt';
-                    header('Location: ' . URLROOT . '/accounts');
+                    $roleLower = strtolower($data['rol']);
+                    if ($roleLower === 'admin' || $roleLower === 'medewerker' || $roleLower === 'receptie') {
+                        header('Location: ' . URLROOT . '/medewerkers');
+                    } else {
+                        header('Location: ' . URLROOT . '/accounts');
+                    }
                     exit;
                 } else {
                     $_SESSION['error'] = 'Er is iets misgegaan bij het opslaan van het account';

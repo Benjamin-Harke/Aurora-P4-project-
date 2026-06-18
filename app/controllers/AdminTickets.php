@@ -3,12 +3,15 @@
 class Admintickets extends BaseController {
     private $ticketModel;
     private $voorstellingModel;
+    private $bezoekerModel;
+    private $prijsModel;
 
     public function __construct() {
         parent::__construct();
-        // Load the Dutch ERD Models
-        $this->ticketModel = $this->model('Ticket');
+        $this->ticketModel      = $this->model('Ticket');
         $this->voorstellingModel = $this->model('Voorstelling');
+        $this->bezoekerModel    = $this->model('Bezoeker');
+        $this->prijsModel       = $this->model('Prijs');
     }
 
     /**
@@ -113,6 +116,127 @@ class Admintickets extends BaseController {
 
         $data = ['inventory' => $inventoryData];
         $this->view('admintickets/inventory', $data);
+    }
+
+    /**
+     * CREATE TICKET: Admin form to add a new ticket
+     * URL: /admintickets/create
+     * GET  → show the form
+     * POST → validate + save
+     */
+    public function create() {
+        // --- Auth guard ---
+        if (!isset($_SESSION['accountId'])) {
+            $_SESSION['error'] = 'Please log in to access admin features';
+            header('Location: ' . URLROOT);
+            return;
+        }
+        $userRole = $_SESSION['rolle'] ?? 'bezoeker';
+        if (strtolower($userRole) !== 'admin') {
+            $_SESSION['error'] = 'You do not have permission to access admin features';
+            header('Location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
+        $errors  = [];
+        $postData = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $voorstellingId = trim($_POST['voorstelling_id'] ?? '');
+            $bezoekerId     = trim($_POST['bezoeker_id'] ?? '');
+            $stoelnummer    = (int) trim($_POST['stoelnummer'] ?? 0);
+            $prijsId        = trim($_POST['prijs_id'] ?? '');
+
+            // Keep values so the form re-fills after an error
+            $postData = [
+                'voorstelling_id' => $voorstellingId,
+                'bezoeker_id'     => $bezoekerId,
+                'stoelnummer'     => $stoelnummer,
+                'prijs_id'        => $prijsId,
+            ];
+
+            // --- Basic required-field validation ---
+            if (empty($voorstellingId)) $errors[] = 'Selecteer een voorstelling.';
+            if (empty($bezoekerId))     $errors[] = 'Selecteer een bezoeker.';
+            if ($stoelnummer < 1)       $errors[] = 'Voer een geldig stoelnummer in (minimaal 1).';
+            if (empty($prijsId))        $errors[] = 'Selecteer een tarief.';
+
+            if (empty($errors)) {
+                // --- Check seat capacity ---
+                $performance = $this->voorstellingModel->getById($voorstellingId);
+                if ($performance && $stoelnummer > (int)$performance->max_aantal_tickets) {
+                    $errors[] = 'Stoelnummer ' . $stoelnummer . ' bestaat niet voor deze voorstelling (max: ' . $performance->max_aantal_tickets . ').';
+                }
+            }
+
+            if (empty($errors)) {
+                // --- UNHAPPY SCENARIO: seat already taken ---
+                $takenSeats = $this->ticketModel->getTakenSeats($voorstellingId);
+                if (in_array($stoelnummer, $takenSeats)) {
+                    $errors[] = 'De geselecteerde stoel is al geboekt voor deze voorstelling. Kies een beschikbare stoel om het ticket toe te voegen.';
+                }
+            }
+
+            if (empty($errors)) {
+                // --- HAPPY SCENARIO: create the ticket ---
+                $performance   = $this->voorstellingModel->getById($voorstellingId);
+                $ticketNumber  = $this->ticketModel->getNextTicketNumber();
+                $barcode       = 'TKT-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 10));
+
+                $ticketData = [
+                    'bezoeker_id'     => $bezoekerId,
+                    'voorstelling_id' => $voorstellingId,
+                    'prijs_id'        => $prijsId,
+                    'nummer'          => $ticketNumber,
+                    'barcode'         => $barcode,
+                    'datum'           => $performance->datum,
+                    'tijd'            => $performance->tijd,
+                    'status'          => 'Gereserveerd',
+                ];
+
+                if ($this->ticketModel->create($ticketData)) {
+                    $_SESSION['success'] = 'Ticket succesvol toegevoegd aan het systeem!';
+                    header('Location: ' . URLROOT . '/admintickets/dashboard');
+                    exit;
+                } else {
+                    $errors[] = 'Er is een fout opgetreden bij het opslaan van het ticket. Probeer opnieuw.';
+                }
+            }
+        }
+
+        $data = [
+            'performances' => $this->voorstellingModel->getAll(),
+            'bezoekers'    => $this->bezoekerModel->getAllWithNames(),
+            'prijzen'      => $this->prijsModel->getAll(),
+            'errors'       => $errors,
+            'post'         => $postData,
+        ];
+
+        $this->view('admintickets/create', $data);
+    }
+
+    /**
+     * JSON ENDPOINT: Return seat info for a performance
+     * URL: /admintickets/getSeats/[id]
+     * Used by the JavaScript on the create-ticket form
+     */
+    public function getSeats($id = null) {
+        header('Content-Type: application/json');
+        if (!$id) {
+            echo json_encode(['error' => 'No performance ID provided']);
+            exit;
+        }
+        $performance = $this->voorstellingModel->getById($id);
+        if (!$performance) {
+            echo json_encode(['error' => 'Performance not found']);
+            exit;
+        }
+        $taken = $this->ticketModel->getTakenSeats($id);
+        echo json_encode([
+            'total' => (int) $performance->max_aantal_tickets,
+            'taken' => $taken,
+        ]);
+        exit;
     }
 
     /**

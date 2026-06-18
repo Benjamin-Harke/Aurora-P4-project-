@@ -39,6 +39,21 @@ class Bezoeker {
     }
 
     /**
+     * Get all Bezoeker records with their Gebruiker name fields.
+     * Used to populate the bezoeker dropdown on the ticket-create form.
+     */
+    public function getAllWithNames() {
+        $this->db->query(
+            'SELECT b.*, g.voornaam, g.tussenvoegsel, g.achternaam
+             FROM bezoeker b
+             JOIN gebruiker g ON b.gebruiker_id = g.id
+             WHERE b.is_actief = 1
+             ORDER BY g.achternaam ASC, g.voornaam ASC'
+        );
+        return $this->db->resultSet();
+    }
+
+    /**
      * Get a single Bezoeker record by ID.
      * @param int $id The ID of the bezoeker.
      * @return object|null The Bezoeker object or null if not found.
