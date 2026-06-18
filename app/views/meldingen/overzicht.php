@@ -223,14 +223,11 @@ extract($data ?? []);
                         <i class="bi bi-exclamation-triangle-fill me-2"></i> Fout
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
 
-                <div class="modal-body">
-                    <p class="mb-0">
-                        Momenteel niet beschikbaar.<br>
-                        Geen connectie met database gevonden.
-                    </p>
                 </div>
+                <p class="mb-0">
+                    <?= htmlspecialchars($_SESSION['melding_db_fout']) ?>
+                </p>
 
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">

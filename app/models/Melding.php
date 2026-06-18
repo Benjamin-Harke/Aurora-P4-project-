@@ -176,4 +176,22 @@ class Melding
             return null;
         }
     }
+
+    public function createUnhappy()
+    {
+        try {
+            $pdo = new PDO(
+                'mysql:host=localhost;dbname=unhappymeldingen',
+                'root',
+                ''
+            );
+
+            $sql = "INSERT INTO melding (bericht) VALUES ('test')";
+            $pdo->exec($sql);
+
+            return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
 }

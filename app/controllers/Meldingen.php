@@ -89,20 +89,15 @@ class Meldingen extends BaseController
     public function happy()
     {
         $_SESSION['melding_flow'] = 'happy';
-
-        // Oude foutmelding weghalen
         unset($_SESSION['melding_db_fout']);
 
         header('location:' . URLROOT . '/meldingen');
         exit;
     }
 
-    // Zet de pagina in unhappy flow
     public function unhappy()
     {
         $_SESSION['melding_flow'] = 'unhappy';
-
-        // Oude foutmelding weghalen
         unset($_SESSION['melding_db_fout']);
 
         header('location:' . URLROOT . '/meldingen');
@@ -124,11 +119,15 @@ class Meldingen extends BaseController
             exit;
         }
 
-        // Bij unhappy flow doen alsof de database niet werkt
-        if ($_SESSION['melding_flow'] === 'unhappy') {
-            $_SESSION['melding_db_fout'] = true;
-            header('location:' . URLROOT . '/meldingen');
-            exit;
+        // Bij unhappy scenario proberen we bewust op te slaan in een lege testdatabase
+        if (isset($_SESSION['melding_flow']) && $_SESSION['melding_flow'] === 'unhappy') {
+
+            if (!$this->meldingModel->createUnhappy()) {
+                $_SESSION['melding_db_fout'] = 'Geen connectie met database gevonden.';
+
+                header('location:' . URLROOT . '/meldingen');
+                exit;
+            }
         }
 
         // Eigen bezoeker id gebruiken als de admin naar zichzelf stuurt
