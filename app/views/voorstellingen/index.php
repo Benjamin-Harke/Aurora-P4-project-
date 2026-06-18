@@ -1,12 +1,23 @@
 <?php require_once APPROOT . '/views/includes/header.php'; ?>
 
 <div class="container mt-5 mb-5">
+    <?php require_once APPROOT . '/views/includes/messages.php'; ?>
+
     <div class="row mb-4">
         <div class="col-lg-8">
             <h1 class="display-4">Alle Voorstellingen</h1>
             <p class="lead text-muted">Bekijk ons volledige programma en kies een voorstelling die u wil bezoeken</p>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-4 text-end">
+            <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+                <a href="<?= URLROOT ?>/voorstellingen/create" class="btn btn-primary-custom mt-3">
+                    <i class="bi bi-plus-lg me-2"></i>Nieuwe voorstelling toevoegen
+                </a>
+            <?php endif; ?>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-lg-12">
             <div class="search-box">
                 <input type="text" class="form-control" placeholder="Zoek naar voorstellingen..." id="searchInput">
             </div>
