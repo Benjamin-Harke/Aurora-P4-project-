@@ -173,3 +173,25 @@ CREATE TABLE IF NOT EXISTS `melding` (
   INDEX `idx_type` (`type`),
   INDEX `idx_datum_aangemaakt` (`datum_aangemaakt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ===================================
+-- TIJDELIJKE TESTDATA - Melding Overzicht
+-- Wachtwoord: password
+-- Login: test@test.nl
+-- ===================================
+
+-- 1. Gebruiker
+INSERT INTO `gebruiker` (`voornaam`, `achternaam`, `gebruikersnaam`, `wachtwoord`, `is_ingelogd`, `is_actief`)
+VALUES ('Test', 'Gebruiker', 'test@test.nl', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 0, 1);
+
+-- 2. Bezoeker (gekoppeld aan gebruiker)
+INSERT INTO `bezoeker` (`gebruiker_id`, `relatienummer`, `is_actief`)
+VALUES (LAST_INSERT_ID(), 10001, 1);
+
+-- 3. Meldingen (4 stuks, alle types, mix actief/gesloten)
+INSERT INTO `melding` (`bezoeker_id`, `medewerker_id`, `nummer`, `type`, `bericht`, `is_actief`, `datum_aangemaakt`)
+VALUES
+  (LAST_INSERT_ID(), NULL, 5001, 'info',        'Je reservering voor Hamlet op 20 juni is bevestigd.', 1, '2026-06-10 09:00:00'),
+  (LAST_INSERT_ID(), NULL, 5002, 'waarschuwing', 'Je ticket voor De Stormvogel verloopt over 3 dagen.', 1, '2026-06-09 14:30:00'),
+  (LAST_INSERT_ID(), NULL, 5003, 'succes',       'Je betaling van €24,50 is succesvol verwerkt.',       0, '2026-06-08 11:15:00'),
+  (LAST_INSERT_ID(), NULL, 5004, 'fout',         'Er is iets misgegaan bij het ophalen van je ticket. Neem contact op met de kassa.', 0, '2026-06-07 16:45:00');

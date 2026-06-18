@@ -19,8 +19,7 @@ require_once APPROOT . '/views/includes/messages.php';
                         <select class="form-select form-select-lg" id="performance_id" onchange="performanceChanged()">
                             <option value="">-- Select Performance --</option>
                             <?php foreach ($data['performances'] as $perf): ?>
-                                <option value="<?php echo $perf->id; ?>" 
-                                    <?php echo isset($data['selected_performance']) && $data['selected_performance'] == $perf->id ? 'selected' : ''; ?>>
+                                <option value="<?php echo $perf->id; ?>">
                                     <?php echo htmlspecialchars($perf->naam); ?> - 
                                     <?php echo date('d M Y H:i', strtotime($perf->datum . ' ' . $perf->tijd)); ?>
                                 </option>
@@ -111,25 +110,8 @@ require_once APPROOT . '/views/includes/messages.php';
                     <ol class="mb-0">
                         <li>Select the performance from the dropdown</li>
                         <li>Position barcode scanner over the ticket barcode</li>
-                        <li>The barcode will appear in the input field</li>
                         <li>Press Enter to validate and scan</li>
-                        <li>Look for success confirmation</li>
-                        <li>Scan next ticket</li>
                     </ol>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header bg-warning text-dark">
-                    <h6 class="mb-0">⚠️ Important</h6>
-                </div>
-                <div class="card-body small">
-                    <ul class="mb-0">
-                        <li>Each ticket can only be scanned once</li>
-                        <li>Verify performance matches ticket</li>
-                        <li>Report duplicate scans immediately</li>
-                        <li>Check customer name carefully</li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -137,79 +119,43 @@ require_once APPROOT . '/views/includes/messages.php';
 </div>
 
 <style>
-    #barcode_input {
-        font-size: 1.5rem;
-        font-family: monospace;
-        font-weight: bold;
-    }
-
-    #barcode_input:focus {
-        border-color: #0d6efd;
-        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-    }
-
-    .alert-success {
-        background-color: #d4edda;
-        border-color: #c3e6cb;
-        color: #155724;
-    }
-
-    .alert-danger {
-        background-color: #f8d7da;
-        border-color: #f5c6cb;
-        color: #721c24;
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: #f5f5f5;
-    }
+    #barcode_input { font-size: 1.5rem; font-family: monospace; font-weight: bold; }
+    #barcode_input:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
 </style>
 
 <script>
     const URLROOT = '<?php echo URLROOT; ?>';
     let recentScans = [];
 
-    // Performance changed
     function performanceChanged() {
         const performanceId = document.getElementById('performance_id').value;
-        if (!performanceId) {
-            resetStats();
-            return;
-        }
+        if (!performanceId) { resetStats(); return; }
         loadStats(performanceId);
         document.getElementById('barcode_input').focus();
     }
 
-    // Load statistics
     async function loadStats(performanceId) {
         try {
             const response = await fetch(URLROOT + '/ticketscanning/stats', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ performance_id: performanceId })
             });
-
             const data = await response.json();
             if (data.success) {
                 document.getElementById('stat_total').textContent = data.total_tickets;
                 document.getElementById('stat_scanned').textContent = data.scanned_tickets;
                 document.getElementById('stat_remaining').textContent = data.remaining_tickets;
             }
-        } catch (error) {
-            console.error('Error loading stats:', error);
-        }
+        } catch (error) { console.error('Error loading stats:', error); }
     }
 
-    // Reset statistics
     function resetStats() {
         document.getElementById('stat_total').textContent = '-';
         document.getElementById('stat_scanned').textContent = '-';
         document.getElementById('stat_remaining').textContent = '-';
     }
 
-    // Handle barcode scan
     document.getElementById('barcode_input').addEventListener('keypress', async function (e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -221,46 +167,25 @@ require_once APPROOT . '/views/includes/messages.php';
         const performanceId = document.getElementById('performance_id').value;
         const barcode = document.getElementById('barcode_input').value.trim();
 
-        if (!performanceId) {
-            showResult(false, 'Please select a performance first');
-            return;
-        }
-
-        if (!barcode) {
-            showResult(false, 'Barcode cannot be empty');
-            return;
-        }
+        if (!performanceId) { showResult(false, 'Select a performance'); return; }
+        if (!barcode) return;
 
         try {
             const response = await fetch(URLROOT + '/ticketscanning/validate', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    barcode: barcode,
-                    performance_id: parseInt(performanceId)
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ barcode: barcode, performance_id: parseInt(performanceId) })
             });
 
             const data = await response.json();
-
-            if (data.success) {
-                showResult(true, data.message, data);
-                addRecentScan(data.ticket_owner, data.ticket_number, 'success');
-                document.getElementById('barcode_input').value = '';
-                document.getElementById('barcode_input').focus();
-                // Refresh stats
-                loadStats(performanceId);
-            } else {
-                showResult(false, data.message, data);
-                addRecentScan(data.ticket_owner || 'Unknown', '-', 'error');
-                document.getElementById('barcode_input').value = '';
-                document.getElementById('barcode_input').focus();
-            }
-        } catch (error) {
-            showResult(false, 'Error: ' + error.message);
+            showResult(data.success, data.message, data);
+            addRecentScan(data.ticket_owner || (data.success ? 'Success' : 'Unknown'), barcode, data.success ? 'success' : 'error');
+            
+            document.getElementById('barcode_input').value = '';
             document.getElementById('barcode_input').focus();
+            loadStats(performanceId);
+        } catch (error) {
+            showResult(false, 'Server Error');
         }
     }
 
@@ -271,77 +196,30 @@ require_once APPROOT . '/views/includes/messages.php';
         const detailsDiv = document.getElementById('result_details');
 
         alertDiv.className = 'alert ' + (success ? 'alert-success' : 'alert-danger');
-        messageDiv.innerHTML = '<strong>' + (success ? '✓ Success!' : '✗ Failed') + '</strong> ' + message;
-
-        let detailsHtml = '';
-        if (success && data.ticket_owner) {
-            detailsHtml = `
-                <div>
-                    <strong>Customer:</strong> ${data.ticket_owner}<br>
-                    <strong>Ticket #:</strong> ${data.ticket_number}<br>
-                    <strong>Price:</strong> €${data.ticket_price}
-                </div>
-            `;
-        } else if (!success && data.ticket_owner) {
-            detailsHtml = `<div><strong>Customer:</strong> ${data.ticket_owner}</div>`;
-        }
-        detailsDiv.innerHTML = detailsHtml;
-
+        messageDiv.innerHTML = '<strong>' + (success ? '✓' : '✗') + '</strong> ' + message;
+        detailsDiv.innerHTML = success ? `Owner: ${data.ticket_owner}` : '';
         resultDiv.style.display = 'block';
-
-        // Auto-hide success message after 3 seconds
-        if (success) {
-            setTimeout(() => {
-                resultDiv.style.display = 'none';
-            }, 3000);
-        }
+        if (success) setTimeout(() => { resultDiv.style.display = 'none'; }, 4000);
     }
 
     function addRecentScan(customer, ticketNumber, status) {
         const now = new Date();
-        const time = now.toLocaleTimeString();
-
-        recentScans.unshift({
-            time: time,
-            ticket: ticketNumber,
-            customer: customer,
-            status: status
-        });
-
-        // Keep only last 20 scans
-        if (recentScans.length > 20) {
-            recentScans.pop();
-        }
-
+        recentScans.unshift({ time: now.toLocaleTimeString(), ticket: ticketNumber, customer: customer, status: status });
+        if (recentScans.length > 10) recentScans.pop();
         updateScansTable();
     }
 
     function updateScansTable() {
         const tbody = document.getElementById('scans_tbody');
-
-        if (recentScans.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No scans yet</td></tr>';
-            return;
-        }
-
         tbody.innerHTML = recentScans.map(scan => `
             <tr>
                 <td><small>${scan.time}</small></td>
                 <td><code>${scan.ticket}</code></td>
                 <td>${scan.customer}</td>
-                <td>
-                    <span class="badge ${scan.status === 'success' ? 'bg-success' : 'bg-danger'}">
-                        ${scan.status === 'success' ? 'Scanned' : 'Error'}
-                    </span>
-                </td>
+                <td><span class="badge ${scan.status === 'success' ? 'bg-success' : 'bg-danger'}">${scan.status}</span></td>
             </tr>
         `).join('');
     }
-
-    // Focus on input on page load
-    window.addEventListener('load', () => {
-        document.getElementById('barcode_input').focus();
-    });
 </script>
 
 <?php require APPROOT . '/views/includes/footer.php'; ?>

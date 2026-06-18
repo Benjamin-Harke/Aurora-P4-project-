@@ -13,6 +13,15 @@
         </div>
     </div>
 
+    <!-- ADD THIS BUTTON -->
+    <?php if (isset($data['is_medewerker']) && $data['is_medewerker']): ?>
+        <div style="margin-bottom: 20px;">
+            <a href="/adminperformances/create" class="btn btn-success">
+                + Nieuwe Voorstelling Toevoegen
+            </a>
+        </div>
+    <?php endif; ?>
+
     <?php if (empty($data['voorstellingen'])): ?>
         <div class="alert alert-info text-center">
             <i class="bi bi-info-circle me-2"></i>

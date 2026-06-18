@@ -1,7 +1,7 @@
 <?php
 /**
  * Account Overview View
- * @var array $data Contains: title, accounts
+ * @var array $data Contains: title, users
  */
 require_once APPROOT . '/views/includes/header.php'; ?>
 
@@ -14,10 +14,13 @@ require_once APPROOT . '/views/includes/header.php'; ?>
       <p class="subtitle">Manage and view all registered accounts</p>
     </div>
 
-    <!-- Back to Dashboard Button -->
-    <div class="mb-4">
+    <!-- Action bar: Back (left) + Create Account (right) -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
       <a href="<?= URLROOT; ?>/dashboard" class="btn btn-outline-custom">
         <i class="bi bi-arrow-left"></i> Back to Dashboard
+      </a>
+      <a href="<?= URLROOT; ?>/accounts/create" class="btn btn-primary-custom">
+        <i class="bi bi-plus-lg"></i> Create Account
       </a>
     </div>
 
@@ -51,9 +54,9 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           <tbody>
             <?php foreach ($data['users'] as $user): ?>
               <tr>
-                <td class="email-cell"><?= htmlspecialchars($user['gebruikersnaam']); ?></td>
+                <td class="email-cell"><?= htmlspecialchars($user['email'] ?? $user['gebruikersnaam'] ?? ''); ?></td>
                 <td><?= htmlspecialchars($user['voornaam']); ?></td>
-                <td><?= htmlspecialchars($user['achternaam']); ?></td>
+                <td><?= htmlspecialchars(($user['tussenvoegsel'] ? $user['tussenvoegsel'] . ' ' : '') . $user['achternaam']); ?></td>
                 <td>
                   <?php if (!empty($user['roles'])): ?>
                     <?php foreach ($user['roles'] as $role): ?>

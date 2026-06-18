@@ -11,7 +11,21 @@ class PublicTickets extends BaseController {
      */
     public function index() {
         $voorstellingModel = $this->model('Voorstelling');
+        
+        // 1. ADDED: Load the Medewerker model
+        $medewerkerModel = $this->model('Medewerker');
 
+        // 2. ADDED: Check if the logged-in user is a staff member
+        $isMedewerker = false;
+        if (isset($_SESSION['user_id'])) {
+            $medewerker = $medewerkerModel->getByGebruikerId($_SESSION['user_id']);
+            if ($medewerker) {
+                $isMedewerker = true;
+            }
+        }
+
+        // --- Start of your existing code ---
+        
         // Get all active performances
         $performances = $voorstellingModel->getAll() ?? [];
 
@@ -35,8 +49,11 @@ class PublicTickets extends BaseController {
             return strcmp($a->datum, $b->datum);
         });
 
+        // --- End of your existing code ---
+
         $data = [
             'performances' => array_values($performances),
+            'is_medewerker' => $isMedewerker, // 3. ADDED: Pass this to the view
             'search_query' => $searchQuery,
             'start_date' => $startDate,
             'end_date' => $endDate,
