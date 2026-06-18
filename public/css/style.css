@@ -1989,3 +1989,112 @@ footer .text-center {
   background: var(--accent-cyan) !important;
   color: #050505 !important;
 }
+
+.meldingen-page {
+    padding: 60px 7%;
+    background: #050505;
+    color: white;
+    min-height: 70vh;
+}
+
+.meldingen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 45px;
+}
+
+.meldingen-title h1 {
+    font-size: 44px;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+}
+
+.meldingen-title p {
+    color: #b8b8b8;
+}
+
+.flow-text {
+    margin-top: 25px;
+    color: #b8b8b8;
+}
+
+.meldingen-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.flow-btn,
+.nieuwe-melding-btn {
+    padding: 18px 40px;
+    border-radius: 40px;
+    border: 2px solid #00d9ff;
+    background: transparent;
+    color: white;
+    font-weight: bold;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+.flow-btn.active,
+.nieuwe-melding-btn {
+    background: #10c8dd;
+    color: #020202;
+    box-shadow: 0 0 25px rgba(0, 217, 255, 0.4);
+}
+
+.meldingen-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.meldingen-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    background: #080808;
+}
+
+.meldingen-table th,
+.meldingen-table td {
+    padding: 16px 18px;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 217, 255, 0.25);
+    white-space: nowrap;
+}
+
+.meldingen-table th {
+    color: white;
+    font-size: 16px;
+}
+
+.meldingen-table td {
+    color: #d6d6d6;
+}
+
+.meldingen-table tr:hover {
+    background: rgba(0, 217, 255, 0.08);
+}
+
+@media (max-width: 900px) {
+    .meldingen-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .meldingen-actions {
+        width: 100%;
+    }
+
+    .flow-btn,
+    .nieuwe-melding-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .meldingen-title h1 {
+        font-size: 34px;
+    }
+}
