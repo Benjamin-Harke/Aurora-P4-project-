@@ -196,4 +196,87 @@ class Admintickets extends BaseController {
 
         $this->view('admintickets/performance_details', $data);
     }
+
+    /**
+     * VALIDATE TICKET FORM: Display the validation tool interface
+     * URL: /admintickets/validateTicket (GET - display form)
+     */
+    public function validateTicket() {
+        // Check admin role
+        if (!isset($_SESSION['accountId']) || strtolower($_SESSION['rolle'] ?? 'bezoeker') !== 'admin') {
+            $_SESSION['error'] = 'You do not have permission to access this feature';
+            header('Location: ' . URLROOT . '/dashboard');
+            return;
+        }
+
+        // If this is a POST request, handle the validation and return JSON
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->validateTicketAPI();
+            return;
+        }
+
+        // Display the validation tool form
+        $this->view('admintickets/validate_ticket');
+    }
+
+    /**
+     * VALIDATE TICKET API: Check if a ticket code is valid
+     * URL: /admintickets/validateTicket (POST)
+     * POST parameter: code (e.g., "00001")
+     */
+    private function validateTicketAPI() {
+        // Get validation code from POST or GET
+        $code = $_POST['code'] ?? $_GET['code'] ?? null;
+
+        if (!$code) {
+            echo json_encode(['valid' => false, 'message' => 'No code provided']);
+            exit;
+        }
+
+        // Extract ticket ID from validation code (remove leading zeros)
+        $ticketId = (int) $code;
+
+        // Get ticket by ID
+        $ticket = $this->ticketModel->getById($ticketId);
+
+        if (!$ticket) {
+            echo json_encode(['valid' => false, 'message' => 'Ticket not found']);
+            exit;
+        }
+
+        // Check ticket status
+        $isValid = ($ticket->status === 'booked' || $ticket->status === 'reserved');
+        $isScanned = $ticket->status === 'Gescand' || $ticket->status === 'gescand';
+        $message = '';
+
+        if ($isScanned) {
+            $message = 'Ticket has already been scanned';
+        } elseif ($ticket->status === 'cancelled') {
+            $message = 'Ticket has been cancelled';
+        } elseif ($ticket->status === 'invalid') {
+            $message = 'Ticket is invalid';
+        } elseif (!$isValid) {
+            $message = 'Ticket status: ' . ucfirst($ticket->status);
+        } else {
+            $message = 'Ticket is valid and ready to scan';
+        }
+
+        // Get performance info
+        $performance = $this->voorstellingModel->getById($ticket->voorstelling_id);
+        $performanceDate = $performance->datum ?? 'N/A';
+        $performanceName = $performance->naam ?? 'Unknown';
+
+        echo json_encode([
+            'valid' => $isValid,
+            'scanned' => $isScanned,
+            'message' => $message,
+            'ticket_id' => $ticket->id,
+            'validation_code' => str_pad($ticket->id, 5, '0', STR_PAD_LEFT),
+            'seat_number' => $ticket->nummer ?? 'N/A',
+            'performance_name' => $performanceName,
+            'performance_date' => $performanceDate,
+            'status' => $ticket->status
+        ]);
+        exit;
+    }
 }

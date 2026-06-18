@@ -45,6 +45,7 @@ require APPROOT . '/views/includes/header.php'; ?>
     <div class="mb-4">
         <a href="/admintickets/inventory" class="btn btn-info">View Inventory</a>
         <a href="/admintickets/search" class="btn btn-success">Search Tickets</a>
+        <a href="/admintickets/validateTicket" class="btn btn-primary"><i class="bi bi-check-circle"></i> Validate Ticket Code</a>
     </div>
 
     <!-- Performance Analytics Table -->
