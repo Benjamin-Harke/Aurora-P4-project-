@@ -6,7 +6,13 @@ require APPROOT . '/views/includes/header.php'; ?>
     <!-- Flash Messages -->
     <?php require APPROOT . '/views/includes/messages.php'; ?>
     
-    <a href="/usertickets/mytickets" class="btn btn-secondary mb-4">← Back to My Tickets</a>
+    <?php 
+    $userRole = strtolower($_SESSION['rolle'] ?? 'bezoeker');
+    $isStaff = in_array($userRole, ['admin', 'medewerker', 'receptie']);
+    $backUrl = $isStaff ? URLROOT . '/admintickets/dashboard' : URLROOT . '/usertickets/mytickets';
+    $backText = $isStaff ? '← Back to Dashboard' : '← Back to My Tickets';
+    ?>
+    <a href="<?php echo $backUrl; ?>" class="btn btn-secondary mb-4"><?php echo $backText; ?></a>
 
     <div class="row">
         <div class="col-md-8">

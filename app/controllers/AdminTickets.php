@@ -180,14 +180,13 @@ class Admintickets extends BaseController {
             if (empty($errors)) {
                 // --- HAPPY SCENARIO: create the ticket ---
                 $performance   = $this->voorstellingModel->getById($voorstellingId);
-                $ticketNumber  = $this->ticketModel->getNextTicketNumber();
                 $barcode       = 'TKT-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 10));
 
                 $ticketData = [
                     'bezoeker_id'     => $bezoekerId,
                     'voorstelling_id' => $voorstellingId,
                     'prijs_id'        => $prijsId,
-                    'nummer'          => $ticketNumber,
+                    'nummer'          => $stoelnummer,
                     'barcode'         => $barcode,
                     'datum'           => $performance->datum,
                     'tijd'            => $performance->tijd,

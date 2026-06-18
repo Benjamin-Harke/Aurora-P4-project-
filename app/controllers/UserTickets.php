@@ -96,8 +96,15 @@ class Usertickets extends BaseController {
 
         $ticket = $this->ticketModel->getById($id);
         $bezoeker = $this->bezoekerModel->getByGebruikerId($_SESSION['user_id']);
+        
+        $userRole = strtolower($_SESSION['rolle'] ?? 'bezoeker');
+        $isStaff = in_array($userRole, ['admin', 'medewerker', 'receptie']);
 
-        if (!$ticket || $ticket->bezoeker_id != $bezoeker->id) {
+        if (!$ticket) {
+            redirect('usertickets/mytickets');
+        }
+
+        if (!$isStaff && (!$bezoeker || $ticket->bezoeker_id != $bezoeker->id)) {
             redirect('usertickets/mytickets');
         }
 
@@ -126,7 +133,14 @@ class Usertickets extends BaseController {
         $ticket = $this->ticketModel->getById($id);
         $bezoeker = $this->bezoekerModel->getByGebruikerId($_SESSION['user_id']);
 
-        if (!$ticket || $ticket->bezoeker_id != $bezoeker->id) {
+        $userRole = strtolower($_SESSION['rolle'] ?? 'bezoeker');
+        $isStaff = in_array($userRole, ['admin', 'medewerker', 'receptie']);
+
+        if (!$ticket) {
+            redirect('usertickets/mytickets');
+        }
+
+        if (!$isStaff && (!$bezoeker || $ticket->bezoeker_id != $bezoeker->id)) {
             $_SESSION['error'] = 'You do not have permission to delete this ticket.';
             redirect('usertickets/mytickets');
         }
