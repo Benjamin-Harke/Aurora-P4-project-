@@ -107,19 +107,19 @@ class Meldingen extends BaseController
     // Nieuwe melding opslaan
     public function opslaan()
     {
-        // Controleren of gebruiker is ingelogd
+        // Controleren of gebruiker is ingelogd.
         if (!isset($_SESSION['accountId'])) {
             header('location:' . URLROOT);
             exit;
         }
 
-        // Alleen POST requests toestaan
+        // Alleen POST requests toestaan.
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('location:' . URLROOT . '/meldingen');
             exit;
         }
 
-        // Bij unhappy scenario proberen we bewust op te slaan in een lege testdatabase
+        // Bij unhappy scenario proberen bewust op te slaan in een lege testdatabase
         if (isset($_SESSION['melding_flow']) && $_SESSION['melding_flow'] === 'unhappy') {
 
             if (!$this->meldingModel->createUnhappy()) {
