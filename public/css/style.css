@@ -2330,6 +2330,36 @@ footer .text-center {
   width: 180px;
 }
 
+.feedback-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.refresh-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #00d9ff, #00a8cc);
+    color: #000;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all .3s ease;
+}
+
+.refresh-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(0,217,255,.4);
+    color: #000;
+}
+
+.refresh-btn i {
+    font-size: 18px;
+}
+
+
 @media (max-width: 900px) {
   .feedback-overzicht-container h1 {
     font-size: 30px;
@@ -2359,6 +2389,8 @@ footer .text-center {
     font-size: 22px;
   }
 }
+
+
 
 @media (max-width: 900px) {
   .meldingen-header {

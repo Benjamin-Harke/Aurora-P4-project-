@@ -10,6 +10,12 @@
                 Er is nog geen feedback ontvangen.
             </div>
         <?php else: ?>
+            <div class="feedback-actions">
+                <a href="<?= URLROOT; ?>/contact/overzicht" class="refresh-btn">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    Vernieuwen
+                </a>
+            </div>
             <table class="feedback-table">
                 <thead>
                     <tr>
