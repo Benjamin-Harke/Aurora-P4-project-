@@ -2245,6 +2245,103 @@ footer .text-center {
   color: #ff3b5c;
 }
 
+/* ===========================
+   FEEDBACK OVERZICHT
+=========================== */
+
+.feedback-overzicht-page {
+  background: #0b1623;
+  min-height: 100vh;
+  padding: 80px 0;
+}
+
+.feedback-overzicht-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
+}
+
+.feedback-overzicht-container h1 {
+  color: #ffffff;
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.feedback-overzicht-container p {
+  color: #bfc7d5;
+  margin-bottom: 35px;
+}
+
+.feedback-empty {
+  background: #16273d;
+  color: white;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid #19d3ff;
+  text-align: center;
+}
+
+.feedback-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #16273d;
+}
+
+.feedback-table thead {
+  background: #19d3ff;
+}
+
+.feedback-table thead th {
+  color: white;
+  padding: 18px;
+  text-align: left;
+  font-size: 16px;
+}
+
+.feedback-table tbody tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.feedback-table tbody tr:hover {
+  background: rgba(25, 211, 255, 0.08);
+}
+
+.feedback-table td {
+  color: white;
+  padding: 18px;
+  vertical-align: top;
+}
+
+.feedback-table td:nth-child(4) {
+  max-width: 400px;
+  word-break: break-word;
+}
+
+.feedback-table th:first-child,
+.feedback-table td:first-child {
+  width: 70px;
+  text-align: center;
+}
+
+.feedback-table th:last-child,
+.feedback-table td:last-child {
+  width: 180px;
+}
+
+@media (max-width: 900px) {
+  .feedback-overzicht-container h1 {
+    font-size: 30px;
+  }
+
+  .feedback-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+} 
+
 @media (max-width: 900px) {
   .contact-wrapper {
     grid-template-columns: 1fr;

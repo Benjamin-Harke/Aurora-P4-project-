@@ -24,11 +24,10 @@ class Feedback
 
         return $this->db->execute();
     }
-
     public function getAll()
     {
         $this->db->query("
-        SELECT id, email, onderwerp, bericht, is_actief, datum_aangemaakt
+        SELECT id, email, onderwerp, bericht, datum_aangemaakt
         FROM feedback
         ORDER BY datum_aangemaakt DESC
     ");

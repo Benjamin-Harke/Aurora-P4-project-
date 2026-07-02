@@ -105,11 +105,6 @@ class Contact extends BaseController
 
     public function overzicht()
     {
-        if (!isset($_SESSION['user_id'])) {
-            header('location:' . URLROOT . '/login');
-            exit;
-        }
-
         $feedback = $this->feedbackModel->getAll();
 
         $data = [
