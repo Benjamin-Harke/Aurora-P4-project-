@@ -195,3 +195,4 @@ VALUES
   (LAST_INSERT_ID(), NULL, 5002, 'waarschuwing', 'Je ticket voor De Stormvogel verloopt over 3 dagen.', 1, '2026-06-09 14:30:00'),
   (LAST_INSERT_ID(), NULL, 5003, 'succes',       'Je betaling van €24,50 is succesvol verwerkt.',       0, '2026-06-08 11:15:00'),
   (LAST_INSERT_ID(), NULL, 5004, 'fout',         'Er is iets misgegaan bij het ophalen van je ticket. Neem contact op met de kassa.', 0, '2026-06-07 16:45:00');
+
