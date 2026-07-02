@@ -50,12 +50,6 @@ class Contact extends BaseController
             exit;
         }
 
-        if ($_SESSION['feedback_flow'] === 'unhappy') {
-            $_SESSION['feedback_fout'] = 'Geen connectie met database gevonden.';
-            header('location:' . URLROOT . '/contact');
-            exit;
-        }
-
         $email = trim($_POST['email'] ?? '');
         $onderwerp = trim($_POST['onderwerp'] ?? '');
         $bericht = trim($_POST['bericht'] ?? '');
@@ -64,6 +58,34 @@ class Contact extends BaseController
             $_SESSION['feedback_fout'] = 'Vul alle verplichte velden in.';
             header('location:' . URLROOT . '/contact');
             exit;
+        }
+
+        if ($_SESSION['feedback_flow'] === 'unhappy') {
+            try {
+                $pdo = new PDO(
+                    'mysql:host=' . DB_HOST . ';dbname=unhappymeldingen',
+                    DB_USER,
+                    DB_PASS
+                );
+
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                $stmt = $pdo->prepare("
+                INSERT INTO feedback (email, onderwerp, bericht)
+                VALUES (:email, :onderwerp, :bericht)
+            ");
+
+                $stmt->execute([
+                    ':email' => $email,
+                    ':onderwerp' => $onderwerp,
+                    ':bericht' => $bericht
+                ]);
+
+            } catch (PDOException $e) {
+                $_SESSION['feedback_fout'] = 'Momenteel niet beschikbaar. Geen verbinding met de database gevonden.';
+                header('location:' . URLROOT . '/contact');
+                exit;
+            }
         }
 
         $this->feedbackModel->create([
