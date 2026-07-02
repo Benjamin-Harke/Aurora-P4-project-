@@ -102,4 +102,21 @@ class Contact extends BaseController
         header('location:' . URLROOT . '/contact');
         exit;
     }
+
+    public function overzicht()
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('location:' . URLROOT . '/login');
+            exit;
+        }
+
+        $feedback = $this->feedbackModel->getAll();
+
+        $data = [
+            'title' => 'Ontvangen feedback',
+            'feedback' => $feedback
+        ];
+
+        $this->view('includes/feedback-overzicht', $data);
+    }
 }

@@ -251,38 +251,6 @@ require_once APPROOT . '/views/includes/messages.php'; ?>
   .dashboard-nav-card {
     display: block;
     background: rgba(255, 255, 255, 0.05);
-<<<<<<< HEAD
-    border: 2px solid rgba(0, 188, 212, 0.3);
-    border-radius: 12px;
-    padding: 30px;
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .dashboard-nav-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 188, 212, 0.1), transparent);
-    transition: left 0.5s ease;
-  }
-
-  .dashboard-nav-card:hover::before {
-    left: 100%;
-  }
-
-  .dashboard-nav-card:hover {
-    background: rgba(0, 188, 212, 0.1);
-    border-color: var(--accent-cyan);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 188, 212, 0.2);
-=======
     border: 2px solid var(--primary-teal);
     border-radius: 12px;
     padding: 30px;
@@ -299,16 +267,10 @@ require_once APPROOT . '/views/includes/messages.php'; ?>
     border-color: var(--accent-gold);
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
->>>>>>> dev
   }
 
   .dashboard-nav-card .card-icon {
     font-size: 50px;
-<<<<<<< HEAD
-    color: var(--accent-cyan);
-    margin-bottom: 15px;
-    display: block;
-=======
     color: var(--primary-teal);
     margin-bottom: 15px;
     transition: color 0.3s ease;
@@ -316,7 +278,6 @@ require_once APPROOT . '/views/includes/messages.php'; ?>
 
   .dashboard-nav-card:hover .card-icon {
     color: var(--accent-gold);
->>>>>>> dev
   }
 
   .dashboard-nav-card h3 {
@@ -329,24 +290,6 @@ require_once APPROOT . '/views/includes/messages.php'; ?>
 
   .dashboard-nav-card p {
     color: rgba(255, 255, 255, 0.7);
-<<<<<<< HEAD
-    font-size: 14px;
-    margin: 10px 0;
-  }
-
-  .dashboard-nav-card .card-link {
-    display: block;
-    color: var(--accent-cyan);
-    text-decoration: none;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    margin-top: 15px;
-  }
-
-  .dashboard-nav-card:hover .card-link {
-    color: var(--accent-gold);
-    margin-left: 5px;
-=======
     margin: 10px 0 20px 0;
     font-size: 14px;
   }
@@ -361,7 +304,6 @@ require_once APPROOT . '/views/includes/messages.php'; ?>
 
   .dashboard-nav-card:hover .card-link {
     color: white;
->>>>>>> dev
   }
 
   .dashboard-card {
