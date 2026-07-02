@@ -13,9 +13,9 @@ class Feedback
     {
         $this->db->query('
             INSERT INTO feedback
-            (email, onderwerp, bericht, is_actief, opmerking)
+            (email, onderwerp, bericht, is_actief)
             VALUES
-            (:naam, :email, :onderwerp, :bericht, :is_actief, :opmerking)
+            (:email, :onderwerp, :bericht, :is_actief)
         ');
 
         $this->db->bind(':email', $data['email']);
