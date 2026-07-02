@@ -69,8 +69,7 @@ class Contact extends BaseController
         $this->feedbackModel->create([
             'email' => $email,
             'onderwerp' => $onderwerp,
-            'bericht' => $bericht,
-            'is_actief' => 1,
+            'bericht' => $bericht
         ]);
 
         $_SESSION['feedback_succes'] = 'Je feedback is succesvol verzonden.';

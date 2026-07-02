@@ -59,12 +59,24 @@
 </section>
 
 <?php if (isset($_SESSION['feedback_succes'])): ?>
-    <script>alert("<?= $_SESSION['feedback_succes']; ?>");</script>
+    <div class="feedback-modal">
+        <div class="feedback-modal-box">
+            <h2>Gelukt!</h2>
+            <p><?= $_SESSION['feedback_succes']; ?></p>
+            <a href="<?= URLROOT ?>/contact">Sluiten</a>
+        </div>
+    </div>
     <?php unset($_SESSION['feedback_succes']); ?>
 <?php endif; ?>
 
 <?php if (isset($_SESSION['feedback_fout'])): ?>
-    <script>alert("<?= $_SESSION['feedback_fout']; ?>");</script>
+    <div class="feedback-modal">
+        <div class="feedback-modal-box error">
+            <h2>Foutmelding</h2>
+            <p><?= $_SESSION['feedback_fout']; ?></p>
+            <a href="<?= URLROOT ?>/contact">Sluiten</a>
+        </div>
+    </div>
     <?php unset($_SESSION['feedback_fout']); ?>
 <?php endif; ?>
 

@@ -11,17 +11,16 @@ class Feedback
 
     public function create($data)
     {
-        $this->db->query('
+        $this->db->query("
             INSERT INTO feedback
-            (email, onderwerp, bericht, is_actief)
+            (email, onderwerp, bericht)
             VALUES
-            (:email, :onderwerp, :bericht, :is_actief)
-        ');
+            (:email, :onderwerp, :bericht)
+        ");
 
         $this->db->bind(':email', $data['email']);
         $this->db->bind(':onderwerp', $data['onderwerp']);
         $this->db->bind(':bericht', $data['bericht']);
-        $this->db->bind(':is_actief', $data['is_actief']);
 
         return $this->db->execute();
     }
