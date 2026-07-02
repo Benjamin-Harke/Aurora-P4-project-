@@ -34,7 +34,7 @@
             <a class="nav-link" href="#about">Over ons</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="contact.php">Contact</a>
+            <a class="nav-link" href="<?= URLROOT; ?>/contact">Contact</a>
           </li>
           <?php if (isset($_SESSION['accountId'])): ?>
             <li class="nav-item">
