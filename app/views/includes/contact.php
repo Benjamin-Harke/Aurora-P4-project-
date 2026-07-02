@@ -1,39 +1,42 @@
 <?php require_once APPROOT . '/views/includes/header.php'; ?>
 
-<div class="container py-5">
-    <h1>Contact</h1>
-    <p>Stuur je vraag, opmerking of feedback naar het theater.</p>
+<div class="contact-wrapper">
+    <div class="contact-left">
+        <h1>Contact</h1>
+        <p>Stuur je vraag of feedback naar het theater.</p>
 
-    <p>
-        Huidige flow:
-        <strong><?= $_SESSION['feedback_flow'] ?? 'happy'; ?></strong>
-    </p>
+        <p>Huidige flow: <strong><?= $_SESSION['feedback_flow'] ?? 'happy'; ?></strong></p>
 
-    <a href="<?= URLROOT ?>/contact/happy" class="btn btn-success">Happy</a>
-    <a href="<?= URLROOT ?>/contact/unhappy" class="btn btn-danger">Unhappy</a>
-
-        <div class="mb-3">
-            <label>E-mail</label>
-            <input type="email" name="email" class="form-control" required>
+        <div class="flow-buttons">
+            <a href="<?= URLROOT ?>/contact/happy" class="btn btn-success">Happy</a>
+            <a href="<?= URLROOT ?>/contact/unhappy" class="btn btn-danger">Unhappy</a>
         </div>
 
-        <div class="mb-3">
-            <label>Onderwerp</label>
-            <input type="text" name="onderwerp" class="form-control" required>
-        </div>
+        <form method="POST" action="<?= URLROOT ?>/contact/opslaan">
+            <div class="row-input">
+                <input type="email" name="email" placeholder="E-mail" required>
+                <input type="text" name="onderwerp" placeholder="Onderwerp" required>
+            </div>
 
-        <div class="mb-3">
-            <label>Bericht</label>
-            <textarea name="bericht" class="form-control" maxlength="250" required></textarea>
-        </div>
+            <textarea name="bericht" placeholder="Feedback" maxlength="250" required></textarea>
 
-        <div class="mb-3">
-            <label>Opmerking</label>
-            <textarea name="opmerking" class="form-control" maxlength="250"></textarea>
-        </div>
+            <div class="privacy">
+                <input type="checkbox" required>
+                <span>Ik ga akkoord met de privacyvoorwaarden.</span>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Versturen</button>
-    </form>
+            <button type="submit">Verstuur</button>
+        </form>
+    </div>
+
+    <div class="contact-divider"></div>
+
+    <div class="contact-right">
+        <div class="contact-item">📧 <span>support@auroratheatre.nl</span></div>
+        <div class="contact-item">📞 <span>030 - 1234567</span></div>
+        <div class="contact-item">📍 <span>Theaterplein 1, Utrecht</span></div>
+        <div class="contact-item">🕒 <span>Ma t/m Vr 09:00 - 17:00</span></div>
+    </div>
 </div>
 
 <?php if (isset($_SESSION['feedback_succes'])): ?>
