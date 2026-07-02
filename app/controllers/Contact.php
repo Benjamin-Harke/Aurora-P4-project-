@@ -56,25 +56,21 @@ class Contact extends BaseController
             exit;
         }
 
-        $naam = trim($_POST['naam'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $onderwerp = trim($_POST['onderwerp'] ?? '');
         $bericht = trim($_POST['bericht'] ?? '');
-        $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
 
-        if ($naam === '' || $email === '' || $onderwerp === '' || $bericht === '') {
+        if ($email === '' || $onderwerp === '' || $bericht === '') {
             $_SESSION['feedback_fout'] = 'Vul alle verplichte velden in.';
             header('location:' . URLROOT . '/contact');
             exit;
         }
 
         $this->feedbackModel->create([
-            'naam' => $naam,
             'email' => $email,
             'onderwerp' => $onderwerp,
             'bericht' => $bericht,
             'is_actief' => 1,
-            'opmerking' => $opmerking
         ]);
 
         $_SESSION['feedback_succes'] = 'Je feedback is succesvol verzonden.';

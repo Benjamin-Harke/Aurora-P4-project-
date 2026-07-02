@@ -12,12 +12,6 @@
     <a href="<?= URLROOT ?>/contact/happy" class="btn btn-success">Happy</a>
     <a href="<?= URLROOT ?>/contact/unhappy" class="btn btn-danger">Unhappy</a>
 
-    <form method="POST" action="<?= URLROOT ?>/contact/opslaan" class="mt-4">
-        <div class="mb-3">
-            <label>Naam</label>
-            <input type="text" name="naam" class="form-control" required>
-        </div>
-
         <div class="mb-3">
             <label>E-mail</label>
             <input type="email" name="email" class="form-control" required>
