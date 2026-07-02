@@ -71,9 +71,9 @@ class Contact extends BaseController
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
                 $stmt = $pdo->prepare("
-                INSERT INTO feedback (email, onderwerp, bericht)
-                VALUES (:email, :onderwerp, :bericht)
-            ");
+            INSERT INTO feedback (email, onderwerp, bericht)
+            VALUES (:email, :onderwerp, :bericht)
+        ");
 
                 $stmt->execute([
                     ':email' => $email,
@@ -86,6 +86,10 @@ class Contact extends BaseController
                 header('location:' . URLROOT . '/contact');
                 exit;
             }
+
+            $_SESSION['feedback_fout'] = 'Momenteel niet beschikbaar. Geen verbinding met de database gevonden.';
+            header('location:' . URLROOT . '/contact');
+            exit;
         }
 
         $this->feedbackModel->create([
