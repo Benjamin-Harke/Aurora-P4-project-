@@ -112,6 +112,26 @@ class Account
     }
 
     /**
+     * Get a user record with contact details and roles for editing.
+     */
+    public function getAccountDetails($id)
+    {
+        $this->db->query(
+            'SELECT g.id, g.voornaam, g.tussenvoegsel, g.achternaam, g.gebruikersnaam,
+                    g.is_actief, g.datum_aangemaakt, c.email, c.mobiel,
+                    GROUP_CONCAT(DISTINCT r.naam ORDER BY r.id SEPARATOR ",") as roles
+             FROM gebruiker g
+             LEFT JOIN contact c ON g.id = c.gebruiker_id
+             LEFT JOIN rol r ON g.id = r.gebruiker_id
+             WHERE g.id = :id
+             GROUP BY g.id'
+        );
+        $this->db->bind(':id', $id, PDO::PARAM_INT);
+
+        return $this->db->single();
+    }
+
+    /**
      * Get user by username/email
      */
     public function getByEmail($email)
@@ -193,6 +213,24 @@ class Account
     }
 
     /**
+     * Check if an email address is already in use by another account.
+     */
+    public function checkEmailInUseForEdit($email, $excludeId)
+    {
+        $email = strtolower(trim($email));
+        $this->db->query(
+            'SELECT g.id FROM gebruiker g
+             LEFT JOIN contact c ON g.id = c.gebruiker_id
+             WHERE (LOWER(g.gebruikersnaam) = :email1 OR LOWER(c.email) = :email2)
+               AND g.id <> :exclude_id'
+        );
+        $this->db->bind(':email1', $email, PDO::PARAM_STR);
+        $this->db->bind(':email2', $email, PDO::PARAM_STR);
+        $this->db->bind(':exclude_id', $excludeId, PDO::PARAM_INT);
+        return $this->db->single() ? true : false;
+    }
+
+    /**
      * Check if a username already exists in the gebruiker table.
      */
     public function usernameExists($username)
@@ -200,6 +238,18 @@ class Account
         $username = strtolower(trim($username));
         $this->db->query('SELECT id FROM gebruiker WHERE LOWER(gebruikersnaam) = :username');
         $this->db->bind(':username', $username, PDO::PARAM_STR);
+        return $this->db->single() ? true : false;
+    }
+
+    /**
+     * Check if a username is already in use by another account.
+     */
+    public function usernameExistsForEdit($username, $excludeId)
+    {
+        $username = strtolower(trim($username));
+        $this->db->query('SELECT id FROM gebruiker WHERE LOWER(gebruikersnaam) = :username AND id <> :exclude_id');
+        $this->db->bind(':username', $username, PDO::PARAM_STR);
+        $this->db->bind(':exclude_id', $excludeId, PDO::PARAM_INT);
         return $this->db->single() ? true : false;
     }
 
@@ -219,11 +269,11 @@ class Account
                 'INSERT INTO gebruiker (voornaam, tussenvoegsel, achternaam, gebruikersnaam, wachtwoord, is_actief, is_ingelogd)
                  VALUES (:voornaam, :tussenvoegsel, :achternaam, :gebruikersnaam, :wachtwoord, 1, 0)'
             );
-            $this->db->bind(':voornaam',      $data['voornaam'],      PDO::PARAM_STR);
+            $this->db->bind(':voornaam', $data['voornaam'], PDO::PARAM_STR);
             $this->db->bind(':tussenvoegsel', !empty($data['tussenvoegsel']) ? $data['tussenvoegsel'] : null, PDO::PARAM_STR);
-            $this->db->bind(':achternaam',    $data['achternaam'],    PDO::PARAM_STR);
-            $this->db->bind(':gebruikersnaam',$data['gebruikersnaam'],PDO::PARAM_STR);
-            $this->db->bind(':wachtwoord',    $hashedPassword,        PDO::PARAM_STR);
+            $this->db->bind(':achternaam', $data['achternaam'], PDO::PARAM_STR);
+            $this->db->bind(':gebruikersnaam', $data['gebruikersnaam'], PDO::PARAM_STR);
+            $this->db->bind(':wachtwoord', $hashedPassword, PDO::PARAM_STR);
 
             if (!$this->db->execute()) {
                 $this->db->query('ROLLBACK');
@@ -237,8 +287,8 @@ class Account
 
             // 2. Insert rol
             $this->db->query('INSERT INTO rol (gebruiker_id, naam, is_actief) VALUES (:gebruiker_id, :naam, 1)');
-            $this->db->bind(':gebruiker_id', $gebruikerId,    PDO::PARAM_INT);
-            $this->db->bind(':naam',         $data['rol'],    PDO::PARAM_STR);
+            $this->db->bind(':gebruiker_id', $gebruikerId, PDO::PARAM_INT);
+            $this->db->bind(':naam', $data['rol'], PDO::PARAM_STR);
 
             if (!$this->db->execute()) {
                 $this->db->query('ROLLBACK');
@@ -252,9 +302,9 @@ class Account
                 'INSERT INTO contact (gebruiker_id, email, mobiel, is_actief)
                  VALUES (:gebruiker_id, :email, :mobiel, 1)'
             );
-            $this->db->bind(':gebruiker_id', $gebruikerId,    PDO::PARAM_INT);
-            $this->db->bind(':email',        $data['email'],  PDO::PARAM_STR);
-            $this->db->bind(':mobiel',       $mobiel,         PDO::PARAM_STR);
+            $this->db->bind(':gebruiker_id', $gebruikerId, PDO::PARAM_INT);
+            $this->db->bind(':email', $data['email'], PDO::PARAM_STR);
+            $this->db->bind(':mobiel', $mobiel, PDO::PARAM_STR);
 
             if (!$this->db->execute()) {
                 $this->db->query('ROLLBACK');
@@ -266,15 +316,15 @@ class Account
             $roleLower = strtolower($data['rol']);
             if ($roleLower === 'bezoeker') {
                 $this->db->query('SELECT MAX(relatienummer) as max_num FROM bezoeker');
-                $result  = $this->db->single();
+                $result = $this->db->single();
                 $nextNum = ($result && $result->max_num) ? $result->max_num + 1 : 50001;
 
                 $this->db->query(
                     'INSERT INTO bezoeker (gebruiker_id, relatienummer, is_actief)
                      VALUES (:gebruiker_id, :relatienummer, 1)'
                 );
-                $this->db->bind(':gebruiker_id',  $gebruikerId, PDO::PARAM_INT);
-                $this->db->bind(':relatienummer', $nextNum,     PDO::PARAM_INT);
+                $this->db->bind(':gebruiker_id', $gebruikerId, PDO::PARAM_INT);
+                $this->db->bind(':relatienummer', $nextNum, PDO::PARAM_INT);
 
                 if (!$this->db->execute()) {
                     $this->db->query('ROLLBACK');
@@ -284,7 +334,7 @@ class Account
             } else {
                 // Admin, Medewerker, Receptie
                 $this->db->query('SELECT MAX(nummer) as max_num FROM medewerker');
-                $result  = $this->db->single();
+                $result = $this->db->single();
                 $nextNum = ($result && $result->max_num) ? $result->max_num + 1 : 101;
 
                 $medewerkersoort = 'Medewerker';
@@ -298,9 +348,9 @@ class Account
                     'INSERT INTO medewerker (gebruiker_id, nummer, medewerkersoort, is_actief)
                      VALUES (:gebruiker_id, :nummer, :medewerkersoort, 1)'
                 );
-                $this->db->bind(':gebruiker_id',    $gebruikerId,    PDO::PARAM_INT);
-                $this->db->bind(':nummer',          $nextNum,        PDO::PARAM_INT);
-                $this->db->bind(':medewerkersoort', $medewerkersoort,PDO::PARAM_STR);
+                $this->db->bind(':gebruiker_id', $gebruikerId, PDO::PARAM_INT);
+                $this->db->bind(':nummer', $nextNum, PDO::PARAM_INT);
+                $this->db->bind(':medewerkersoort', $medewerkersoort, PDO::PARAM_STR);
 
                 if (!$this->db->execute()) {
                     $this->db->query('ROLLBACK');
@@ -318,5 +368,116 @@ class Account
             $this->db->execute();
             return false;
         }
+    }
+
+    /**
+     * Update an existing account across gebruiker, contact and rol.
+     */
+    public function updateAccount($id, $data)
+    {
+        try {
+            $this->db->query('START TRANSACTION');
+            $this->db->execute();
+
+            $this->db->query(
+                'UPDATE gebruiker
+                 SET voornaam = :voornaam,
+                     tussenvoegsel = :tussenvoegsel,
+                     achternaam = :achternaam,
+                     gebruikersnaam = :gebruikersnaam,
+                     is_actief = :is_actief
+                 WHERE id = :id'
+            );
+            $this->db->bind(':id', $id, PDO::PARAM_INT);
+            $this->db->bind(':voornaam', $data['voornaam'], PDO::PARAM_STR);
+            $this->db->bind(':tussenvoegsel', !empty($data['tussenvoegsel']) ? $data['tussenvoegsel'] : null, PDO::PARAM_STR);
+            $this->db->bind(':achternaam', $data['achternaam'], PDO::PARAM_STR);
+            $this->db->bind(':gebruikersnaam', $data['gebruikersnaam'], PDO::PARAM_STR);
+            $this->db->bind(':is_actief', (int) $data['is_actief'], PDO::PARAM_INT);
+
+            if (!$this->db->execute()) {
+                $this->db->query('ROLLBACK');
+                $this->db->execute();
+                return false;
+            }
+
+            $this->db->query('SELECT id FROM contact WHERE gebruiker_id = :id');
+            $this->db->bind(':id', $id, PDO::PARAM_INT);
+            $contact = $this->db->single();
+
+            if ($contact) {
+                $this->db->query(
+                    'UPDATE contact
+                     SET email = :email,
+                         mobiel = :mobiel,
+                         is_actief = :is_actief
+                     WHERE gebruiker_id = :id'
+                );
+                $this->db->bind(':id', $id, PDO::PARAM_INT);
+                $this->db->bind(':email', $data['email'], PDO::PARAM_STR);
+                $this->db->bind(':mobiel', !empty($data['mobiel']) ? $data['mobiel'] : '', PDO::PARAM_STR);
+                $this->db->bind(':is_actief', (int) $data['is_actief'], PDO::PARAM_INT);
+
+                if (!$this->db->execute()) {
+                    $this->db->query('ROLLBACK');
+                    $this->db->execute();
+                    return false;
+                }
+            } else {
+                $this->db->query(
+                    'INSERT INTO contact (gebruiker_id, email, mobiel, is_actief)
+                     VALUES (:id, :email, :mobiel, :is_actief)'
+                );
+                $this->db->bind(':id', $id, PDO::PARAM_INT);
+                $this->db->bind(':email', $data['email'], PDO::PARAM_STR);
+                $this->db->bind(':mobiel', !empty($data['mobiel']) ? $data['mobiel'] : '', PDO::PARAM_STR);
+                $this->db->bind(':is_actief', (int) $data['is_actief'], PDO::PARAM_INT);
+
+                if (!$this->db->execute()) {
+                    $this->db->query('ROLLBACK');
+                    $this->db->execute();
+                    return false;
+                }
+            }
+
+            $this->db->query('DELETE FROM rol WHERE gebruiker_id = :id');
+            $this->db->bind(':id', $id, PDO::PARAM_INT);
+
+            if (!$this->db->execute()) {
+                $this->db->query('ROLLBACK');
+                $this->db->execute();
+                return false;
+            }
+
+            $this->db->query('INSERT INTO rol (gebruiker_id, naam, is_actief) VALUES (:gebruiker_id, :naam, :is_actief)');
+            $this->db->bind(':gebruiker_id', $id, PDO::PARAM_INT);
+            $this->db->bind(':naam', $data['rol'], PDO::PARAM_STR);
+            $this->db->bind(':is_actief', 1, PDO::PARAM_INT);
+
+            if (!$this->db->execute()) {
+                $this->db->query('ROLLBACK');
+                $this->db->execute();
+                return false;
+            }
+
+            $this->db->query('COMMIT');
+            $this->db->execute();
+            return true;
+        } catch (Exception $e) {
+            $this->db->query('ROLLBACK');
+            $this->db->execute();
+            return false;
+        }
+    }
+
+    /**
+     * Delete an account and rely on cascading foreign keys for related rows.
+     */
+    public function deleteAccount($id)
+    {
+        $this->db->query('DELETE FROM gebruiker WHERE id = :id');
+        $this->db->bind(':id', $id, PDO::PARAM_INT);
+
+        return $this->db->execute();
     }
 }

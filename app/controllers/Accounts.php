@@ -182,5 +182,161 @@ class Accounts extends BaseController
             $this->view('accounts/create', $data);
         }
     }
+
+    public function edit($id = null)
+    {
+        if (!isset($_SESSION['accountId'])) {
+            header('Location: ' . URLROOT . '/auth');
+            exit;
+        }
+
+        $userRole = strtolower($_SESSION['rolle'] ?? 'bezoeker');
+        if ($userRole !== 'admin' && $userRole !== 'medewerker') {
+            $_SESSION['error'] = 'You do not have permission to view this page';
+            header('Location: ' . URLROOT . '/dashboard');
+            exit;
+        }
+
+        if ($id === null) {
+            header('Location: ' . URLROOT . '/accounts');
+            exit;
+        }
+
+        $account = $this->accountModel->getAccountDetails($id);
+        if (!$account) {
+            $_SESSION['error'] = 'Account niet gevonden';
+            header('Location: ' . URLROOT . '/accounts');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [
+                'voornaam'      => trim($_POST['voornaam'] ?? ''),
+                'tussenvoegsel' => trim($_POST['tussenvoegsel'] ?? ''),
+                'achternaam'    => trim($_POST['achternaam'] ?? ''),
+                'email'         => trim($_POST['email'] ?? ''),
+                'gebruikersnaam'=> trim($_POST['gebruikersnaam'] ?? ''),
+                'rol'           => trim($_POST['rol'] ?? ''),
+                'mobiel'        => trim($_POST['mobiel'] ?? ''),
+                'is_actief'     => isset($_POST['is_actief']) ? (int) $_POST['is_actief'] : (int) ($account->is_actief ?? 1),
+                'voornaam_err'      => '',
+                'achternaam_err'    => '',
+                'email_err'         => '',
+                'gebruikersnaam_err'=> '',
+                'rol_err'           => '',
+            ];
+
+            if (empty($data['voornaam'])) {
+                $data['voornaam_err'] = 'Voornaam is verplicht';
+            }
+            if (empty($data['achternaam'])) {
+                $data['achternaam_err'] = 'Achternaam is verplicht';
+            }
+            if (empty($data['email'])) {
+                $data['email_err'] = 'E-mailadres is verplicht';
+            } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+                $data['email_err'] = 'Ongeldig e-mailadres';
+            }
+            if (empty($data['gebruikersnaam'])) {
+                $data['gebruikersnaam_err'] = 'Gebruikersnaam is verplicht';
+            }
+            if (empty($data['rol'])) {
+                $data['rol_err'] = 'Rol is verplicht';
+            }
+
+            if (empty($data['email_err']) && $this->accountModel->checkEmailInUseForEdit($data['email'], $id)) {
+                $data['email_err'] = 'Email is al in gebruik';
+            }
+
+            if (empty($data['gebruikersnaam_err']) && $this->accountModel->usernameExistsForEdit($data['gebruikersnaam'], $id)) {
+                $data['gebruikersnaam_err'] = 'Gebruikersnaam is al in gebruik';
+            }
+
+            $hasErrors =
+                $data['voornaam_err'] || $data['achternaam_err'] ||
+                $data['email_err'] || $data['gebruikersnaam_err'] ||
+                $data['rol_err'];
+
+            if (!$hasErrors) {
+                if ($this->accountModel->updateAccount($id, $data)) {
+                    $_SESSION['success'] = 'Account succesvol bijgewerkt';
+
+                    if ((int) $_SESSION['accountId'] === (int) $id) {
+                        $_SESSION['firstName'] = $data['voornaam'];
+                        $_SESSION['lastName'] = $data['achternaam'];
+                        $_SESSION['email'] = $data['gebruikersnaam'];
+                        $_SESSION['rolle'] = $data['rol'];
+                    }
+
+                    header('Location: ' . URLROOT . '/accounts');
+                    exit;
+                }
+
+                $_SESSION['error'] = 'Er is iets misgegaan bij het bijwerken van het account';
+                header('Location: ' . URLROOT . '/accounts');
+                exit;
+            }
+
+            $data['title'] = 'Account Bewerken';
+            $data['id'] = $id;
+            $this->view('accounts/edit', $data);
+            return;
+        }
+
+        $data = [
+            'title' => 'Account Bewerken',
+            'id' => $id,
+            'voornaam' => $account->voornaam ?? '',
+            'tussenvoegsel' => $account->tussenvoegsel ?? '',
+            'achternaam' => $account->achternaam ?? '',
+            'email' => $account->email ?? ($account->gebruikersnaam ?? ''),
+            'gebruikersnaam' => $account->gebruikersnaam ?? '',
+            'rol' => !empty($account->roles) ? explode(',', $account->roles)[0] : '',
+            'mobiel' => $account->mobiel ?? '',
+            'is_actief' => (int) ($account->is_actief ?? 1),
+            'voornaam_err' => '',
+            'achternaam_err' => '',
+            'email_err' => '',
+            'gebruikersnaam_err' => '',
+            'rol_err' => '',
+        ];
+
+        $this->view('accounts/edit', $data);
+    }
+
+    public function delete($id = null)
+    {
+        if (!isset($_SESSION['accountId'])) {
+            header('Location: ' . URLROOT . '/auth');
+            exit;
+        }
+
+        $userRole = strtolower($_SESSION['rolle'] ?? 'bezoeker');
+        if ($userRole !== 'admin' && $userRole !== 'medewerker') {
+            $_SESSION['error'] = 'You do not have permission to view this page';
+            header('Location: ' . URLROOT . '/dashboard');
+            exit;
+        }
+
+        if ($id === null) {
+            header('Location: ' . URLROOT . '/accounts');
+            exit;
+        }
+
+        if ((int) $_SESSION['accountId'] === (int) $id) {
+            $_SESSION['error'] = 'Je kunt je eigen account niet verwijderen';
+            header('Location: ' . URLROOT . '/accounts');
+            exit;
+        }
+
+        if ($this->accountModel->deleteAccount($id)) {
+            $_SESSION['success'] = 'Account succesvol verwijderd';
+        } else {
+            $_SESSION['error'] = 'Account kon niet worden verwijderd';
+        }
+
+        header('Location: ' . URLROOT . '/accounts');
+        exit;
+    }
 }
 

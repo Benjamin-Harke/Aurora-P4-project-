@@ -81,9 +81,15 @@ require_once APPROOT . '/views/includes/header.php'; ?>
                   <?php endif; ?>
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-outline-info" title="View Details">
-                    <i class="bi bi-eye"></i> View
-                  </button>
+                  <div class="d-flex flex-wrap gap-2">
+                    <a href="<?= URLROOT; ?>/accounts/edit/<?= $user['id']; ?>" class="btn btn-sm btn-outline-info">
+                      <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    <a href="<?= URLROOT; ?>/accounts/delete/<?= $user['id']; ?>" class="btn btn-sm btn-outline-danger"
+                      onclick="return confirm('Weet je zeker dat je dit account wilt verwijderen?');">
+                      <i class="bi bi-trash"></i> Delete
+                    </a>
+                  </div>
                 </td>
               </tr>
             <?php endforeach; ?>
