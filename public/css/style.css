@@ -2121,9 +2121,63 @@ footer .text-center {
 }
 
 .melding-error-modal .mb-0 {
-  color: #cfcfcf;;
+  color: #cfcfcf;
   opacity: 1 !important;
   font-size: 20px;
   font-weight: 700 !important;
   margin-left: 50px;
+}
+
+.bell-btn {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border: 2px solid #777;
+  border-radius: 10px;
+  background: transparent;
+  color: #777;
+  font-size: 20px;
+}
+
+.bell-btn-active {
+  color: #00d9ff;
+  border-color: #00d9ff;
+  box-shadow: 0 0 12px rgba(0, 217, 255, 0.4);
+}
+
+.bell-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #00d9ff;
+  color: black;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bell-message {
+  padding: 12px;
+  border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+}
+
+.bell-message strong {
+  color: #00d9ff;
+}
+
+.bell-message p {
+  margin: 6px 0;
+  color: white;
+}
+
+.bell-message a {
+  color: #ff006e;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: bold;
 }

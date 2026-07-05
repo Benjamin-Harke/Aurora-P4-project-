@@ -107,35 +107,28 @@ class Meldingen extends BaseController
     // Nieuwe melding opslaan
     public function opslaan()
     {
-        // Controleren of gebruiker is ingelogd.
         if (!isset($_SESSION['accountId'])) {
             header('location:' . URLROOT);
             exit;
         }
 
-        // Alleen POST requests toestaan.
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('location:' . URLROOT . '/meldingen');
             exit;
         }
 
-        // Bij unhappy scenario proberen bewust op te slaan in een lege testdatabase
         if (isset($_SESSION['melding_flow']) && $_SESSION['melding_flow'] === 'unhappy') {
-
             if (!$this->meldingModel->createUnhappy()) {
                 $_SESSION['melding_db_fout'] = 'Geen connectie met database gevonden.';
-
                 header('location:' . URLROOT . '/meldingen');
                 exit;
             }
         }
 
-        // Eigen bezoeker id gebruiken als de admin naar zichzelf stuurt
         $gebruiker_id = $_SESSION['accountId'];
         $eigenBezoeker = $this->meldingModel->getBezoekerByGebruikerId($gebruiker_id);
         $mijn_bezoeker_id = $eigenBezoeker ? $eigenBezoeker->id : null;
 
-        // Gegevens uit het formulier halen
         $doelgroep = trim($_POST['doelgroep'] ?? '');
         $ontvanger_id = trim($_POST['ontvanger_id'] ?? '');
         $type = trim($_POST['type'] ?? '');
@@ -143,57 +136,67 @@ class Meldingen extends BaseController
         $opmerking = trim($_POST['opmerking'] ?? '') ?: null;
         $is_actief = isset($_POST['is_actief']) ? (int) $_POST['is_actief'] : 1;
 
-        // Alleen deze types mogen gebruikt worden
         $toegestane_types = ['notificatie', 'klacht', 'review'];
 
-        // Simpele validatie van de verplichte velden
-        if (
-            !in_array($type, $toegestane_types) ||
-            $bericht === '' ||
-            mb_strlen($bericht) > 250
-        ) {
-            $_SESSION['melding_db_fout'] = true;
+        if (!in_array($type, $toegestane_types) || $bericht === '' || mb_strlen($bericht) > 250) {
+            $_SESSION['melding_db_fout'] = 'Vul alle verplichte velden correct in.';
             header('location:' . URLROOT . '/meldingen');
             exit;
         }
 
-        // Er moet een doelgroep of ontvanger id zijn
         if ($doelgroep === '' && $ontvanger_id === '') {
-            $_SESSION['melding_db_fout'] = true;
+            $_SESSION['melding_db_fout'] = 'Kies een ontvanger of vul een ontvanger ID in.';
             header('location:' . URLROOT . '/meldingen');
             exit;
         }
 
-        // Hier komen alle ontvangers in
         $ontvangers = [];
 
-        // Melding naar 1 specifieke bezoeker sturen
         if ($ontvanger_id !== '') {
+            $bezoeker = $this->meldingModel->getBezoekerById((int) $ontvanger_id);
+
+            if (!$bezoeker) {
+                $_SESSION['melding_db_fout'] = 'Deze bezoeker bestaat niet.';
+                header('location:' . URLROOT . '/meldingen');
+                exit;
+            }
+
             $ontvangers[] = [
-                'bezoeker_id' => (int) $ontvanger_id,
+                'bezoeker_id' => $bezoeker->id,
                 'medewerker_id' => null
             ];
-        }
-
-        // Melding alleen naar jezelf sturen
-        if ($ontvanger_id === '' && $doelgroep === 'bezoeker' && $mijn_bezoeker_id) {
+        } elseif ($doelgroep === 'bezoeker' && $mijn_bezoeker_id) {
             $ontvangers[] = [
                 'bezoeker_id' => $mijn_bezoeker_id,
                 'medewerker_id' => null
             ];
-        }
-
-        // Melding naar alle bezoekers sturen
-        if ($ontvanger_id === '' && ($doelgroep === 'alle_bezoekers' || $doelgroep === 'iedereen')) {
+        } elseif ($doelgroep === 'alle_bezoekers' || $doelgroep === 'iedereen') {
             foreach ($this->meldingModel->getAllBezoekers() as $bezoeker) {
                 $ontvangers[] = [
                     'bezoeker_id' => $bezoeker->id,
                     'medewerker_id' => null
                 ];
             }
+
+            if ($doelgroep === 'iedereen' && $mijn_bezoeker_id) {
+                $bestaatAl = false;
+
+                foreach ($ontvangers as $ontvanger) {
+                    if ($ontvanger['bezoeker_id'] == $mijn_bezoeker_id) {
+                        $bestaatAl = true;
+                        break;
+                    }
+                }
+
+                if (!$bestaatAl) {
+                    $ontvangers[] = [
+                        'bezoeker_id' => $mijn_bezoeker_id,
+                        'medewerker_id' => null
+                    ];
+                }
+            }
         }
 
-        // Melding naar alle medewerkers sturen
         if ($ontvanger_id === '' && ($doelgroep === 'alle_medewerkers' || $doelgroep === 'iedereen')) {
             foreach ($this->meldingModel->getAllMedewerkers() as $medewerker) {
                 $ontvangers[] = [
@@ -203,24 +206,19 @@ class Meldingen extends BaseController
             }
         }
 
-        // Als er geen ontvangers zijn gevonden, fout tonen
         if (empty($ontvangers)) {
-            $_SESSION['melding_db_fout'] = true;
+            $_SESSION['melding_db_fout'] = 'Er zijn geen ontvangers gevonden.';
             header('location:' . URLROOT . '/meldingen');
             exit;
         }
 
-        // Voor elke ontvanger een melding opslaan
         foreach ($ontvangers as $ontvanger) {
-
-            // Uniek nummer maken
             do {
                 $nummer = random_int(100000, 999999);
                 $bestaat = $this->meldingModel->getByNummer($nummer);
             } while ($bestaat);
 
-            // Melding opslaan in database
-            $this->meldingModel->create([
+            $result = $this->meldingModel->create([
                 'bezoeker_id' => $ontvanger['bezoeker_id'],
                 'medewerker_id' => $ontvanger['medewerker_id'],
                 'nummer' => $nummer,
@@ -229,12 +227,59 @@ class Meldingen extends BaseController
                 'is_actief' => $is_actief,
                 'opmerking' => $opmerking
             ]);
+
+            if (!$result) {
+                $_SESSION['melding_db_fout'] = 'Melding kon niet worden opgeslagen.';
+                header('location:' . URLROOT . '/meldingen');
+                exit;
+            }
         }
 
-        // Foutmelding verwijderen als alles goed ging
         unset($_SESSION['melding_db_fout']);
 
-        // Terug naar meldingen overzicht
+        header('location:' . URLROOT . '/meldingen');
+        exit;
+    }
+
+    public function hersturen($id)
+    {
+        if (!isset($_SESSION['accountId'])) {
+            header('location:' . URLROOT);
+            exit;
+        }
+
+        if (isset($_SESSION['melding_flow']) && $_SESSION['melding_flow'] === 'unhappy') {
+            $_SESSION['melding_db_fout'] = 'Geen connectie met database gevonden.';
+            header('location:' . URLROOT . '/meldingen');
+            exit;
+        }
+
+        $oudeMelding = $this->meldingModel->getById($id);
+
+        if (!$oudeMelding) {
+            $_SESSION['melding_db_fout'] = 'Melding kon niet gevonden worden.';
+            header('location:' . URLROOT . '/meldingen');
+            exit;
+        }
+
+        $this->meldingModel->markeerAlsActief($oudeMelding->id);
+
+        $_SESSION['melding_succes'] = 'Melding is succesvol opnieuw verstuurd.';
+        $_SESSION['melding_bericht_popup'] = $oudeMelding->bericht;
+        $_SESSION['melding_popup_id'] = $oudeMelding->id;
+
+        header('location:' . URLROOT . '/meldingen');
+        exit;
+    }
+    public function gelezen($id)
+    {
+        if (!isset($_SESSION['accountId'])) {
+            header('location:' . URLROOT);
+            exit;
+        }
+
+        $this->meldingModel->markeerAlsGelezen($id);
+
         header('location:' . URLROOT . '/meldingen');
         exit;
     }
