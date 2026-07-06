@@ -209,6 +209,23 @@ class Accounts extends BaseController
             exit;
         }
 
+        // Role hierarchy check
+        $loggedInId = (int)($_SESSION['accountId'] ?? 0);
+        $targetId = (int)$id;
+        $loggedInRole = $_SESSION['rolle'] ?? 'bezoeker';
+        $targetRole = !empty($account->roles) ? explode(',', $account->roles)[0] : 'bezoeker';
+
+        $loggedInRank = $this->getRoleRank($loggedInRole);
+        $targetRank = $this->getRoleRank($targetRole);
+
+        if ($loggedInId !== $targetId) {
+            if ($loggedInRank < 3 && $targetRank >= $loggedInRank) {
+                $_SESSION['error'] = 'Je hebt geen rechten om dit account te bewerken';
+                header('Location: ' . URLROOT . '/accounts');
+                exit;
+            }
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'voornaam'      => trim($_POST['voornaam'] ?? ''),
@@ -219,11 +236,15 @@ class Accounts extends BaseController
                 'rol'           => trim($_POST['rol'] ?? ''),
                 'mobiel'        => trim($_POST['mobiel'] ?? ''),
                 'is_actief'     => isset($_POST['is_actief']) ? (int) $_POST['is_actief'] : (int) ($account->is_actief ?? 1),
+                'wachtwoord'    => trim($_POST['wachtwoord'] ?? ''),
+                'wachtwoord_bevestigen' => trim($_POST['wachtwoord_bevestigen'] ?? ''),
                 'voornaam_err'      => '',
                 'achternaam_err'    => '',
                 'email_err'         => '',
                 'gebruikersnaam_err'=> '',
                 'rol_err'           => '',
+                'wachtwoord_err'    => '',
+                'wachtwoord_bevestigen_err' => '',
             ];
 
             if (empty($data['voornaam'])) {
@@ -244,6 +265,20 @@ class Accounts extends BaseController
                 $data['rol_err'] = 'Rol is verplicht';
             }
 
+            // Optional password validation
+            if (!empty($data['wachtwoord']) || !empty($data['wachtwoord_bevestigen'])) {
+                if (empty($data['wachtwoord'])) {
+                    $data['wachtwoord_err'] = 'Wachtwoord is verplicht';
+                } elseif (strlen($data['wachtwoord']) < 6) {
+                    $data['wachtwoord_err'] = 'Wachtwoord moet minimaal 6 tekens bevatten';
+                }
+                if (empty($data['wachtwoord_bevestigen'])) {
+                    $data['wachtwoord_bevestigen_err'] = 'Wachtwoord bevestigen is verplicht';
+                } elseif ($data['wachtwoord'] !== $data['wachtwoord_bevestigen']) {
+                    $data['wachtwoord_bevestigen_err'] = 'Wachtwoorden komen niet overeen';
+                }
+            }
+
             if (empty($data['email_err']) && $this->accountModel->checkEmailInUseForEdit($data['email'], $id)) {
                 $data['email_err'] = 'Email is al in gebruik';
             }
@@ -255,10 +290,16 @@ class Accounts extends BaseController
             $hasErrors =
                 $data['voornaam_err'] || $data['achternaam_err'] ||
                 $data['email_err'] || $data['gebruikersnaam_err'] ||
-                $data['rol_err'];
+                $data['rol_err'] || $data['wachtwoord_err'] ||
+                $data['wachtwoord_bevestigen_err'];
 
             if (!$hasErrors) {
                 if ($this->accountModel->updateAccount($id, $data)) {
+                    // Update password if provided
+                    if (!empty($data['wachtwoord'])) {
+                        $this->accountModel->updatePassword($id, $data['wachtwoord']);
+                    }
+
                     $_SESSION['success'] = 'Account succesvol bijgewerkt';
 
                     if ((int) $_SESSION['accountId'] === (int) $id) {
@@ -294,11 +335,15 @@ class Accounts extends BaseController
             'rol' => !empty($account->roles) ? explode(',', $account->roles)[0] : '',
             'mobiel' => $account->mobiel ?? '',
             'is_actief' => (int) ($account->is_actief ?? 1),
+            'wachtwoord' => '',
+            'wachtwoord_bevestigen' => '',
             'voornaam_err' => '',
             'achternaam_err' => '',
             'email_err' => '',
             'gebruikersnaam_err' => '',
             'rol_err' => '',
+            'wachtwoord_err' => '',
+            'wachtwoord_bevestigen_err' => '',
         ];
 
         $this->view('accounts/edit', $data);
@@ -329,6 +374,25 @@ class Accounts extends BaseController
             exit;
         }
 
+        $account = $this->accountModel->getAccountDetails($id);
+        if (!$account) {
+            $_SESSION['error'] = 'Account niet gevonden';
+            header('Location: ' . URLROOT . '/accounts');
+            exit;
+        }
+
+        $loggedInRole = $_SESSION['rolle'] ?? 'bezoeker';
+        $targetRole = !empty($account->roles) ? explode(',', $account->roles)[0] : 'bezoeker';
+
+        $loggedInRank = $this->getRoleRank($loggedInRole);
+        $targetRank = $this->getRoleRank($targetRole);
+
+        if ($loggedInRank < 3 && $targetRank >= $loggedInRank) {
+            $_SESSION['error'] = 'Je hebt geen rechten om dit account te verwijderen';
+            header('Location: ' . URLROOT . '/accounts');
+            exit;
+        }
+
         if ($this->accountModel->deleteAccount($id)) {
             $_SESSION['success'] = 'Account succesvol verwijderd';
         } else {
@@ -337,6 +401,21 @@ class Accounts extends BaseController
 
         header('Location: ' . URLROOT . '/accounts');
         exit;
+    }
+
+    private function getRoleRank($role)
+    {
+        $role = strtolower(trim($role));
+        if ($role === 'admin' || $role === 'administrator') {
+            return 3;
+        }
+        if ($role === 'medewerker') {
+            return 2;
+        }
+        if ($role === 'receptie') {
+            return 1;
+        }
+        return 0; // Bezoeker or any other role
     }
 }
 
