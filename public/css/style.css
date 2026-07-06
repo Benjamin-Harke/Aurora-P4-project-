@@ -74,13 +74,17 @@ body {
 .nav-link {
   color: var(--text-light) !important;
   transition: all 0.3s ease;
-  margin-right: 2rem;
-  margin-left: 2rem;
+  margin-right: 0.8rem;
+  margin-left: 0.8rem;
   font-weight: 500;
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   position: relative;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .nav-link::after {
