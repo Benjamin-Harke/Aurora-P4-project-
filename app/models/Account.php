@@ -471,6 +471,20 @@ class Account
     }
 
     /**
+     * Update the password for a given user.
+     */
+    public function updatePassword($id, $newPassword)
+    {
+        $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+        $this->db->query('UPDATE gebruiker SET wachtwoord = :wachtwoord WHERE id = :id');
+        $this->db->bind(':id', $id, PDO::PARAM_INT);
+        $this->db->bind(':wachtwoord', $hashedPassword, PDO::PARAM_STR);
+
+        return $this->db->execute();
+    }
+
+    /**
      * Delete an account and rely on cascading foreign keys for related rows.
      */
     public function deleteAccount($id)
