@@ -376,7 +376,7 @@ class Accounts extends BaseController
 
         $account = $this->accountModel->getAccountDetails($id);
         if (!$account) {
-            $_SESSION['error'] = 'Account niet gevonden';
+            $_SESSION['error'] = 'Account not found, possibly already deleted';
             header('Location: ' . URLROOT . '/accounts');
             exit;
         }
