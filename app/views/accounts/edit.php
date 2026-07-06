@@ -80,6 +80,22 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </div>
         </div>
 
+        <div class="row">
+          <!-- Password -->
+          <div class="col-md-6 mb-3">
+            <label for="wachtwoord" class="form-label">Nieuw Wachtwoord (Optioneel)</label>
+            <input type="password" name="wachtwoord" id="wachtwoord" class="form-control <?= (!empty($data['wachtwoord_err'])) ? 'is-invalid' : ''; ?>" placeholder="Laat leeg om niet te wijzigen">
+            <div class="invalid-feedback"><?= $data['wachtwoord_err']; ?></div>
+          </div>
+
+          <!-- Password Confirm -->
+          <div class="col-md-6 mb-3">
+            <label for="wachtwoord_bevestigen" class="form-label">Wachtwoord Bevestigen (Optioneel)</label>
+            <input type="password" name="wachtwoord_bevestigen" id="wachtwoord_bevestigen" class="form-control <?= (!empty($data['wachtwoord_bevestigen_err'])) ? 'is-invalid' : ''; ?>" placeholder="Herhaal nieuw wachtwoord">
+            <div class="invalid-feedback"><?= $data['wachtwoord_bevestigen_err']; ?></div>
+          </div>
+        </div>
+
         <div class="mt-4 text-end d-flex justify-content-end gap-2 flex-wrap">
           <a href="<?= URLROOT; ?>/accounts" class="btn btn-outline-custom">
             Annuleren
@@ -143,6 +159,11 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     background-color: rgba(0, 217, 255, 0.12);
     border-color: var(--accent-magenta);
     box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+    color: white;
+  }
+
+  .form-select option {
+    background-color: #0b1a30;
     color: white;
   }
 
