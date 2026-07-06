@@ -154,6 +154,11 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     transition: all 0.3s ease;
   }
 
+  .form-select option {
+    background-color: #0b1a30;
+    color: white;
+  }
+
   .form-control:focus, .form-select:focus {
     background-color: rgba(0, 217, 255, 0.12);
     border-color: var(--accent-magenta);
