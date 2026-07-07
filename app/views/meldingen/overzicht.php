@@ -33,7 +33,7 @@ extract($data ?? []);
 
                 <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#nieuweMeldingModal">
                     <i class="bi bi-plus-lg me-1"></i> Nieuwe Melding
-                </button>
+                </button> <!---Nieuwe melding KNOP-->
 
             </div>
         <?php endif; ?>
@@ -103,7 +103,7 @@ extract($data ?? []);
 
     <?php else: ?>
 
-        <div class="melding-empty">
+        <div class="melding-empty"> <!--Als er geen melding is---->
             <i class="bi bi-bell-slash mb-3"></i>
             <h4 class="mt-2 mb-2">Geen meldingen</h4>
             <p class="mb-4">
@@ -137,7 +137,7 @@ extract($data ?? []);
                         <div class="mb-3">
                             <label for="doelgroep" class="form-label">Ontvanger</label>
 
-                            <select class="form-control melding-select" id="doelgroep" name="doelgroep">
+                            <select class="form-control melding-select" id="doelgroep" name="doelgroep"> <!--Keuzes bij melding maken-->
                                 <option value="" selected>Kies ontvanger...</option>
                                 <option value="iedereen">Iedereen</option>
                                 <option value="alle_bezoekers">Alle bezoekers</option>

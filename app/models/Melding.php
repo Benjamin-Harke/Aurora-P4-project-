@@ -26,7 +26,7 @@ class Melding
         }
     }
 
-    public function create(array $data = [])
+    public function create(array $data = []) //Velden voor de melding formulier.
     {
         try {
             $isActief = ((int) $data['is_actief'] === 1) ? "b'1'" : "b'0'";
@@ -191,7 +191,7 @@ class Melding
         }
     }
 
-    public function createUnhappy()
+    public function createUnhappy() // unhappy scenario lege DB bij meldingen
     {
         try {
             $pdo = new PDO(
@@ -211,7 +211,7 @@ class Melding
         }
     }
 
-    public function markeerAlsActief($id)
+    public function markeerAlsActief($id) // voor als je op het knop van gelezen klikt.
     {
         try {
             $this->db->query("
@@ -228,7 +228,7 @@ class Melding
         }
     }
 
-    public function markeerAlsGelezen($id)
+    public function markeerAlsGelezen($id) // Gelezen notificatie
     {
         try {
             $this->db->query("

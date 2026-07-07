@@ -2,7 +2,7 @@
 
 <section class="feedback-overzicht-page">
     <div class="feedback-overzicht-container">
-        <h1>Ontvangen feedback</h1>
+        <h1>Ontvangen feedback</h1> <!--Begin van contactpagina--->
         <p>Hier zie je alle feedbackberichten die via de contactpagina zijn verstuurd.</p>
 
         <?php if (empty($data['feedback'])): ?>
