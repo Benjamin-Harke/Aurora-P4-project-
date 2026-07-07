@@ -2545,6 +2545,49 @@ footer .text-center {
   font-weight: bold;
 }
 
+.feedback-overzicht-container {
+  max-width: 1150px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.98);
+  padding: 45px 40px 35px;
+  border-radius: 18px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(0, 217, 255, 0.15);
+}
+
+.feedback-overzicht-container h1 {
+  font-size: 42px;
+  font-weight: 800;
+  color: #081225;
+  margin-bottom: 12px;
+}
+
+.feedback-overzicht-container p {
+  color: #64748b;
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.feedback-actions {
+  margin-bottom: 18px;
+}
+
+.feedback-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .feedback-overzicht-container {
+    padding: 28px 18px;
+    border-radius: 14px;
+  }
+
+  .feedback-overzicht-container h1 {
+    font-size: 30px;
+  }
+}
+
 /* Tablet / mobiel */
 @media (max-width: 768px) {
   .feedback-overzicht-container {
@@ -2557,6 +2600,87 @@ footer .text-center {
 
   .feedback-overzicht-container p {
     font-size: 15px;
+  }
+
+  .feedback-actions {
+    justify-content: stretch;
+  }
+
+  .refresh-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+.feedback-overzicht-page {
+  min-height: 100vh;
+  background: #061422;
+  padding: 40px 15px;
+}
+
+.feedback-overzicht-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 35px;
+  border-radius: 12px;
+}
+
+.feedback-overzicht-container h1 {
+  color: #111827;
+  margin-bottom: 10px;
+}
+
+.feedback-overzicht-container p {
+  color: #6b7280;
+  margin-bottom: 30px;
+}
+
+.feedback-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.refresh-btn {
+  background: #18c7e8;
+  color: #000;
+  padding: 12px 22px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.feedback-table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.feedback-table th {
+  background: #18c7e8;
+  color: white;
+  padding: 18px;
+  text-align: left;
+}
+
+.feedback-table td {
+  background: #12243a;
+  color: white;
+  padding: 18px;
+  vertical-align: top;
+}
+
+@media (max-width: 768px) {
+  .feedback-overzicht-container {
+    padding: 20px;
+  }
+
+  .feedback-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 
   .feedback-actions {
