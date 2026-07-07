@@ -4,7 +4,7 @@ class Voorstelling {
     private $db;
 
     public $id;
-    public $medewerker_id;
+    public $medewerker_id; // Relates this performance to a Medewerker record
     public $naam;
     public $beschrijving;
     public $datum;
@@ -42,6 +42,11 @@ class Voorstelling {
 
     /**
      * Get Voorstelling records by Medewerker ID.
+     *
+     * This method returns only the performances that are associated
+     * with a specific medewerker. It is used to find all shows owned
+     * or created by a certain employee.
+     *
      * @param int $medewerker_id The ID of the related medewerker.
      * @return array An array of Voorstelling objects.
      */
@@ -84,6 +89,12 @@ class Voorstelling {
     }
 
     // Relationship methods
+    /**
+     * Load the Medewerker that is linked to this performance.
+     *
+     * This helper creates a direct association between the voorstelling
+     * and the medewerker who is responsible for it.
+     */
     public function getMedewerker() {
         $medewerkerModel = new Medewerker();
         return $medewerkerModel->getById($this->medewerker_id);

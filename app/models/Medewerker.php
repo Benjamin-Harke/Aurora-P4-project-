@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Medewerker model represents the employee entity in the system.
+ *
+ * This class handles medewerker-specific database operations such as
+ * lookup by gebruiker_id, create/update/delete, and relationships
+ * to voorstellingen and meldingen.
+ */
 class Medewerker {
     private $db;
 
@@ -93,6 +100,10 @@ class Medewerker {
 
     /**
      * Get a Medewerker record by Gebruiker ID.
+     *
+     * This method is used to map a logged-in gebruiker to the
+     * medewerker record that identifies the employee-specific data.
+     *
      * @param int $gebruiker_id The ID of the related gebruiker.
      * @return object|null The Medewerker object or null if not found.
      */
@@ -142,11 +153,23 @@ class Medewerker {
         return $gebruikerModel->getById($this->gebruiker_id);
     }
 
+    /**
+     * Return all performances associated with this medewerker.
+     *
+     * A medewerker can be the owner or creator of multiple voorstellingen,
+     * so this helper method loads those related records through the
+     * Voorstelling model.
+     */
     public function getVoorstellingen() {
         $voorstellingModel = new Voorstelling();
         return $voorstellingModel->getByMedewerkerId($this->id);
     }
 
+    /**
+     * Return all notifications/reports assigned to this medewerker.
+     *
+     * This method makes it easy to fetch medewerker-specific meldingen.
+     */
     public function getMeldingen() {
         $meldingModel = new Melding();
         return $meldingModel->getByMedewerkerId($this->id);
