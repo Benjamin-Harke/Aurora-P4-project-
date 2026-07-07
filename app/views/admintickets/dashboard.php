@@ -100,6 +100,9 @@
                                             <a href="/usertickets/viewTicket/<?php echo $ticket->id; ?>" class="btn btn-sm btn-outline-light" title="View Ticket">
                                                 <i class="bi bi-eye"></i>
                                             </a>
+                                            <a href="<?php echo URLROOT; ?>/admintickets/edit/<?php echo $ticket->id; ?>" class="btn btn-sm btn-outline-warning" title="Edit Ticket">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
                                             <a href="<?php echo URLROOT; ?>/admintickets/delete/<?php echo $ticket->id; ?>" 
                                                class="btn btn-sm btn-outline-danger" 
                                                onclick="return confirm('WARNING: Are you sure you want to PERMANENTLY delete this ticket?');"
