@@ -377,15 +377,38 @@ class Admintickets extends BaseController {
      */
     public function delete($id = null)
     {
-        if (!$id || !isset($_SESSION['accountId'])) {
+        // --- Auth guard ---
+        if (!isset($_SESSION['accountId'])) {
+            $_SESSION['error'] = 'Please log in to access admin features';
+            header('Location: ' . URLROOT);
+            exit;
+        }
+        $userRole = $_SESSION['rolle'] ?? 'bezoeker';
+        if (strtolower($userRole) !== 'admin') {
+            $_SESSION['error'] = 'You do not have permission to access admin features';
+            header('Location: ' . URLROOT . '/dashboard');
+            exit;
+        }
+
+        // --- Existence check (Unhappy flow) ---
+        if (!$id) {
+            $_SESSION['error'] = 'Het ticket kan niet verwijderd worden omdat het al niet meer aanwezig is.';
             header('Location: ' . URLROOT . '/admintickets/dashboard');
             exit;
         }
 
+        $ticket = $this->ticketModel->getById($id);
+        if (!$ticket) {
+            $_SESSION['error'] = 'Het ticket kan niet verwijderd worden omdat het al niet meer aanwezig is.';
+            header('Location: ' . URLROOT . '/admintickets/dashboard');
+            exit;
+        }
+
+        // --- HAPPY SCENARIO: delete ticket ---
         if ($this->ticketModel->delete($id)) {
-            $_SESSION['success'] = 'Ticket #' . $id . ' has been deleted by admin.';
+            $_SESSION['success'] = 'Ticket succesvol verwijderd.';
         } else {
-            $_SESSION['error'] = 'Failed to delete ticket.';
+            $_SESSION['error'] = 'Er is een fout opgetreden bij het verwijderen van het ticket.';
         }
 
         header('Location: ' . URLROOT . '/admintickets/dashboard');
