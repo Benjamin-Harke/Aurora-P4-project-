@@ -1,26 +1,23 @@
 <?php require_once APPROOT . '/views/includes/header.php'; ?>
+<?php require_once APPROOT . '/views/includes/messages.php'; ?>
 
 <div class="container mt-5 mb-5">
-    <div class="row mb-4">
-        <div class="col-lg-8">
+    <div class="row mb-4 align-items-center">
+        <div class="col-lg-6">
             <h1 class="display-4">Alle Voorstellingen</h1>
-            <p class="lead text-muted">Bekijk ons volledige programma en kies een voorstelling die u wil bezoeken</p>
+            <p class="lead text-muted mb-0">Bekijk ons volledige programma en kies een voorstelling die u wil bezoeken</p>
         </div>
-        <div class="col-lg-4">
-            <div class="search-box">
+        <div class="col-lg-6 text-lg-end mt-3 mt-lg-0 d-flex gap-2 justify-content-lg-end align-items-center">
+            <?php if (!empty($data['is_medewerker'])): ?>
+                <a href="<?= URLROOT ?>/voorstellingen/create" class="btn btn-outline-primary">
+                    <i class="bi bi-calendar-plus me-1"></i> Nieuwe voorstelling toevoegen
+                </a>
+            <?php endif; ?>
+            <div class="search-box" style="min-width: 260px;">
                 <input type="text" class="form-control" placeholder="Zoek naar voorstellingen..." id="searchInput">
             </div>
         </div>
     </div>
-
-    <!-- ADD THIS BUTTON -->
-    <?php if (isset($data['is_medewerker']) && $data['is_medewerker']): ?>
-        <div style="margin-bottom: 20px;">
-            <a href="/adminperformances/create" class="btn btn-success">
-                + Nieuwe Voorstelling Toevoegen
-            </a>
-        </div>
-    <?php endif; ?>
 
     <?php if (empty($data['voorstellingen'])): ?>
         <div class="alert alert-info text-center">
@@ -98,6 +95,35 @@
                     </div>
                 </div>
             <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
+    <?php if (!empty($data['voorstellingen'])): ?>
+        <div class="row mt-4 g-4">
+            <div class="col-md-4">
+                <div class="card text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Totaal aantal voorstellingen</h5>
+                        <h2 class="text-primary"><?= count($data['voorstellingen']) ?></h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Actieve voorstellingen</h5>
+                        <h2 class="text-success"><?= count(array_filter($data['voorstellingen'], fn($p) => $p->is_actief)) ?></h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Verstreken voorstellingen</h5>
+                        <h2 class="text-danger"><?= count(array_filter($data['voorstellingen'], fn($p) => !$p->is_actief)) ?></h2>
+                    </div>
+                </div>
+            </div>
         </div>
     <?php endif; ?>
 </div>

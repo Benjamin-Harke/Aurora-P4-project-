@@ -11,7 +11,7 @@
             </div>
         <?php else: ?>
             <div class="feedback-actions">
-                <a href="<?= URLROOT; ?>/contact/overzicht" class="refresh-btn">
+                <a href="<?= URLROOT; ?>/contact/overzicht" class="refresh-btn"> <!--Refresh knop--->
                     <i class="bi bi-arrow-clockwise"></i>
                     Vernieuwen
                 </a>

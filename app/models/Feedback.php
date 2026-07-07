@@ -17,9 +17,9 @@ class Feedback
             VALUES
             (:email, :onderwerp, :bericht)
         ");
-
+                                                                    //Velden contact pagina 
         $this->db->bind(':email', $data['email']);
-        $this->db->bind(':onderwerp', $data['onderwerp']);
+        $this->db->bind(':onderwerp', $data['onderwerp']); 
         $this->db->bind(':bericht', $data['bericht']);
 
         return $this->db->execute();

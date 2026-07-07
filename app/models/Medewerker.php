@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Medewerker model represents the employee entity in the system.
+ *
+ * This class handles medewerker-specific database operations such as
+ * lookup by gebruiker_id, create/update/delete, and relationships
+ * to voorstellingen and meldingen.
+ */
 class Medewerker {
     private $db;
 
@@ -57,11 +64,12 @@ class Medewerker {
         if (!$this->safeQuery('INSERT INTO medewerker (gebruiker_id, nummer, medewerkersoort, is_actief, opmerking) VALUES (:gebruiker_id, :nummer, :medewerkersoort, :is_actief, :opmerking)')) {
             return false;
         }
-        $this->db->bind(':gebruiker_id', $this->gebruiker_id);
-        $this->db->bind(':nummer', $this->nummer);
-        $this->db->bind(':medewerkersoort', $this->medewerkersoort);
-        $this->db->bind(':is_actief', $this->is_actief);
-        $this->db->bind(':opmerking', $this->opmerking);
+        $this->db->bind(':gebruiker_id', $this->gebruiker_id, PDO::PARAM_INT);
+        $this->db->bind(':nummer', $this->nummer, PDO::PARAM_INT);
+        $this->db->bind(':medewerkersoort', $this->medewerkersoort, PDO::PARAM_STR);
+        $isActief = ($this->is_actief) ? 1 : 0;
+        $this->db->bind(':is_actief', $isActief, PDO::PARAM_INT);
+        $this->db->bind(':opmerking', $this->opmerking, PDO::PARAM_STR);
 
         return $this->safeExecute();
     }
@@ -92,6 +100,10 @@ class Medewerker {
 
     /**
      * Get a Medewerker record by Gebruiker ID.
+     *
+     * This method is used to map a logged-in gebruiker to the
+     * medewerker record that identifies the employee-specific data.
+     *
      * @param int $gebruiker_id The ID of the related gebruiker.
      * @return object|null The Medewerker object or null if not found.
      */
@@ -111,12 +123,13 @@ class Medewerker {
         if (!$this->safeQuery('UPDATE medewerker SET gebruiker_id = :gebruiker_id, nummer = :nummer, medewerkersoort = :medewerkersoort, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id')) {
             return false;
         }
-        $this->db->bind(':id', $this->id);
-        $this->db->bind(':gebruiker_id', $this->gebruiker_id);
-        $this->db->bind(':nummer', $this->nummer);
-        $this->db->bind(':medewerkersoort', $this->medewerkersoort);
-        $this->db->bind(':is_actief', $this->is_actief);
-        $this->db->bind(':opmerking', $this->opmerking);
+        $this->db->bind(':id', $this->id, PDO::PARAM_INT);
+        $this->db->bind(':gebruiker_id', $this->gebruiker_id, PDO::PARAM_INT);
+        $this->db->bind(':nummer', $this->nummer, PDO::PARAM_INT);
+        $this->db->bind(':medewerkersoort', $this->medewerkersoort, PDO::PARAM_STR);
+        $isActief = ($this->is_actief) ? 1 : 0;
+        $this->db->bind(':is_actief', $isActief, PDO::PARAM_INT);
+        $this->db->bind(':opmerking', $this->opmerking, PDO::PARAM_STR);
 
         return $this->safeExecute();
     }
@@ -140,11 +153,23 @@ class Medewerker {
         return $gebruikerModel->getById($this->gebruiker_id);
     }
 
+    /**
+     * Return all performances associated with this medewerker.
+     *
+     * A medewerker can be the owner or creator of multiple voorstellingen,
+     * so this helper method loads those related records through the
+     * Voorstelling model.
+     */
     public function getVoorstellingen() {
         $voorstellingModel = new Voorstelling();
         return $voorstellingModel->getByMedewerkerId($this->id);
     }
 
+    /**
+     * Return all notifications/reports assigned to this medewerker.
+     *
+     * This method makes it easy to fetch medewerker-specific meldingen.
+     */
     public function getMeldingen() {
         $meldingModel = new Melding();
         return $meldingModel->getByMedewerkerId($this->id);

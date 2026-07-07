@@ -1,4 +1,5 @@
 <?php require_once APPROOT . '/views/includes/header.php'; ?>
+<?php require_once APPROOT . '/views/includes/messages.php'; ?>
 
 <div class="container mt-5 mb-5">
     <!-- Back Button -->
@@ -15,7 +16,7 @@
         $formattedDate = $date->format('d-m-Y');
         $formattedTime = $time->format('H:i');
         $formattedDay = $date->format('l');
-        
+        //test
         $dayNames = [
             'Monday' => 'Maandag',
             'Tuesday' => 'Dinsdag',
@@ -100,40 +101,18 @@
 
                     <!-- Footer -->
                     <div class="card-footer bg-light">
-                        <button class="btn btn-primary-custom btn-lg" data-bs-toggle="modal" data-bs-target="#bookingModal">
-                            <i class="bi bi-ticket-detailed me-2"></i>Kaarten Reserveren
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">
-                            <i class="bi bi-lightning-fill text-warning me-2"></i>Snelle Info
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li class="mb-3 pb-3 border-bottom">
-                                <strong>Voorstelling ID:</strong><br>
-                                <code><?= $voorstelling->id ?></code>
-                            </li>
-                            <li class="mb-3 pb-3 border-bottom">
-                                <strong>Datum:</strong><br>
-                                <?= $formattedDate ?>
-                            </li>
-                            <li class="mb-3 pb-3 border-bottom">
-                                <strong>Starttijd:</strong><br>
-                                <?= $formattedTime ?>
-                            </li>
-                            <li>
-                                <strong>Beschikbaarheid:</strong><br>
-                                <span class="badge bg-info"><?= htmlspecialchars($voorstelling->beschikbaarheid) ?></span>
-                            </li>
-                        </ul>
+                        <div class="d-flex flex-column flex-md-row gap-2">
+                            <a href="<?= URLROOT ?>/voorstellingen" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Terug naar overzicht
+                            </a>
+                            <?php if (!empty($data['is_medewerker'])): ?>
+                                <a href="<?= URLROOT ?>/voorstellingen/edit/<?= $voorstelling->id ?>" class="btn btn-outline-primary">Bewerk</a>
+                                <form method="post" action="<?= URLROOT ?>/voorstellingen/delete" onsubmit="return confirm('Weet je zeker dat je deze voorstelling wilt verwijderen?');" style="display:inline-block;">
+                                    <input type="hidden" name="id" value="<?= $voorstelling->id ?>">
+                                    <button class="btn btn-danger">Verwijder</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>

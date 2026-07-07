@@ -22,11 +22,12 @@ class Contact {
      */
     public function create() {
         $this->db->query('INSERT INTO contact (gebruiker_id, email, mobiel, is_actief, opmerking) VALUES (:gebruiker_id, :email, :mobiel, :is_actief, :opmerking)');
-        $this->db->bind(':gebruiker_id', $this->gebruiker_id);
-        $this->db->bind(':email', $this->email);
-        $this->db->bind(':mobiel', $this->mobiel);
-        $this->db->bind(':is_actief', $this->is_actief);
-        $this->db->bind(':opmerking', $this->opmerking);
+        $this->db->bind(':gebruiker_id', $this->gebruiker_id, PDO::PARAM_INT);
+        $this->db->bind(':email', $this->email, PDO::PARAM_STR);
+        $this->db->bind(':mobiel', $this->mobiel, PDO::PARAM_STR);
+        $isActief = ($this->is_actief) ? 1 : 0;
+        $this->db->bind(':is_actief', $isActief, PDO::PARAM_INT);
+        $this->db->bind(':opmerking', $this->opmerking, PDO::PARAM_STR);
 
         return $this->db->execute();
     }
@@ -68,12 +69,13 @@ class Contact {
      */
     public function update() {
         $this->db->query('UPDATE contact SET gebruiker_id = :gebruiker_id, email = :email, mobiel = :mobiel, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id');
-        $this->db->bind(':id', $this->id);
-        $this->db->bind(':gebruiker_id', $this->gebruiker_id);
-        $this->db->bind(':email', $this->email);
-        $this->db->bind(':mobiel', $this->mobiel);
-        $this->db->bind(':is_actief', $this->is_actief);
-        $this->db->bind(':opmerking', $this->opmerking);
+        $this->db->bind(':id', $this->id, PDO::PARAM_INT);
+        $this->db->bind(':gebruiker_id', $this->gebruiker_id, PDO::PARAM_INT);
+        $this->db->bind(':email', $this->email, PDO::PARAM_STR);
+        $this->db->bind(':mobiel', $this->mobiel, PDO::PARAM_STR);
+        $isActief = ($this->is_actief) ? 1 : 0;
+        $this->db->bind(':is_actief', $isActief, PDO::PARAM_INT);
+        $this->db->bind(':opmerking', $this->opmerking, PDO::PARAM_STR);
 
         return $this->db->execute();
     }
