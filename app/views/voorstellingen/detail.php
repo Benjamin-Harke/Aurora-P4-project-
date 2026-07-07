@@ -15,7 +15,7 @@
         $formattedDate = $date->format('d-m-Y');
         $formattedTime = $time->format('H:i');
         $formattedDay = $date->format('l');
-        
+        //test
         $dayNames = [
             'Monday' => 'Maandag',
             'Tuesday' => 'Dinsdag',
