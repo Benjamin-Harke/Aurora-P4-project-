@@ -163,6 +163,33 @@ class Ticket
         return $this->db->execute();
     }
 
+    /**
+     * CRUD: Update all ticket details
+     */
+    public function update($data)
+    {
+        $this->db->query("UPDATE ticket 
+                          SET bezoeker_id = :bezoeker_id, 
+                              voorstelling_id = :voorstelling_id, 
+                              prijs_id = :prijs_id, 
+                              nummer = :nummer, 
+                              datum = :datum, 
+                              tijd = :tijd, 
+                              status = :status 
+                          WHERE id = :id");
+        
+        $this->db->bind(':id', $data['id']);
+        $this->db->bind(':bezoeker_id', $data['bezoeker_id']);
+        $this->db->bind(':voorstelling_id', $data['voorstelling_id']);
+        $this->db->bind(':prijs_id', $data['prijs_id']);
+        $this->db->bind(':nummer', $data['nummer']);
+        $this->db->bind(':datum', $data['datum']);
+        $this->db->bind(':tijd', $data['tijd']);
+        $this->db->bind(':status', $data['status']);
+
+        return $this->db->execute();
+    }
+
 
 
     /**
