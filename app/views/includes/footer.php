@@ -11,7 +11,7 @@
         <ul>
           <li><a href="#">About Us</a></li>
           <li><a href="#">Shows</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="contact.php">Contact</a></li>
           <li><a href="#">Privacy Policy</a></li>
         </ul>
       </div>

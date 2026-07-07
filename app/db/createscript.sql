@@ -196,3 +196,13 @@ VALUES
   (LAST_INSERT_ID(), NULL, 5002, 'waarschuwing', 'Je ticket voor De Stormvogel verloopt over 3 dagen.', 1, '2026-06-09 14:30:00'),
   (LAST_INSERT_ID(), NULL, 5003, 'succes',       'Je betaling van €24,50 is succesvol verwerkt.',       0, '2026-06-08 11:15:00'),
   (LAST_INSERT_ID(), NULL, 5004, 'fout',         'Er is iets misgegaan bij het ophalen van je ticket. Neem contact op met de kassa.', 0, '2026-06-07 16:45:00');
+
+CREATE TABLE IF NOT EXISTS `feedback` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `email` VARCHAR(100) NOT NULL,
+  `onderwerp` VARCHAR(100) NOT NULL,
+  `bericht` VARCHAR(250) NOT NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
+);

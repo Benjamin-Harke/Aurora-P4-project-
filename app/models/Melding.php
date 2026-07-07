@@ -2,7 +2,6 @@
 
 class Melding
 {
-    // Database verbinding
     private $db;
 
     public function __construct()
@@ -10,7 +9,6 @@ class Melding
         $this->db = new Database();
     }
 
-    // Rollen ophalen van een gebruiker
     public function getRollenByGebruikerId($gebruiker_id)
     {
         try {
@@ -22,22 +20,22 @@ class Melding
             );
 
             $this->db->bind(':gebruiker_id', $gebruiker_id, PDO::PARAM_INT);
-
             return $this->db->resultSet();
         } catch (PDOException $e) {
             return [];
         }
     }
 
-    // Nieuwe melding opslaan in de database
     public function create(array $data = [])
     {
         try {
+            $isActief = ((int) $data['is_actief'] === 1) ? "b'1'" : "b'0'";
+
             $this->db->query(
-                'INSERT INTO melding
+                "INSERT INTO melding
                 (bezoeker_id, medewerker_id, nummer, type, bericht, is_actief, opmerking)
                 VALUES
-                (:bezoeker_id, :medewerker_id, :nummer, :type, :bericht, :is_actief, :opmerking)'
+                (:bezoeker_id, :medewerker_id, :nummer, :type, :bericht, $isActief, :opmerking)"
             );
 
             $this->db->bind(':bezoeker_id', $data['bezoeker_id'] ?? null);
@@ -45,7 +43,6 @@ class Melding
             $this->db->bind(':nummer', $data['nummer']);
             $this->db->bind(':type', $data['type']);
             $this->db->bind(':bericht', $data['bericht']);
-            $this->db->bind(':is_actief', (int) $data['is_actief'], PDO::PARAM_INT);
             $this->db->bind(':opmerking', $data['opmerking'] ?? null);
 
             return $this->db->execute();
@@ -54,20 +51,28 @@ class Melding
         }
     }
 
-    // Controleren of een meldingsnummer al bestaat
     public function getByNummer($nummer)
     {
         try {
             $this->db->query('SELECT id FROM melding WHERE nummer = :nummer');
             $this->db->bind(':nummer', $nummer, PDO::PARAM_INT);
-
             return $this->db->single();
         } catch (PDOException $e) {
             return null;
         }
     }
 
-    // Meldingen ophalen voor een bezoeker
+    public function getById($id)
+    {
+        try {
+            $this->db->query('SELECT * FROM melding WHERE id = :id LIMIT 1');
+            $this->db->bind(':id', $id, PDO::PARAM_INT);
+            return $this->db->single();
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
     public function getByBezoekerId($bezoeker_id)
     {
         try {
@@ -79,14 +84,12 @@ class Melding
             );
 
             $this->db->bind(':bezoeker_id', $bezoeker_id, PDO::PARAM_INT);
-
             return $this->db->resultSet();
         } catch (PDOException $e) {
             return [];
         }
     }
 
-    // Meldingen ophalen voor een medewerker
     public function getByMedewerkerId($medewerker_id)
     {
         try {
@@ -98,14 +101,12 @@ class Melding
             );
 
             $this->db->bind(':medewerker_id', $medewerker_id, PDO::PARAM_INT);
-
             return $this->db->resultSet();
         } catch (PDOException $e) {
             return [];
         }
     }
 
-    // Alle actieve bezoekers ophalen
     public function getAllBezoekers()
     {
         try {
@@ -121,7 +122,6 @@ class Melding
         }
     }
 
-    // Alle actieve medewerkers ophalen
     public function getAllMedewerkers()
     {
         try {
@@ -137,7 +137,24 @@ class Melding
         }
     }
 
-    // Bezoeker id ophalen via gebruiker id
+    public function getBezoekerById($id)
+    {
+        try {
+            $this->db->query(
+                'SELECT id
+                 FROM bezoeker
+                 WHERE id = :id
+                 AND is_actief = 1
+                 LIMIT 1'
+            );
+
+            $this->db->bind(':id', $id, PDO::PARAM_INT);
+            return $this->db->single();
+        } catch (PDOException $e) {
+            return null;
+        }
+    }
+
     public function getBezoekerByGebruikerId($gebruiker_id)
     {
         try {
@@ -150,14 +167,12 @@ class Melding
             );
 
             $this->db->bind(':gebruiker_id', $gebruiker_id, PDO::PARAM_INT);
-
             return $this->db->single();
         } catch (PDOException $e) {
             return null;
         }
     }
 
-    // Medewerker id ophalen via gebruiker id
     public function getMedewerkerByGebruikerId($gebruiker_id)
     {
         try {
@@ -170,7 +185,6 @@ class Melding
             );
 
             $this->db->bind(':gebruiker_id', $gebruiker_id, PDO::PARAM_INT);
-
             return $this->db->single();
         } catch (PDOException $e) {
             return null;
@@ -186,10 +200,46 @@ class Melding
                 ''
             );
 
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
             $sql = "INSERT INTO melding (bericht) VALUES ('test')";
             $pdo->exec($sql);
 
             return true;
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function markeerAlsActief($id)
+    {
+        try {
+            $this->db->query("
+            UPDATE melding
+            SET is_actief = b'1'
+            WHERE id = :id
+        ");
+
+            $this->db->bind(':id', $id, PDO::PARAM_INT);
+
+            return $this->db->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function markeerAlsGelezen($id)
+    {
+        try {
+            $this->db->query("
+            UPDATE melding
+            SET is_actief = b'0'
+            WHERE id = :id
+        ");
+
+            $this->db->bind(':id', $id, PDO::PARAM_INT);
+
+            return $this->db->execute();
         } catch (PDOException $e) {
             return false;
         }

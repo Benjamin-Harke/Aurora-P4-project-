@@ -53,7 +53,26 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </thead>
           <tbody>
             <?php foreach ($data['users'] as $user): ?>
-              <tr>
+              <?php 
+                $loggedInId = (int)($_SESSION['accountId'] ?? 0);
+                $targetId = (int)$user['id'];
+                $loggedInRole = strtolower($_SESSION['rolle'] ?? 'bezoeker');
+                $targetRole = !empty($user['roles']) ? strtolower(trim($user['roles'][0])) : 'bezoeker';
+
+                $roleRanks = [
+                    'admin' => 3,
+                    'administrator' => 3,
+                    'medewerker' => 2,
+                    'receptie' => 1,
+                    'bezoeker' => 0
+                ];
+                $loggedInRank = $roleRanks[$loggedInRole] ?? 0;
+                $targetRank = $roleRanks[$targetRole] ?? 0;
+
+                $canEdit = ($loggedInId === $targetId) || ($loggedInRank === 3) || ($loggedInRank > $targetRank);
+                $canDelete = ($loggedInId !== $targetId) && (($loggedInRank === 3) || ($loggedInRank > $targetRank));
+              ?>
+              <tr data-active="<?= $user['is_actief'] ? '1' : '0'; ?>">
                 <td class="email-cell"><?= htmlspecialchars($user['email'] ?? $user['gebruikersnaam'] ?? ''); ?></td>
                 <td><?= htmlspecialchars($user['voornaam']); ?></td>
                 <td><?= htmlspecialchars(($user['tussenvoegsel'] ? $user['tussenvoegsel'] . ' ' : '') . $user['achternaam']); ?></td>
@@ -81,9 +100,19 @@ require_once APPROOT . '/views/includes/header.php'; ?>
                   <?php endif; ?>
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-outline-info" title="View Details">
-                    <i class="bi bi-eye"></i> View
-                  </button>
+                  <div class="d-flex flex-wrap gap-2">
+                    <?php if ($canEdit): ?>
+                      <a href="<?= URLROOT; ?>/accounts/edit/<?= $user['id']; ?>" class="btn btn-sm btn-outline-info">
+                        <i class="bi bi-pencil-square"></i> Edit
+                      </a>
+                    <?php endif; ?>
+                    <?php if ($canDelete): ?>
+                      <a href="<?= URLROOT; ?>/accounts/delete/<?= $user['id']; ?>" class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('Weet je zeker dat je dit account wilt verwijderen?');">
+                        <i class="bi bi-trash"></i> Delete
+                      </a>
+                    <?php endif; ?>
+                  </div>
                 </td>
               </tr>
             <?php endforeach; ?>
@@ -94,7 +123,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
       <!-- Summary Stats -->
       <div class="row g-4 mt-5">
         <div class="col-md-4">
-          <div class="stat-card">
+          <div class="stat-card" data-filter="all">
             <div class="stat-icon">
               <i class="bi bi-people"></i>
             </div>
@@ -105,7 +134,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </div>
         </div>
         <div class="col-md-4">
-          <div class="stat-card">
+          <div class="stat-card" data-filter="active">
             <div class="stat-icon">
               <i class="bi bi-check-circle"></i>
             </div>
@@ -116,7 +145,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
           </div>
         </div>
         <div class="col-md-4">
-          <div class="stat-card">
+          <div class="stat-card" data-filter="inactive">
             <div class="stat-icon">
               <i class="bi bi-x-circle"></i>
             </div>
@@ -256,6 +285,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     align-items: center;
     gap: 20px;
     transition: all 0.3s ease;
+    cursor: pointer;
   }
 
   .stat-card:hover {
@@ -263,6 +293,12 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     border-color: var(--accent-gold);
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+  }
+
+  .stat-card.active-filter {
+    border-color: var(--primary-teal);
+    box-shadow: 0 0 15px rgba(0, 217, 255, 0.3);
+    background: rgba(0, 217, 255, 0.05);
   }
 
   .stat-icon {
@@ -311,5 +347,39 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     font-weight: 500;
   }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.stat-card');
+    const rows = document.querySelectorAll('.accounts-table tbody tr');
+
+    cards.forEach(card => {
+        card.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+
+            // Toggle active styling
+            cards.forEach(c => c.classList.remove('active-filter'));
+            this.classList.add('active-filter');
+
+            rows.forEach(row => {
+                const isActive = row.getAttribute('data-active');
+                if (filter === 'all') {
+                    row.style.display = '';
+                } else if (filter === 'active') {
+                    row.style.display = isActive === '1' ? '' : 'none';
+                } else if (filter === 'inactive') {
+                    row.style.display = isActive === '0' ? '' : 'none';
+                }
+            });
+        });
+    });
+
+    // Set the 'all' card as default active filter visual
+    const allCard = document.querySelector('.stat-card[data-filter="all"]');
+    if (allCard) {
+        allCard.classList.add('active-filter');
+    }
+});
+</script>
 
 <?php require_once APPROOT . '/views/includes/footer.php'; ?>

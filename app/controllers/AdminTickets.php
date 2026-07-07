@@ -215,6 +215,140 @@ class Admintickets extends BaseController {
     }
 
     /**
+     * EDIT TICKET: Admin form to edit an existing ticket
+     * URL: /admintickets/edit/[id]
+     * GET  → show the form
+     * POST → validate + update
+     */
+    public function edit($id = null) {
+        // --- Auth guard ---
+        if (!isset($_SESSION['accountId'])) {
+            $_SESSION['error'] = 'Please log in to access admin features';
+            header('Location: ' . URLROOT);
+            exit;
+        }
+        $userRole = $_SESSION['rolle'] ?? 'bezoeker';
+        if (strtolower($userRole) !== 'admin') {
+            $_SESSION['error'] = 'You do not have permission to access admin features';
+            header('Location: ' . URLROOT . '/dashboard');
+            exit;
+        }
+
+        // --- Existence check (Unhappy flow) ---
+        if (!$id) {
+            $_SESSION['error'] = 'Het ticket is niet meer beschikbaar.';
+            header('Location: ' . URLROOT . '/admintickets/dashboard');
+            exit;
+        }
+
+        $ticket = $this->ticketModel->getById($id);
+        if (!$ticket) {
+            $_SESSION['error'] = 'Het ticket is niet meer beschikbaar.';
+            header('Location: ' . URLROOT . '/admintickets/dashboard');
+            exit;
+        }
+
+        $errors  = [];
+        $postData = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Re-check existence in case it was deleted by another admin in the meantime
+            $currentTicket = $this->ticketModel->getById($id);
+            if (!$currentTicket) {
+                $_SESSION['error'] = 'Het ticket is niet meer beschikbaar.';
+                header('Location: ' . URLROOT . '/admintickets/dashboard');
+                exit;
+            }
+
+            $voorstellingId = trim($_POST['voorstelling_id'] ?? '');
+            $bezoekerId     = trim($_POST['bezoeker_id'] ?? '');
+            $stoelnummer    = (int) trim($_POST['stoelnummer'] ?? 0);
+            $prijsId        = trim($_POST['prijs_id'] ?? '');
+            $status         = trim($_POST['status'] ?? '');
+
+            // Keep values so the form re-fills after an error
+            $postData = [
+                'voorstelling_id' => $voorstellingId,
+                'bezoeker_id'     => $bezoekerId,
+                'stoelnummer'     => $stoelnummer,
+                'prijs_id'        => $prijsId,
+                'status'          => $status,
+            ];
+
+            // --- Basic required-field validation ---
+            if (empty($voorstellingId)) $errors[] = 'Selecteer een voorstelling.';
+            if (empty($bezoekerId))     $errors[] = 'Selecteer een bezoeker.';
+            if ($stoelnummer < 1)       $errors[] = 'Voer een geldig stoelnummer in (minimaal 1).';
+            if (empty($prijsId))        $errors[] = 'Selecteer een tarief.';
+            if (empty($status))         $errors[] = 'Selecteer een status.';
+
+            if (empty($errors)) {
+                // --- Check seat capacity ---
+                $performance = $this->voorstellingModel->getById($voorstellingId);
+                if ($performance && $stoelnummer > (int)$performance->max_aantal_tickets) {
+                    $errors[] = 'Stoelnummer ' . $stoelnummer . ' bestaat niet voor deze voorstelling (max: ' . $performance->max_aantal_tickets . ').';
+                }
+            }
+
+            if (empty($errors)) {
+                // --- Seat already taken check ---
+                $takenSeats = $this->ticketModel->getTakenSeats($voorstellingId);
+                
+                // If it is the same performance and seat number as the ticket being edited, it is allowed
+                $isSameTicketSeat = ($voorstellingId == $ticket->voorstelling_id && $stoelnummer == $ticket->nummer);
+                
+                if (in_array($stoelnummer, $takenSeats) && !$isSameTicketSeat) {
+                    $errors[] = 'De geselecteerde stoel is al geboekt voor deze voorstelling. Kies een beschikbare stoel om het ticket toe te voegen.';
+                }
+            }
+
+            if (empty($errors)) {
+                // --- HAPPY SCENARIO: update the ticket ---
+                $performance = $this->voorstellingModel->getById($voorstellingId);
+
+                $ticketData = [
+                    'id'              => $id,
+                    'bezoeker_id'     => $bezoekerId,
+                    'voorstelling_id' => $voorstellingId,
+                    'prijs_id'        => $prijsId,
+                    'nummer'          => $stoelnummer,
+                    'datum'           => $performance->datum,
+                    'tijd'            => $performance->tijd,
+                    'status'          => $status,
+                ];
+
+                if ($this->ticketModel->update($ticketData)) {
+                    $_SESSION['success'] = 'Ticket succesvol gewijzigd!';
+                    header('Location: ' . URLROOT . '/admintickets/dashboard');
+                    exit;
+                } else {
+                    $errors[] = 'Er is een fout opgetreden bij het opslaan van het ticket. Probeer opnieuw.';
+                }
+            }
+        } else {
+            // Initial GET request: fill postData from database
+            $postData = [
+                'voorstelling_id' => $ticket->voorstelling_id,
+                'bezoeker_id'     => $ticket->bezoeker_id,
+                'stoelnummer'     => $ticket->nummer,
+                'prijs_id'        => $ticket->prijs_id,
+                'status'          => $ticket->status,
+            ];
+        }
+
+        $data = [
+            'ticket'       => $ticket,
+            'performances' => $this->voorstellingModel->getAll(),
+            'bezoekers'    => $this->bezoekerModel->getAllWithNames(),
+            'prijzen'      => $this->prijsModel->getAll(),
+            'errors'       => $errors,
+            'post'         => $postData,
+        ];
+
+        $this->view('admintickets/edit', $data);
+    }
+
+    /**
      * JSON ENDPOINT: Return seat info for a performance
      * URL: /admintickets/getSeats/[id]
      * Used by the JavaScript on the create-ticket form
@@ -243,15 +377,38 @@ class Admintickets extends BaseController {
      */
     public function delete($id = null)
     {
-        if (!$id || !isset($_SESSION['accountId'])) {
+        // --- Auth guard ---
+        if (!isset($_SESSION['accountId'])) {
+            $_SESSION['error'] = 'Please log in to access admin features';
+            header('Location: ' . URLROOT);
+            exit;
+        }
+        $userRole = $_SESSION['rolle'] ?? 'bezoeker';
+        if (strtolower($userRole) !== 'admin') {
+            $_SESSION['error'] = 'You do not have permission to access admin features';
+            header('Location: ' . URLROOT . '/dashboard');
+            exit;
+        }
+
+        // --- Existence check (Unhappy flow) ---
+        if (!$id) {
+            $_SESSION['error'] = 'Het ticket kan niet verwijderd worden omdat het al niet meer aanwezig is.';
             header('Location: ' . URLROOT . '/admintickets/dashboard');
             exit;
         }
 
+        $ticket = $this->ticketModel->getById($id);
+        if (!$ticket) {
+            $_SESSION['error'] = 'Het ticket kan niet verwijderd worden omdat het al niet meer aanwezig is.';
+            header('Location: ' . URLROOT . '/admintickets/dashboard');
+            exit;
+        }
+
+        // --- HAPPY SCENARIO: delete ticket ---
         if ($this->ticketModel->delete($id)) {
-            $_SESSION['success'] = 'Ticket #' . $id . ' has been deleted by admin.';
+            $_SESSION['success'] = 'Ticket succesvol verwijderd.';
         } else {
-            $_SESSION['error'] = 'Failed to delete ticket.';
+            $_SESSION['error'] = 'Er is een fout opgetreden bij het verwijderen van het ticket.';
         }
 
         header('Location: ' . URLROOT . '/admintickets/dashboard');
