@@ -349,7 +349,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
 
   /* ---- Responsive: Account Overview ---- */
 
-  @media (max-width: 768px) {
+  @media (max-width: 992px) {
     .overview-section {
       padding: 40px 0;
     }
