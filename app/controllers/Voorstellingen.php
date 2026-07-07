@@ -13,8 +13,12 @@ class Voorstellingen extends BaseController
         $medewerkerModel = $this->model('Medewerker'); // Load the employee model
 
         // 1. Check if the user is a staff member (for the button)
+        //
+        // We look for a medewerker record tied to the current gebruiker.
+        // If one exists, the button to create/edit voorstellingen is shown.
         $isMedewerker = false;
         if (isset($_SESSION['user_id'])) {
+            // Attempt to resolve the logged-in gebruiker to a Medewerker record.
             $medewerker = $medewerkerModel->getByGebruikerId($_SESSION['user_id']);
             if ($medewerker) {
                 $isMedewerker = true;
