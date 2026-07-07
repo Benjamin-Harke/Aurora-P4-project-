@@ -73,10 +73,10 @@ require_once APPROOT . '/views/includes/header.php'; ?>
                 $canDelete = ($loggedInId !== $targetId) && (($loggedInRank === 3) || ($loggedInRank > $targetRank));
               ?>
               <tr data-active="<?= $user['is_actief'] ? '1' : '0'; ?>">
-                <td class="email-cell"><?= htmlspecialchars($user['email'] ?? $user['gebruikersnaam'] ?? ''); ?></td>
-                <td><?= htmlspecialchars($user['voornaam']); ?></td>
-                <td><?= htmlspecialchars(($user['tussenvoegsel'] ? $user['tussenvoegsel'] . ' ' : '') . $user['achternaam']); ?></td>
-                <td>
+                <td class="email-cell" data-label="Email"><?= htmlspecialchars($user['email'] ?? $user['gebruikersnaam'] ?? ''); ?></td>
+                <td data-label="First Name"><?= htmlspecialchars($user['voornaam']); ?></td>
+                <td data-label="Last Name"><?= htmlspecialchars(($user['tussenvoegsel'] ? $user['tussenvoegsel'] . ' ' : '') . $user['achternaam']); ?></td>
+                <td data-label="Roles">
                   <?php if (!empty($user['roles'])): ?>
                     <?php foreach ($user['roles'] as $role): ?>
                       <span class="badge badge-role" style="margin: 2px;">
@@ -87,8 +87,8 @@ require_once APPROOT . '/views/includes/header.php'; ?>
                     <span class="badge badge-secondary">No Role</span>
                   <?php endif; ?>
                 </td>
-                <td><?= date('d-m-Y H:i', strtotime($user['datum_aangemaakt'])); ?></td>
-                <td>
+                <td data-label="Created"><?= date('d-m-Y H:i', strtotime($user['datum_aangemaakt'])); ?></td>
+                <td data-label="Status">
                   <?php if ($user['is_actief']): ?>
                     <span class="badge badge-active">
                       <i class="bi bi-check-circle-fill"></i> Active
@@ -99,7 +99,7 @@ require_once APPROOT . '/views/includes/header.php'; ?>
                     </span>
                   <?php endif; ?>
                 </td>
-                <td>
+                <td data-label="">
                   <div class="d-flex flex-wrap gap-2">
                     <?php if ($canEdit): ?>
                       <a href="<?= URLROOT; ?>/accounts/edit/<?= $user['id']; ?>" class="btn btn-sm btn-outline-info">
@@ -345,6 +345,147 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     border-radius: 12px;
     font-size: 0.8rem;
     font-weight: 500;
+  }
+
+  /* ---- Responsive: Account Overview ---- */
+
+  @media (max-width: 768px) {
+    .overview-section {
+      padding: 40px 0;
+    }
+
+    .overview-header h1 {
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+    }
+
+    .overview-header .subtitle {
+      font-size: 0.95rem;
+    }
+
+    /* Table → card layout */
+    .accounts-table thead {
+      display: none;
+    }
+
+    .accounts-table,
+    .accounts-table tbody,
+    .accounts-table tr,
+    .accounts-table td {
+      display: block;
+      width: 100%;
+    }
+
+    .accounts-table tbody tr {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 217, 255, 0.15);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      overflow: hidden;
+    }
+
+    .accounts-table tbody tr:hover {
+      border-color: var(--primary-teal);
+    }
+
+    .accounts-table td {
+      padding: 0.5rem 0;
+      border: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Data labels for mobile card rows */
+    .accounts-table td::before {
+      content: attr(data-label);
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--primary-teal);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      min-width: 90px;
+    }
+
+    .accounts-table td.email-cell {
+      border-bottom: 1px solid rgba(0, 217, 255, 0.1);
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.25rem;
+      word-break: break-all;
+    }
+
+    .accounts-table td:last-child {
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(0, 217, 255, 0.1);
+      margin-top: 0.25rem;
+      justify-content: flex-end;
+    }
+
+    .accounts-table td:last-child::before {
+      display: none;
+    }
+
+    /* Stat cards: full-width stacked */
+    .stat-card {
+      padding: 18px;
+      gap: 14px;
+    }
+
+    .stat-icon {
+      font-size: 30px;
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .overview-section {
+      padding: 30px 0;
+    }
+
+    .overview-header {
+      margin-bottom: 24px;
+    }
+
+    .overview-header h1 {
+      font-size: 1.4rem;
+    }
+
+    .overview-header .subtitle {
+      font-size: 0.85rem;
+    }
+
+    .accounts-table tbody tr {
+      padding: 0.8rem;
+    }
+
+    .accounts-table td {
+      font-size: 0.85rem;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+
+    .accounts-table td::before {
+      font-size: 0.7rem;
+    }
+
+    .stat-card {
+      padding: 14px;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+    }
   }
 </style>
 
