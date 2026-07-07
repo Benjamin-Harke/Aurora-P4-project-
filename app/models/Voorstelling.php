@@ -57,16 +57,17 @@ class Voorstelling {
      */
     public function update() {
         $this->db->query('UPDATE voorstelling SET medewerker_id = :medewerker_id, naam = :naam, beschrijving = :beschrijving, datum = :datum, tijd = :tijd, max_aantal_tickets = :max_aantal_tickets, beschikbaarheid = :beschikbaarheid, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id');
-        $this->db->bind(':id', $this->id);
-        $this->db->bind(':medewerker_id', $this->medewerker_id);
-        $this->db->bind(':naam', $this->naam);
-        $this->db->bind(':beschrijving', $this->beschrijving);
-        $this->db->bind(':datum', $this->datum);
-        $this->db->bind(':tijd', $this->tijd);
-        $this->db->bind(':max_aantal_tickets', $this->max_aantal_tickets);
-        $this->db->bind(':beschikbaarheid', $this->beschikbaarheid);
-        $this->db->bind(':is_actief', $this->is_actief);
-        $this->db->bind(':opmerking', $this->opmerking);
+        $this->db->bind(':id', $this->id, PDO::PARAM_INT);
+        $this->db->bind(':medewerker_id', $this->medewerker_id, PDO::PARAM_INT);
+        $this->db->bind(':naam', $this->naam, PDO::PARAM_STR);
+        $this->db->bind(':beschrijving', $this->beschrijving, PDO::PARAM_STR);
+        $this->db->bind(':datum', $this->datum, PDO::PARAM_STR);
+        $this->db->bind(':tijd', $this->tijd, PDO::PARAM_STR);
+        $this->db->bind(':max_aantal_tickets', $this->max_aantal_tickets, PDO::PARAM_INT);
+        $this->db->bind(':beschikbaarheid', $this->beschikbaarheid, PDO::PARAM_STR);
+        $isActief = ($this->is_actief) ? 1 : 0;
+        $this->db->bind(':is_actief', $isActief, PDO::PARAM_INT);
+        $this->db->bind(':opmerking', $this->opmerking, PDO::PARAM_STR);
 
         return $this->db->execute();
     }
@@ -116,16 +117,15 @@ class Voorstelling {
                             1
                         )");
 
-        // Bind the parameters
-        $this->db->bind(':medewerker_id', $data['medewerker_id']);
-        $this->db->bind(':naam', $data['naam']);
-        $this->db->bind(':beschrijving', $data['beschrijving']);
-        $this->db->bind(':datum', $data['datum']);
-        $this->db->bind(':tijd', $data['tijd']);
-        $this->db->bind(':max_aantal_tickets', $data['max_aantal_tickets']);
-        
+        // Bind the parameters with correct types
+        $this->db->bind(':medewerker_id', $data['medewerker_id'], PDO::PARAM_INT);
+        $this->db->bind(':naam', $data['naam'], PDO::PARAM_STR);
+        $this->db->bind(':beschrijving', $data['beschrijving'], PDO::PARAM_STR);
+        $this->db->bind(':datum', $data['datum'], PDO::PARAM_STR);
+        $this->db->bind(':tijd', $data['tijd'], PDO::PARAM_STR);
+        $this->db->bind(':max_aantal_tickets', $data['max_aantal_tickets'], PDO::PARAM_INT);
         // This MUST be a string (VARCHAR)
-        $this->db->bind(':beschikbaarheid', 'Zichtbaar'); 
+        $this->db->bind(':beschikbaarheid', 'Zichtbaar', PDO::PARAM_STR);
 
         // Execute the query
         return $this->db->execute();
