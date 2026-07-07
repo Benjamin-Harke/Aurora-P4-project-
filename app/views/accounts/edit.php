@@ -1,69 +1,60 @@
 <?php
 /**
- * Create Account View
- * @var array $data Contains: title, voornaam, tussenvoegsel, achternaam, email, gebruikersnaam, rol, etc.
+ * Edit Account View
+ * @var array $data Contains account fields and validation errors
  */
 require_once APPROOT . '/views/includes/header.php'; ?>
 
 <section class="create-section">
   <div class="container">
-    <!-- Header -->
     <div class="create-header mb-5">
       <h1><?= htmlspecialchars($data['title']); ?></h1>
-      <p class="subtitle">Voeg een nieuwe medewerker of bezoeker toe aan de theaterwebsite</p>
+      <p class="subtitle">Werk een bestaand account bij</p>
     </div>
 
-    <!-- Back Button -->
     <div class="mb-4">
       <a href="<?= URLROOT; ?>/accounts" class="btn btn-outline-custom">
         <i class="bi bi-arrow-left"></i> Terug naar overzicht
       </a>
     </div>
 
-    <!-- Creation Form -->
     <div class="form-container">
-      <form method="POST" action="<?= URLROOT; ?>/accounts/create">
+      <form method="POST" action="<?= URLROOT; ?>/accounts/edit/<?= (int) $data['id']; ?>">
         <div class="row">
-          <!-- First Name -->
           <div class="col-md-5 mb-3">
             <label for="voornaam" class="form-label">Voornaam <span class="text-danger">*</span></label>
-            <input type="text" name="voornaam" id="voornaam" class="form-control <?= (!empty($data['voornaam_err'])) ? 'is-invalid' : ''; ?>" value="<?= htmlspecialchars($data['voornaam']); ?>" placeholder="Bijv. John">
+            <input type="text" name="voornaam" id="voornaam" class="form-control <?= (!empty($data['voornaam_err'])) ? 'is-invalid' : ''; ?>" value="<?= htmlspecialchars($data['voornaam']); ?>">
             <div class="invalid-feedback"><?= $data['voornaam_err']; ?></div>
           </div>
 
-          <!-- Tussenvoegsel -->
           <div class="col-md-2 mb-3">
             <label for="tussenvoegsel" class="form-label">Tussenvoegsel</label>
-            <input type="text" name="tussenvoegsel" id="tussenvoegsel" class="form-control" value="<?= htmlspecialchars($data['tussenvoegsel']); ?>" placeholder="Bijv. van de">
+            <input type="text" name="tussenvoegsel" id="tussenvoegsel" class="form-control" value="<?= htmlspecialchars($data['tussenvoegsel']); ?>">
           </div>
 
-          <!-- Last Name -->
           <div class="col-md-5 mb-3">
             <label for="achternaam" class="form-label">Achternaam <span class="text-danger">*</span></label>
-            <input type="text" name="achternaam" id="achternaam" class="form-control <?= (!empty($data['achternaam_err'])) ? 'is-invalid' : ''; ?>" value="<?= htmlspecialchars($data['achternaam']); ?>" placeholder="Bijv. Doe">
+            <input type="text" name="achternaam" id="achternaam" class="form-control <?= (!empty($data['achternaam_err'])) ? 'is-invalid' : ''; ?>" value="<?= htmlspecialchars($data['achternaam']); ?>">
             <div class="invalid-feedback"><?= $data['achternaam_err']; ?></div>
           </div>
         </div>
 
         <div class="row">
-          <!-- Username -->
           <div class="col-md-6 mb-3">
             <label for="gebruikersnaam" class="form-label">Gebruikersnaam <span class="text-danger">*</span></label>
-            <input type="text" name="gebruikersnaam" id="gebruikersnaam" class="form-control <?= (!empty($data['gebruikersnaam_err'])) ? 'is-invalid' : ''; ?>" value="<?= htmlspecialchars($data['gebruikersnaam']); ?>" placeholder="Gebruikersnaam voor inloggen">
+            <input type="text" name="gebruikersnaam" id="gebruikersnaam" class="form-control <?= (!empty($data['gebruikersnaam_err'])) ? 'is-invalid' : ''; ?>" value="<?= htmlspecialchars($data['gebruikersnaam']); ?>">
             <div class="invalid-feedback"><?= $data['gebruikersnaam_err']; ?></div>
           </div>
 
-          <!-- Email -->
           <div class="col-md-6 mb-3">
             <label for="email" class="form-label">E-mailadres <span class="text-danger">*</span></label>
-            <input type="email" name="email" id="email" class="form-control <?= (!empty($data['email_err'])) ? 'is-invalid' : ''; ?>" value="<?= htmlspecialchars($data['email']); ?>" placeholder="e-mailadres@domein.com">
+            <input type="email" name="email" id="email" class="form-control <?= (!empty($data['email_err'])) ? 'is-invalid' : ''; ?>" value="<?= htmlspecialchars($data['email']); ?>">
             <div class="invalid-feedback"><?= $data['email_err']; ?></div>
           </div>
         </div>
 
         <div class="row">
-          <!-- Role -->
-          <div class="col-md-6 mb-3">
+          <div class="col-md-4 mb-3">
             <label for="rol" class="form-label">Rol <span class="text-danger">*</span></label>
             <select name="rol" id="rol" class="form-select <?= (!empty($data['rol_err'])) ? 'is-invalid' : ''; ?>">
               <option value="" disabled <?= empty($data['rol']) ? 'selected' : ''; ?>>Selecteer een rol...</option>
@@ -75,32 +66,42 @@ require_once APPROOT . '/views/includes/header.php'; ?>
             <div class="invalid-feedback"><?= $data['rol_err']; ?></div>
           </div>
 
-          <!-- Mobile Number (Optional) -->
-          <div class="col-md-6 mb-3">
+          <div class="col-md-4 mb-3">
             <label for="mobiel" class="form-label">Mobiel telefoonnummer</label>
-            <input type="text" name="mobiel" id="mobiel" class="form-control" value="<?= htmlspecialchars($data['mobiel'] ?? ''); ?>" placeholder="Bijv. 0612345678">
+            <input type="text" name="mobiel" id="mobiel" class="form-control" value="<?= htmlspecialchars($data['mobiel']); ?>">
+          </div>
+
+          <div class="col-md-4 mb-3">
+            <label for="is_actief" class="form-label">Status</label>
+            <select name="is_actief" id="is_actief" class="form-select">
+              <option value="1" <?= (int) $data['is_actief'] === 1 ? 'selected' : ''; ?>>Actief</option>
+              <option value="0" <?= (int) $data['is_actief'] === 0 ? 'selected' : ''; ?>>Inactief</option>
+            </select>
           </div>
         </div>
 
         <div class="row">
           <!-- Password -->
           <div class="col-md-6 mb-3">
-            <label for="wachtwoord" class="form-label">Wachtwoord <span class="text-danger">*</span></label>
-            <input type="password" name="wachtwoord" id="wachtwoord" class="form-control <?= (!empty($data['wachtwoord_err'])) ? 'is-invalid' : ''; ?>" placeholder="Minimaal 6 tekens">
+            <label for="wachtwoord" class="form-label">Nieuw Wachtwoord (Optioneel)</label>
+            <input type="password" name="wachtwoord" id="wachtwoord" class="form-control <?= (!empty($data['wachtwoord_err'])) ? 'is-invalid' : ''; ?>" placeholder="Laat leeg om niet te wijzigen">
             <div class="invalid-feedback"><?= $data['wachtwoord_err']; ?></div>
           </div>
 
           <!-- Password Confirm -->
           <div class="col-md-6 mb-3">
-            <label for="wachtwoord_bevestigen" class="form-label">Wachtwoord Bevestigen <span class="text-danger">*</span></label>
-            <input type="password" name="wachtwoord_bevestigen" id="wachtwoord_bevestigen" class="form-control <?= (!empty($data['wachtwoord_bevestigen_err'])) ? 'is-invalid' : ''; ?>" placeholder="Herhaal wachtwoord">
+            <label for="wachtwoord_bevestigen" class="form-label">Wachtwoord Bevestigen (Optioneel)</label>
+            <input type="password" name="wachtwoord_bevestigen" id="wachtwoord_bevestigen" class="form-control <?= (!empty($data['wachtwoord_bevestigen_err'])) ? 'is-invalid' : ''; ?>" placeholder="Herhaal nieuw wachtwoord">
             <div class="invalid-feedback"><?= $data['wachtwoord_bevestigen_err']; ?></div>
           </div>
         </div>
 
-        <div class="mt-4 text-end">
+        <div class="mt-4 text-end d-flex justify-content-end gap-2 flex-wrap">
+          <a href="<?= URLROOT; ?>/accounts" class="btn btn-outline-custom">
+            Annuleren
+          </a>
           <button type="submit" class="btn btn-primary-custom">
-            <i class="bi bi-save"></i> Account Opslaan
+            <i class="bi bi-save"></i> Account Bijwerken
           </button>
         </div>
       </form>
@@ -154,11 +155,6 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     transition: all 0.3s ease;
   }
 
-  .form-select option {
-    background-color: #0b1a30;
-    color: white;
-  }
-
   .form-control:focus, .form-select:focus {
     background-color: rgba(0, 217, 255, 0.12);
     border-color: var(--accent-magenta);
@@ -166,8 +162,9 @@ require_once APPROOT . '/views/includes/header.php'; ?>
     color: white;
   }
 
-  .form-control::placeholder {
-    color: var(--text-muted);
+  .form-select option {
+    background-color: #0b1a30;
+    color: white;
   }
 
   .form-control.is-invalid, .form-select.is-invalid {

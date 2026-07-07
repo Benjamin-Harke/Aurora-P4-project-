@@ -21,4 +21,9 @@ class Homepages extends BaseController
         $this->view('homepages/index', $data);
     }
 
+    public function contact()
+    {
+        $this->view('includes/contact');
+    }
+
 }

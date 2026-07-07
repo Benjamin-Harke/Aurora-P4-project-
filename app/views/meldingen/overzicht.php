@@ -53,6 +53,9 @@ extract($data ?? []);
                         <th>Opmerking</th>
                         <th>Aangemaakt</th>
                         <th>Gewijzigd</th>
+                        <?php if ($data['is_admin']): ?>
+                            <th>Actie</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
 
@@ -84,6 +87,14 @@ extract($data ?? []);
                             <td>
                                 <?= date('d-m-Y H:i', strtotime($melding->datum_gewijzigd)) ?>
                             </td>
+                            <?php if ($data['is_admin']): ?>
+                                <td>
+                                    <a href="<?= URLROOT; ?>/meldingen/hersturen/<?= $melding->id; ?>"
+                                        class="btn btn-primary-custom btn-sm">
+                                        Hersturen
+                                    </a>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -246,6 +257,92 @@ extract($data ?? []);
     </script>
 
     <?php unset($_SESSION['melding_db_fout']); ?>
+    <?php if (isset($_SESSION['melding_succes'])): ?>
+        <script>
+            alert("<?= $_SESSION['melding_succes']; ?>");
+        </script>
+        <?php unset($_SESSION['melding_succes']); ?>
+    <?php endif; ?>
 <?php endif; ?>
+
+<?php if (isset($_SESSION['melding_succes'])): ?>
+    <div class="modal fade" id="meldingSuccesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content melding-error-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-check-circle-fill me-2"></i> Gelukt
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="mb-0"><?= htmlspecialchars($_SESSION['melding_succes']) ?></p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-custom" data-bs-dismiss="modal">
+                        Sluiten
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php unset($_SESSION['melding_succes']); ?>
+<?php endif; ?>
+
+
+<?php if (isset($_SESSION['melding_bericht_popup'])): ?>
+    <div class="modal fade" id="meldingBerichtModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content melding-error-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-bell-fill me-2"></i> Nieuwe melding
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="mb-0"><?= htmlspecialchars($_SESSION['melding_bericht_popup']) ?></p>
+                </div>
+
+                <div class="modal-footer">
+                    <a href="<?= URLROOT ?>/meldingen/gelezen/<?= $_SESSION['melding_popup_id'] ?>"
+                        class="btn btn-outline-custom">
+                        Sluiten
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php unset($_SESSION['melding_bericht_popup']); ?>
+    <?php unset($_SESSION['melding_popup_id']); ?>
+<?php endif; ?>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const succesModalElement = document.getElementById('meldingSuccesModal');
+        const berichtModalElement = document.getElementById('meldingBerichtModal');
+
+        if (succesModalElement) {
+            const succesModal = new bootstrap.Modal(succesModalElement);
+            succesModal.show();
+
+            succesModalElement.addEventListener('hidden.bs.modal', function () {
+                if (berichtModalElement) {
+                    const berichtModal = new bootstrap.Modal(berichtModalElement);
+                    berichtModal.show();
+                }
+            });
+        } else if (berichtModalElement) {
+            const berichtModal = new bootstrap.Modal(berichtModalElement);
+            berichtModal.show();
+        }
+    });
+</script>
 
 <?php require_once APPROOT . '/views/includes/footer.php'; ?>

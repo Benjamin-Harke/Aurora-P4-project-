@@ -1,3 +1,6 @@
+<?php
+require_once APPROOT . '/models/Melding.php';
+?>
 <!doctype html>
 <html lang="en">
 
@@ -8,7 +11,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="<?= URLROOT; ?>/css/style.css">
+  <link rel="stylesheet" href="<?= URLROOT; ?>/css/style.css?v=1.0.1">
   <link rel="shortcut icon" href="<?= URLROOT; ?>/img/favicon.ico" type="image/x-icon">
 </head>
 
@@ -23,7 +26,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav ms-auto align-items-lg-center">
           <li class="nav-item">
             <a class="nav-link" href="<?= URLROOT; ?>">Home</a>
           </li>
@@ -34,7 +37,7 @@
             <a class="nav-link" href="#about">Over ons</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#contact">Contact</a>
+            <a class="nav-link" href="<?= URLROOT; ?>/contact">Contact</a>
           </li>
           <?php if (isset($_SESSION['accountId'])): ?>
             <li class="nav-item">
@@ -60,49 +63,80 @@
             </li>
           <?php endif; ?>
 
-          <!-- Melding Bell -->
-          <li class="nav-item d-flex align-items-center ms-2">
-            <div class="bell-wrapper" id="bellWrapper">
-              <button class="bell-btn" id="bellBtn" type="button" aria-label="Meldingen">
-                <i class="bi bi-bell-fill"></i>
-                <?php
-                if (isset($_SESSION['bezoeker_id'])) {
-                  $__meldingModel = new Melding();
-                  $__meldingen = $__meldingModel->getByBezoekerId($_SESSION['bezoeker_id']);
-                  $__actief = count(array_filter($__meldingen ?? [], fn($m) => $m->is_actief == 1));
-                  if ($__actief > 0): ?>
-                    <span class="bell-badge" aria-label="<?= $__actief ?> actieve meldingen"></span>
-                  <?php endif;
-                }
-                ?>
-              </button>
+<!-- Melding Bell -->
+<li class="nav-item d-flex align-items-center ms-2">
+  <?php
+  $__actieveMeldingen = [];
 
-              <div class="bell-dropdown" id="bellDropdown">
-                <div class="bell-dropdown-header">
-                  <span><i class="bi bi-bell me-1"></i> Meldingen</span>
-                </div>
-                <div class="bell-dropdown-body">
-                  <?php if (isset($_SESSION['accountId'])): ?>
-                    <p class="bell-dropdown-text">
-                      Bekijk al je meldingen in het overzicht.
-                    </p>
-                  <?php else: ?>
-                    <p class="bell-dropdown-text">
-                      Log eerst in om je meldingen te bekijken.
-                    </p>
-                  <?php endif; ?>
-                </div>
-                <?php if (isset($_SESSION['accountId'])): ?>
-                  <div class="bell-dropdown-footer">
-                    <a href="<?= URLROOT ?>/meldingen" class="bell-overzicht-btn">
-                      Overzicht <i class="bi bi-arrow-right ms-1"></i>
-                    </a>
-                  </div>
-                <?php endif; ?>
-              </div>
+  if (isset($_SESSION['accountId'])) {
+      $__meldingModel = new Melding();
+      $__bezoeker = $__meldingModel->getBezoekerByGebruikerId($_SESSION['accountId']);
+
+      if ($__bezoeker) {
+          $__meldingen = $__meldingModel->getByBezoekerId($__bezoeker->id);
+
+          foreach ($__meldingen as $__melding) {
+              $__isActief =
+                  $__melding->is_actief == 1 ||
+                  $__melding->is_actief === "\x01" ||
+                  ord((string)$__melding->is_actief) === 1;
+
+              if ($__isActief) {
+                  $__actieveMeldingen[] = $__melding;
+              }
+          }
+      }
+  }
+
+  $__aantalMeldingen = count($__actieveMeldingen);
+  ?>
+
+  <div class="bell-wrapper" id="bellWrapper">
+    <button class="bell-btn <?= $__aantalMeldingen > 0 ? 'bell-btn-active' : ''; ?>" id="bellBtn" type="button">
+      <i class="bi <?= $__aantalMeldingen > 0 ? 'bi-bell-fill' : 'bi-bell'; ?>"></i>
+
+      <?php if ($__aantalMeldingen > 0): ?>
+        <span class="bell-badge"><?= $__aantalMeldingen; ?></span>
+      <?php endif; ?>
+    </button>
+
+    <div class="bell-dropdown" id="bellDropdown">
+      <div class="bell-dropdown-header">
+        <span><i class="bi bi-bell me-1"></i> Meldingen</span>
+      </div>
+
+      <div class="bell-dropdown-body">
+        <?php if (!isset($_SESSION['accountId'])): ?>
+          <p class="bell-dropdown-text">Log eerst in om je meldingen te bekijken.</p>
+
+        <?php elseif ($__aantalMeldingen === 0): ?>
+          <p class="bell-dropdown-text">Je hebt geen nieuwe meldingen.</p>
+
+        <?php else: ?>
+          <?php foreach ($__actieveMeldingen as $__melding): ?>
+            <div class="bell-message">
+              <strong><?= htmlspecialchars(ucfirst($__melding->type)); ?></strong>
+              <p><?= htmlspecialchars($__melding->bericht); ?></p>
+
+              <a href="<?= URLROOT; ?>/meldingen/gelezen/<?= $__melding->id; ?>">
+                Markeer als gelezen
+              </a>
             </div>
-          </li>
-          <!-- /Melding Bell -->
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
+
+      <?php if (isset($_SESSION['accountId'])): ?>
+        <div class="bell-dropdown-footer">
+          <a href="<?= URLROOT ?>/meldingen" class="bell-overzicht-btn">
+            Overzicht <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+      <?php endif; ?>
+    </div>
+  </div>
+</li>
+<!-- /Melding Bell -->
 
         </ul>
       </div>

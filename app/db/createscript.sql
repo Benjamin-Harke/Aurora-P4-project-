@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS `ticket` (
   `bezoeker_id` INT NOT NULL,
   `voorstelling_id` INT NOT NULL,
   `prijs_id` INT NOT NULL,
-  `nummer` MEDIUMINT NOT NULL UNIQUE,
+  `nummer` MEDIUMINT NOT NULL,
   `barcode` VARCHAR(20) NOT NULL UNIQUE,
   `datum` DATE NOT NULL,
   `tijd` TIME NOT NULL,
@@ -145,6 +145,7 @@ CREATE TABLE IF NOT EXISTS `ticket` (
   FOREIGN KEY (`bezoeker_id`) REFERENCES `bezoeker`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`voorstelling_id`) REFERENCES `voorstelling`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`prijs_id`) REFERENCES `prijs`(`id`) ON DELETE RESTRICT,
+  UNIQUE KEY `unique_show_seat` (`voorstelling_id`, `nummer`),
   INDEX `idx_bezoeker_id` (`bezoeker_id`),
   INDEX `idx_voorstelling_id` (`voorstelling_id`),
   INDEX `idx_prijs_id` (`prijs_id`),
@@ -195,3 +196,13 @@ VALUES
   (LAST_INSERT_ID(), NULL, 5002, 'waarschuwing', 'Je ticket voor De Stormvogel verloopt over 3 dagen.', 1, '2026-06-09 14:30:00'),
   (LAST_INSERT_ID(), NULL, 5003, 'succes',       'Je betaling van €24,50 is succesvol verwerkt.',       0, '2026-06-08 11:15:00'),
   (LAST_INSERT_ID(), NULL, 5004, 'fout',         'Er is iets misgegaan bij het ophalen van je ticket. Neem contact op met de kassa.', 0, '2026-06-07 16:45:00');
+
+CREATE TABLE IF NOT EXISTS `feedback` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `email` VARCHAR(100) NOT NULL,
+  `onderwerp` VARCHAR(100) NOT NULL,
+  `bericht` VARCHAR(250) NOT NULL,
+  `is_actief` BIT NOT NULL DEFAULT 1,
+  `datum_aangemaakt` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  `datum_gewijzigd` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
+);
