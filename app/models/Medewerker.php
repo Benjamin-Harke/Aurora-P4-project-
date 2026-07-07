@@ -57,11 +57,12 @@ class Medewerker {
         if (!$this->safeQuery('INSERT INTO medewerker (gebruiker_id, nummer, medewerkersoort, is_actief, opmerking) VALUES (:gebruiker_id, :nummer, :medewerkersoort, :is_actief, :opmerking)')) {
             return false;
         }
-        $this->db->bind(':gebruiker_id', $this->gebruiker_id);
-        $this->db->bind(':nummer', $this->nummer);
-        $this->db->bind(':medewerkersoort', $this->medewerkersoort);
-        $this->db->bind(':is_actief', $this->is_actief);
-        $this->db->bind(':opmerking', $this->opmerking);
+        $this->db->bind(':gebruiker_id', $this->gebruiker_id, PDO::PARAM_INT);
+        $this->db->bind(':nummer', $this->nummer, PDO::PARAM_INT);
+        $this->db->bind(':medewerkersoort', $this->medewerkersoort, PDO::PARAM_STR);
+        $isActief = ($this->is_actief) ? 1 : 0;
+        $this->db->bind(':is_actief', $isActief, PDO::PARAM_INT);
+        $this->db->bind(':opmerking', $this->opmerking, PDO::PARAM_STR);
 
         return $this->safeExecute();
     }
@@ -111,12 +112,13 @@ class Medewerker {
         if (!$this->safeQuery('UPDATE medewerker SET gebruiker_id = :gebruiker_id, nummer = :nummer, medewerkersoort = :medewerkersoort, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id')) {
             return false;
         }
-        $this->db->bind(':id', $this->id);
-        $this->db->bind(':gebruiker_id', $this->gebruiker_id);
-        $this->db->bind(':nummer', $this->nummer);
-        $this->db->bind(':medewerkersoort', $this->medewerkersoort);
-        $this->db->bind(':is_actief', $this->is_actief);
-        $this->db->bind(':opmerking', $this->opmerking);
+        $this->db->bind(':id', $this->id, PDO::PARAM_INT);
+        $this->db->bind(':gebruiker_id', $this->gebruiker_id, PDO::PARAM_INT);
+        $this->db->bind(':nummer', $this->nummer, PDO::PARAM_INT);
+        $this->db->bind(':medewerkersoort', $this->medewerkersoort, PDO::PARAM_STR);
+        $isActief = ($this->is_actief) ? 1 : 0;
+        $this->db->bind(':is_actief', $isActief, PDO::PARAM_INT);
+        $this->db->bind(':opmerking', $this->opmerking, PDO::PARAM_STR);
 
         return $this->safeExecute();
     }

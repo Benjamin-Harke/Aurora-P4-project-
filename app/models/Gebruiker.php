@@ -67,16 +67,33 @@ class Gebruiker {
      */
     public function update() {
         $this->db->query('UPDATE gebruiker SET voornaam = :voornaam, tussenvoegsel = :tussenvoegsel, achternaam = :achternaam, gebruikersnaam = :gebruikersnaam, wachtwoord = :wachtwoord, is_ingelogd = :is_ingelogd, ingelogd_datum = :ingelogd_datum, uitgelogd_datum = :uitgelogd_datum, is_actief = :is_actief, opmerking = :opmerking WHERE id = :id');
-        $this->db->bind(':id', $this->id);
+
+        // Bind with explicit types for bit/int fields and handle nullable dates
+        $this->db->bind(':id', $this->id, PDO::PARAM_INT);
         $this->db->bind(':voornaam', $this->voornaam);
         $this->db->bind(':tussenvoegsel', $this->tussenvoegsel);
         $this->db->bind(':achternaam', $this->achternaam);
         $this->db->bind(':gebruikersnaam', $this->gebruikersnaam);
         $this->db->bind(':wachtwoord', $this->wachtwoord);
-        $this->db->bind(':is_ingelogd', $this->is_ingelogd);
-        $this->db->bind(':ingelogd_datum', $this->ingelogd_datum);
-        $this->db->bind(':uitgelogd_datum', $this->uitgelogd_datum);
-        $this->db->bind(':is_actief', $this->is_actief);
+
+        // BIT columns: ensure integers 0 or 1
+        $isIngelogd = ($this->is_ingelogd) ? 1 : 0;
+        $this->db->bind(':is_ingelogd', $isIngelogd, PDO::PARAM_INT);
+
+        if (empty($this->ingelogd_datum)) {
+            $this->db->bind(':ingelogd_datum', null, PDO::PARAM_NULL);
+        } else {
+            $this->db->bind(':ingelogd_datum', $this->ingelogd_datum);
+        }
+
+        if (empty($this->uitgelogd_datum)) {
+            $this->db->bind(':uitgelogd_datum', null, PDO::PARAM_NULL);
+        } else {
+            $this->db->bind(':uitgelogd_datum', $this->uitgelogd_datum);
+        }
+
+        $isActief = ($this->is_actief) ? 1 : 0;
+        $this->db->bind(':is_actief', $isActief, PDO::PARAM_INT);
         $this->db->bind(':opmerking', $this->opmerking);
 
         return $this->db->execute();

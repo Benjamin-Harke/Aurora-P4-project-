@@ -114,38 +114,6 @@
 
             <!-- Sidebar -->
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm sticky-top" style="top: 100px;">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">
-                            <i class="bi bi-lightning-fill text-warning me-2"></i>Snelle Info
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-unstyled">
-                            <li class="mb-3 pb-3 border-bottom">
-                                <strong>Medewerker ID:</strong><br>
-                                <code><?= $medewerker->id ?></code>
-                            </li>
-                            <li class="mb-3 pb-3 border-bottom">
-                                <strong>Medewerker Nummer:</strong><br>
-                                <code><?= htmlspecialchars($medewerker->nummer) ?></code>
-                            </li>
-                            <li class="mb-3 pb-3 border-bottom">
-                                <strong>Functie:</strong><br>
-                                <?= htmlspecialchars($medewerker->medewerkersoort) ?>
-                            </li>
-                            <li class="pb-3 border-bottom">
-                                <strong>Email:</strong><br>
-                                <small><?= htmlspecialchars($medewerker->email) ?></small>
-                            </li>
-                            <li class="pt-3">
-                                <strong>Telefoon:</strong><br>
-                                <small><?= htmlspecialchars($medewerker->mobiel) ?></small>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
                 <!-- Quick Actions Card -->
                 <div class="card border-0 shadow-sm mt-4">
                     <div class="card-header bg-light">
@@ -160,6 +128,15 @@
                         <a href="tel:<?= preg_replace('/\D/', '', $medewerker->mobiel) ?>" class="btn btn-sm btn-info">
                             <i class="bi bi-telephone me-2"></i>Bellen
                         </a>
+                        <a href="<?= URLROOT ?>/medewerkers/edit/<?= $medewerker->id ?>" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil-square me-2"></i>Bewerk
+                        </a>
+                        <form method="post" action="<?= URLROOT ?>/medewerkers/delete" onsubmit="return confirm('Weet je zeker dat je deze medewerker wilt verwijderen?');" style="display:inline-block;">
+                            <input type="hidden" name="id" value="<?= $medewerker->id ?>">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash me-2"></i>Verwijder
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
